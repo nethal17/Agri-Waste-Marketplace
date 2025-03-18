@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"; // shadcn/ui Button
 import { Toaster, toast } from "sonner"; // Toast notifications
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import backgroundImage from "../assets/images/bg.jpeg";
+import { Navbar } from "@/components/Navbar";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
@@ -48,14 +48,13 @@ export const Login = () => {
   };
 
   return (
-    <div
+    <div>
+      <Navbar />
+      <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{
-        backgroundImage: `url(${backgroundImage})`, // Ensure backgroundImage is defined
-      }}
     >
       <Toaster position="top-center" />
-      <div className="w-full max-w-md p-8 bg-white backdrop-blur-sm rounded-lg shadow-lg">
+      <div className="w-full max-w-md p-8 bg-white backdrop-blur-md rounded-lg shadow-2xl">
         <div className="text-center mb-8">
           <h2 className="text-4xl font-bold text-zinc-900">LOGIN</h2>
         </div>
@@ -110,6 +109,7 @@ export const Login = () => {
             </Link>
           </p>
         </div>
+      </div>
       </div>
     </div>
   );
