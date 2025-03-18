@@ -2,7 +2,7 @@ import express from 'express';
 import Inventory from '../models/Inventory.js';
 import Notification from '../models/Notifications.js';
 import { sendNotificationEmail } from '../Utils/emailService.js';
-import User from '../models/User.js';
+import { User } from '../models/user.js';
 import mongoose from 'mongoose';
 
 const router = express.Router();
