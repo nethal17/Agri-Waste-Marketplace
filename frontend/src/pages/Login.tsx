@@ -47,12 +47,25 @@ export const Login = () => {
     }
   };
 
+  const resetPassword = async () => {
+    if (!email) {
+      toast.error("Please enter your email to reset the password.");
+      return;
+    }
+  
+    try {
+      await axios.post("http://localhost:3000/api/auth/reset-password", { email });
+      toast.success("Password reset link sent to your email.");
+    } catch (error) {
+      toast.error("Failed to send password reset link.");
+      console.error(error);
+    }
+  };
+
   return (
     <div>
       <Navbar />
-      <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
-    >
+      <div className="min-h-screen flex items-center justify-center bg-cover bg-center">
       <Toaster position="top-center" />
       <div className="w-full max-w-md p-8 bg-white backdrop-blur-md rounded-lg shadow-2xl">
         <div className="text-center mb-8">
@@ -93,16 +106,16 @@ export const Login = () => {
         </form>
 
         <div className="text-center">
-          <Link
-            to="/reset-password"
-            className="text-sm text-red-500 font-semibold hover:underline"
-          >
-            Forgot Password?
-          </Link>
+        <button
+    onClick={resetPassword}
+    className="text-sm text-red-500 font-semibold hover:underline"
+  >
+    Forgot Password?
+  </button>
           <p className="mt-4 text-sm text-gray-600">
             Not a member yet?{" "}
             <Link
-              to="/register"
+              to="/auth/signup"
               className="text-green-600 font-semibold hover:underline"
             >
               Sign Up
