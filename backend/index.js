@@ -19,8 +19,14 @@ app.get("/", (req, res) => {
   res.send("Agri-Waste Backend API is Running...");
 });
 
+//Nethal
 app.use("/api/auth", router);
 app.use("/api/users", userRouter);
+
+//Ricky
+app.use('/product', router);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
