@@ -4,13 +4,14 @@ import Notification from '../models/Notifications.js';
 import { sendNotificationEmail } from '../Utils/emailService.js';
 import { User } from '../models/user.js';
 import mongoose from 'mongoose';
+import Product from '../models/Product.js';
 
 const router = express.Router();
 
 // Farmer lists agri-waste
-router.post('/add', async (req, res) => {
+router.post('/addproduct', async (req, res) => {
   try {
-    const { farmerId, productName, quantity, price, photo, expireDate } = req.body;
+    const { farmerId, productName, description,quantity, price, photo, expireDate } = req.body;
 
     // Validate farmerId
     if (!mongoose.Types.ObjectId.isValid(farmerId)) {
@@ -37,6 +38,7 @@ router.post('/add', async (req, res) => {
     const newInventory = new Inventory({
       farmerId,
       productName,
+      description,
       quantity,
       price,
       photo,
@@ -56,6 +58,16 @@ router.post('/add', async (req, res) => {
     await sendNotificationEmail(farmer.email, 'Your product is under review.');
 
     res.status(201).json(newInventory);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Backend route to fetch pending products
+router.get('/pending', async (req, res) => {
+  try {
+    const pendingProducts = await Inventory.find({ status: 'pending' }).populate('farmerId', 'email');
+    res.status(200).json(pendingProducts);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -97,6 +109,16 @@ router.put('/approve/:id', async (req, res) => {
     await sendNotificationEmail(farmer.email, 'Your product has been approved.');
 
     res.status(200).json(inventoryItem);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Backend route to fetch approved products
+router.get('/approved', async (req, res) => {
+  try {
+    const approvedProducts = await Inventory.find({ status: 'approved' }).populate('farmerId', 'email'); // Populate farmer details if needed
+    res.status(200).json(approvedProducts);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
