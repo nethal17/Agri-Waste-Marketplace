@@ -61,7 +61,9 @@ export function Navbar() {
                             Buy Products
                         </DropdownMenuItem>
                         <DropdownMenuItem className="px-4 py-2 hover:bg-green-600 cursor-pointer">
+                            <Link to="/addproduct">
                             List Products
+                            </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="px-4 py-2 hover:bg-green-600 cursor-pointer">
                             Transport Service

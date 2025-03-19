@@ -5,11 +5,12 @@ import { sendNotificationEmail } from '../Utils/emailService.js';
 import { User } from '../models/user.js';
 import mongoose from 'mongoose';
 import Product from '../models/Product.js';
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Farmer lists agri-waste
-router.post('/addproduct', async (req, res) => {
+router.post('/addproduct', authMiddleware, async (req, res) => {
   try {
     const { farmerId, productName, description,quantity, price, photo, expireDate } = req.body;
 
