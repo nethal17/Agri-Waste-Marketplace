@@ -27,9 +27,8 @@ export const Login = () => {
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       toast.success("Login successful!");
-      setTimeout(() => {
-        navigate("/profile");
-      }, 1500);
+      navigate("/profile");
+
     } catch (error) {
       toast.error("Login failed!");
       console.error(error);

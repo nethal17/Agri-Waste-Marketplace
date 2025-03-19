@@ -26,7 +26,6 @@ app.use("/api/auth", router);
 app.use("/api/users", userRouter);
 
 //Ricky
-app.use('/product', router);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/reviews', reviewRoutes);
 
