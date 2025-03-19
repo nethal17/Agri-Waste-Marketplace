@@ -28,7 +28,7 @@ export const Login = () => {
 
       toast.success("Login successful!");
       setTimeout(() => {
-        navigate("/dash");
+        navigate("/profile");
       }, 1500);
     } catch (error) {
       toast.error("Login failed!");
@@ -44,21 +44,6 @@ export const Login = () => {
       setEmail(value);
     } else if (name === "password") {
       setPassword(value);
-    }
-  };
-
-  const resetPassword = async () => {
-    if (!email) {
-      toast.error("Please enter your email to reset the password.");
-      return;
-    }
-  
-    try {
-      await axios.post("http://localhost:3000/api/auth/reset-password", { email });
-      toast.success("Password reset link sent to your email.");
-    } catch (error) {
-      toast.error("Failed to send password reset link.");
-      console.error(error);
     }
   };
 
@@ -106,12 +91,11 @@ export const Login = () => {
         </form>
 
         <div className="text-center">
-        <button
-    onClick={resetPassword}
+    <Link to="/auth/forgot-password"    
     className="text-sm text-red-500 font-semibold hover:underline"
-  >
+    >
     Forgot Password?
-  </button>
+    </Link>
           <p className="mt-4 text-sm text-gray-600">
             Not a member yet?{" "}
             <Link
