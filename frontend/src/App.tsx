@@ -7,6 +7,7 @@ import { Dashboard } from "./pages/Dashboard"
 import { Navbar } from "./components/Navbar"
 import { ForgotPassword } from "./pages/ForgotPassword"
 import { ResetPassword } from "./pages/ResetPassword"
+import { Profile } from "./pages/Profile.tsx"
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
       <Route path="/auth/otp" element={<OTPVerification />} />
       <Route path="/auth/forgot-password" element={<ForgotPassword />} />
       <Route path="/auth/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/profile" element={<Profile />} />
 
     </Routes>
   )
