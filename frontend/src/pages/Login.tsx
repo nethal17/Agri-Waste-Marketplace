@@ -106,12 +106,11 @@ export const Login = () => {
         </form>
 
         <div className="text-center">
-        <button
-    onClick={resetPassword}
+    <Link to="/auth/reset-password"    
     className="text-sm text-red-500 font-semibold hover:underline"
-  >
+    >
     Forgot Password?
-  </button>
+    </Link>
           <p className="mt-4 text-sm text-gray-600">
             Not a member yet?{" "}
             <Link

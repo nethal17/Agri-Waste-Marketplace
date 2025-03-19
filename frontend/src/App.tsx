@@ -5,6 +5,7 @@ import { SignUp } from "./pages/SignUp"
 import { OTPVerification } from "./pages/OTPverification"
 import { Dashboard } from "./pages/Dashboard"
 import { Navbar } from "./components/Navbar"
+import { ForgotPassword } from "./pages/ForgotPassword"
 
 
 function App() {
@@ -16,6 +17,8 @@ function App() {
       <Route path="/auth/signup" element={<SignUp />} />
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/otp" element={<OTPVerification />} />
+      <Route path="/auth/reset-password" element={<ForgotPassword />} />
+
     </Routes>
   )
 }
