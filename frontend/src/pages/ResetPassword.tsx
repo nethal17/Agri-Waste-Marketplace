@@ -3,75 +3,89 @@ import { Input } from "@/components/ui/input"; // shadcn/ui Input
 import { Button } from "@/components/ui/button"; // shadcn/ui Button
 import { Toaster, toast } from "sonner"; // Toast notifications
 import axios from "axios";
-//import { Link, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
+import { useParams, useNavigate } from "react-router-dom";
 
 export const ResetPassword = () => {
-  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  //const navigate = useNavigate();
+  const { token } = useParams();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "email") {
-      setEmail(value);
-    } 
+    if (name === "password") {
+      setPassword(value);
+    } else if (name === "confirmPassword") {
+      setConfirmPassword(value);
+    }
   };
 
-  const resetPassword = async (e: React.FormEvent) => {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      await axios.post("http://localhost:3000/api/auth/forgot-password", { email });
-      toast.success("Password reset link sent to your email.");
-
-    } catch (error) {
-      toast.error("Failed to send password reset link.");
-      console.error(error);
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      setLoading(false);
+      return;
     }
 
-    if (!email) {
-      toast.error("Please enter your email to reset the password.");
-      return;
+    try {
+      await axios.post(`http://localhost:3000/api/auth/reset-password/${token}`, { password });
+      toast.success("Password successfully reset.");
+      navigate("/auth/login"); // Redirect to login page after successful reset
+    } catch (error) {
+      toast.error("Failed to reset password.");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
-      <Navbar />
       <div className="min-h-screen flex items-center justify-center bg-cover bg-center">
-      <Toaster position="top-center" />
-      <div className="w-full max-w-md p-8 bg-white backdrop-blur-md rounded-lg shadow-2xl">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-zinc-900">Forgot Password</h2>
+        <Toaster position="top-center" />
+        <div className="w-full max-w-md p-8 bg-white backdrop-blur-md rounded-lg shadow-2xl">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-zinc-900">Reset Password</h2>
+          </div>
+          <form onSubmit={handleResetPassword}>
+            <div className="mb-6">
+              <Input
+                type="password"
+                placeholder="New Password"
+                id="password"
+                name="password"
+                value={password}
+                onChange={handleChange}
+                className="w-full rounded-3xl py-6"
+              />
+            </div>
+            <div className="mb-6">
+              <Input
+                type="password"
+                placeholder="Confirm New Password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={confirmPassword}
+                onChange={handleChange}
+                className="w-full rounded-3xl py-6"
+              />
+            </div>
+            <div className="mb-6">
+              <Button
+                type="submit"
+                className="cursor-pointer w-full rounded-2xl bg-green-600 hover:bg-green-800 py-6 text-xl"
+                disabled={loading}
+              >
+                {loading ? "Resetting..." : "Reset Password"}
+              </Button>
+            </div>
+          </form>
         </div>
-        <form onSubmit={resetPassword}>
-          <div className="mb-6">
-            <Input
-              type="email"
-              placeholder="Email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={handleChange}
-              className="w-full rounded-3xl py-6"
-            />
-          </div>
-          
-          <div className="mb-6">
-            <Button
-              type="submit"
-              className="cursor-pointer w-full rounded-2xl bg-green-600 hover:bg-green-800 py-6 text-xl"
-            >
-              Send Link
-            </Button>
-          </div>
-        </form>
-
-        
-      </div>
       </div>
     </div>
   );
-}
+};

@@ -47,21 +47,6 @@ export const Login = () => {
     }
   };
 
-  const resetPassword = async () => {
-    if (!email) {
-      toast.error("Please enter your email to reset the password.");
-      return;
-    }
-  
-    try {
-      await axios.post("http://localhost:3000/api/auth/reset-password", { email });
-      toast.success("Password reset link sent to your email.");
-    } catch (error) {
-      toast.error("Failed to send password reset link.");
-      console.error(error);
-    }
-  };
-
   return (
     <div>
       <Navbar />
@@ -106,7 +91,7 @@ export const Login = () => {
         </form>
 
         <div className="text-center">
-    <Link to="/auth/reset-password"    
+    <Link to="/auth/forgot-password"    
     className="text-sm text-red-500 font-semibold hover:underline"
     >
     Forgot Password?

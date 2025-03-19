@@ -63,8 +63,9 @@ export const ForgotPassword = () => {
             <Button
               type="submit"
               className="cursor-pointer w-full rounded-2xl bg-green-600 hover:bg-green-800 py-6 text-xl"
+              disabled={loading}
             >
-              Send Link
+              {loading ? "Sending link..." : "Send Link"}
             </Button>
           </div>
         </form>
