@@ -15,8 +15,7 @@ export interface Product {
     status: "pending" | "approved" | "rejected";
   }
   
-export interface FormData {
-    farmerId: string;
+  export interface FormData {
     productName: string;
     description: string;
     price: string;
