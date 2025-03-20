@@ -54,7 +54,9 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
   // Navigate to AddReviewPage
   const handleAddReview = () => {
     if (selectedOrder) {
-      navigate(`/addreview`, { state: { productId: selectedOrder.productId, buyerId: userId } });
+      navigate(`/addreview`, {
+        state: { productId: selectedOrder.productId._id, buyerId: userId },
+      });
     }
   };
 
