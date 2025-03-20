@@ -3,7 +3,6 @@ import { Navbar } from "@/components/Navbar";
 import profilePic from "@/assets/profile.jpg"; // Replace with actual profile image
 import axios from "axios";
 import { toast } from "sonner"; // Toast notifications
-import { Link } from "react-router-dom";
 
 export const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -44,6 +43,8 @@ export const Profile = () => {
   if (!user) {
     return <div>No user data found.</div>;
   }
+
+
 
   return (
     <>
@@ -92,33 +93,11 @@ export const Profile = () => {
             >
               Update Profile
             </button>
-            {user.role === "admin" && (
-              <>
-                <Link to="/pending-reservations">
-                  <button className="cursor-pointer px-6 py-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
-                    User Activities
-                  </button>
-                </Link>
-              </>
-            )}
-            {user.role === "buyer" && (
-              <>
-                <Link to="/my-reservations">
-                  <button className="cursor-pointer px-6 py-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
-                    My Orders
-                  </button>
-                </Link>
-              </>
-            )}
-            {user.role === "farmer" && (
-              <>
-                <Link to="/my-reservations">
-                  <button className="cursor-pointer px-6 py-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
-                    My Listings
-                  </button>
-                </Link>
-              </>
-            )}
+            <>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                Pending Activities
+              </button>
+            </>
           </div>
         </div>
       </div>
