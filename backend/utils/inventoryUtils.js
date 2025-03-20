@@ -1,7 +1,7 @@
 import Inventory from '../models/Inventory.js';
 import Notification from '../models/Notifications.js';
-import User from '../models/User.js';
-import { sendNotificationEmail } from '../utils/emailService.js';
+import User from '../models/user.js';
+import { sendNotificationEmail } from './Utils/emailService.js';
 
 export const checkLowQuantity = async () => {
   try {

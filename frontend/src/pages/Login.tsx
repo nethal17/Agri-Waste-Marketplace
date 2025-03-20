@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"; // shadcn/ui Button
 import { Toaster, toast } from "sonner"; // Toast notifications
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import backgroundImage from "../assets/images/bg.jpeg";
+import { Navbar } from "@/components/Navbar";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
@@ -27,9 +27,8 @@ export const Login = () => {
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       toast.success("Login successful!");
-      setTimeout(() => {
-        navigate("/dash");
-      }, 1500);
+      navigate("/profile");
+
     } catch (error) {
       toast.error("Login failed!");
       console.error(error);
@@ -48,14 +47,11 @@ export const Login = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{
-        backgroundImage: `url(${backgroundImage})`, // Ensure backgroundImage is defined
-      }}
-    >
+    <div>
+      <Navbar />
+      <div className="min-h-screen flex items-center justify-center bg-cover bg-center">
       <Toaster position="top-center" />
-      <div className="w-full max-w-md p-8 bg-white backdrop-blur-sm rounded-lg shadow-lg">
+      <div className="w-full max-w-md p-8 bg-white backdrop-blur-md rounded-lg shadow-2xl">
         <div className="text-center mb-8">
           <h2 className="text-4xl font-bold text-zinc-900">LOGIN</h2>
         </div>
@@ -94,22 +90,22 @@ export const Login = () => {
         </form>
 
         <div className="text-center">
-          <Link
-            to="/reset-password"
-            className="text-sm text-red-500 font-semibold hover:underline"
-          >
-            Forgot Password?
-          </Link>
+    <Link to="/auth/forgot-password"    
+    className="text-sm text-red-500 font-semibold hover:underline"
+    >
+    Forgot Password?
+    </Link>
           <p className="mt-4 text-sm text-gray-600">
             Not a member yet?{" "}
             <Link
-              to="/register"
+              to="/auth/signup"
               className="text-green-600 font-semibold hover:underline"
             >
               Sign Up
             </Link>
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

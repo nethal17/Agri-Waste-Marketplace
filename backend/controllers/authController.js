@@ -111,12 +111,7 @@ export const loginUser = async (req, res) => {
         });
 
         // Send response
-        res.json({ 
-            msg: "Login Successful", 
-            token, 
-            expiresIn: 3600, // Token expiry in seconds
-            user_details: user
-        });
+        return res.status(200).json({token, user});
 
     } catch (err) {
         console.log(err);
@@ -189,12 +184,16 @@ export const forgotPassword = async (req, res) => {
         });
 
         // Send Reset Email
-        const resetURL = `http://localhost:3000/reset-password/${resetToken}`;
+        const resetURL = `http://localhost:5173/auth/reset-password/${resetToken}`;
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USER,
             subject: "Password Reset Request",
-            text: `Click the link to reset your password: ${resetURL}`
+            html: `
+                <p>You requested a password reset. Click the link below to reset your password:</p>
+                <a href="${resetURL}">Reset Password</a>
+                <p>If you did not request this, please ignore this email.</p>
+            `
         };
 
         await transporter.sendMail(mailOptions);
