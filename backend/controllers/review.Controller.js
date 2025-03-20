@@ -2,7 +2,7 @@ import Review from '../models/Review.js';
 import Order from '../models/Order.js';
 import Notification from '../models/Notifications.js';
 import { sendNotificationEmail } from '../Utils/emailService.js';
-import User from '../models/User.js';
+import { User } from '../models/user.js';
 import mongoose from 'mongoose';
 
 // Add a review (Buyer)
