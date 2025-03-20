@@ -12,18 +12,10 @@ const router = express.Router();
 // Farmer lists agri-waste
 router.post('/addproduct', authMiddleware, async (req, res) => {
   try {
-    const { farmerId, productName, description,quantity, price, photo, expireDate } = req.body;
+    // Extract farmerId from the authenticated user
+    const farmerId = req.user.id; // Assuming `req.user` is set by authMiddleware
 
-    // Validate farmerId
-    if (!mongoose.Types.ObjectId.isValid(farmerId)) {
-      return res.status(400).json({ message: 'Invalid farmerId' });
-    }
-
-    // Check if the farmer exists
-    const farmer = await User.findById(farmerId);
-    if (!farmer) {
-      return res.status(404).json({ message: 'Farmer not found' });
-    }
+    const { productName, description, quantity, price, photo, expireDate } = req.body;
 
     // Validate quantity
     if (quantity <= 0) {
@@ -56,6 +48,7 @@ router.post('/addproduct', authMiddleware, async (req, res) => {
     await notification.save();
 
     // Send email notification
+    const farmer = await User.findById(farmerId);
     await sendNotificationEmail(farmer.email, 'Your product is under review.');
 
     res.status(201).json(newInventory);
