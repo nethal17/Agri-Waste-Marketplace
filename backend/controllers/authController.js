@@ -330,26 +330,33 @@ export const updateUserDetails = async (req, res) => {
     const { id } = req.params;
 
     try {
-        if (
-            !req.body.name ||
-            !req.body.email ||
-            !req.body.password ||
-            !req.body.role
-        ) {
-            return res.status(400).json({ message: "All fields are required" });
+        // Validate required fields (except password, which is optional)
+        const { name, email, phone, password } = req.body;
+        if (!name || !email || !phone) {
+            return res.status(400).json({ message: "Name, email, and phone are required" });
         }
 
-        const result = await User.findByIdAndUpdate(id, req.body);
+        let updatedData = { name, email, phone };
+
+        // If user provides a new password, hash it before updating
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            updatedData.password = hashedPassword;
+        }
+
+        // Update user data in the database
+        const result = await User.findByIdAndUpdate(id, updatedData, { new: true });
 
         if (!result) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        res.status(200).json({ message: "User updated successfully" });
+        res.status(200).json({ message: "User updated successfully", user: result });
 
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: err.message });
+        console.error("Error updating user:", err);
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 

@@ -3,6 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import profilePic from "@/assets/profile.jpg"; // Replace with actual profile image
 import axios from "axios";
 import { toast } from "sonner"; // Toast notifications
+import { Link } from "react-router-dom";
 
 export const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -87,12 +88,13 @@ export const Profile = () => {
             </div>
           </div>
           <div className="flex flex-col gap-5 md:flex-row mt-14">
+            <Link to="update-details">
             <button
               className="cursor-pointer px-6 py-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800"
-              //onClick={}
             >
               Update Profile
             </button>
+            </Link>
             <>
               <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
                 Pending Activities
