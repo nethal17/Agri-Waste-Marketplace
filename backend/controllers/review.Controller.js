@@ -5,6 +5,7 @@ import { sendNotificationEmail } from '../Utils/emailService.js';
 import { User } from '../models/user.js';
 import mongoose from 'mongoose';
 
+
 // Add a review (Buyer)
 export const addReview = async (req, res) => {
   try {
@@ -19,7 +20,7 @@ export const addReview = async (req, res) => {
     const order = await Order.findOne({ buyerId, productId });
     console.log('Order found:', order); // Debugging: Log the order
 
-    if (order) {
+    if (!order) {
       return res.status(403).json({ message: 'You can only review products you have purchased.' });
     }
 

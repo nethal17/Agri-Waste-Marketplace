@@ -13,6 +13,11 @@ import { ResetPassword } from "./pages/ResetPassword";
 import InventoryPage from "./pages/InventoryPage";
 import ManagerDashboard from "./pages/InventoryManagerDashboard";
 import ProductListingForm from "./pages/ProductListingForm";
+import AddReviewPage from "./pages/AddReviewpage";
+import ReviewManagerDashboard from "./pages/ReviewManagerDashboard";
+import AddOrderForm from "./pages/AddOrderPage";
+import OrderHistory from "./pages/OrderHistoryPage";
+
 
 
 function App() {
@@ -30,8 +35,12 @@ function App() {
       <Route path="/profile" element={<Profile />} />
 
       <Route path="/inventory" element={<InventoryPage />} />
-      <Route path="/manager" element={<ManagerDashboard />} />
+      <Route path="/inventoryManager" element={<ManagerDashboard />} />
       <Route path="/addproduct" element={<ProductListingForm />} />
+      <Route path="/addreview" element={<AddReviewPage />} />
+      <Route path="/reviewDashboard" element={<ReviewManagerDashboard />} />
+      <Route path="/addorder" element={<AddOrderForm />} />
+      <Route path="/orderHistory" element={<OrderHistory userId={""} />} />
       
     </Routes>
   );

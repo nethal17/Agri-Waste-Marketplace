@@ -23,3 +23,34 @@ export interface Product {
     expireDate: string;
     image: File | null;
   }
+
+  export interface Review {
+    _id: string;
+    buyerId: { name: string };
+    productId: { name: string };
+    rating: number;
+    review: string;
+    status?: string; // Optional, for pending/published status
+    createdAt?: Date; // Optional, for creation timestamp
+    imageUrl?: string; // Optional, for image upload
+  }
+
+  export interface AddReviewPageInterface {
+    productId: string;
+    buyerId: string;
+  }
+
+  export interface Order {
+    farmerDetails: any;
+    _id: string;
+    productId: {
+      name: string;
+      price: number;
+    };
+    quantity: number;
+    totalPrice: number;
+    orderDate: string;
+  }
+  export interface OrderHistoryProps {
+    userId: string;
+  }
