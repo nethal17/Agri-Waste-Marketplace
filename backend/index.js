@@ -7,6 +7,7 @@ import router from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 import photoRouter from "./routes/profileRoutes.js";
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.use("/api/photo", photoRouter);
 //Ricky
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
