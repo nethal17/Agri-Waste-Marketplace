@@ -8,6 +8,8 @@ const ManagerDashboard = () => {
   const [deleteReason, setDeleteReason] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [approving, setApproving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchPendingListings();
@@ -39,6 +41,7 @@ const ManagerDashboard = () => {
       }
     } catch (error) {
       toast.error("An error occurred.");
+      setApproving(false);
     }
   };
 
@@ -62,6 +65,7 @@ const ManagerDashboard = () => {
       }
     } catch (error) {
       toast.error("An error occurred.");
+      setDeleting(false);
     }
   };
 
@@ -93,19 +97,23 @@ const ManagerDashboard = () => {
                   Preview
                 </button>
                 <button
+                  type="submit"
+                  disabled={approving}
                   onClick={() => handleApprove(listing._id)}
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2"
+                  className="cursor-pointer bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 mr-2"
                 >
-                  Approve
+                  {approving ? "Approving..." : "Approve"}
                 </button>
                 <button
+                  type="submit"
+                  disabled={deleting}
                   onClick={() => {
                     setProductToDelete(listing._id);
                     setShowDeleteModal(true);
                   }}
                   className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                 >
-                  Delete
+                  {deleting ? "Deleting..." : "Delete"}
                 </button>
               </td>
             </tr>
