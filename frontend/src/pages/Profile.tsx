@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
-import profilePic from "@/assets/profile.jpg"; // Replace with actual profile image
 import axios from "axios";
 import { toast } from "sonner"; // Toast notifications
 import { Link } from "react-router-dom";
@@ -8,6 +7,9 @@ import { Link } from "react-router-dom";
 export const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -21,8 +23,7 @@ export const Profile = () => {
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         const userId = userData._id;
 
-        const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`)
-
+        const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`);
         setUser(response.data);
 
       } catch (error) {
@@ -34,8 +35,40 @@ export const Profile = () => {
     };
 
     fetchUserData();
-
   }, []);
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!image || !user) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("profilePic", image);
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/api/photo/upload-profile-pic/${user._id}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      setUser((prevUser: any) => ({ ...prevUser, profilePic: response.data.profilePic }));
+      toast.success("Profile picture updated successfully!");
+      setImagePreview(null);
+    } catch (error) {
+      toast.error("Failed to upload image.");
+      console.error(error);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -45,8 +78,6 @@ export const Profile = () => {
     return <div>No user data found.</div>;
   }
 
-
-
   return (
     <>
       <Navbar />
@@ -55,13 +86,22 @@ export const Profile = () => {
           <div>
             <img
               className="object-cover w-48 h-48 border-4 border-green-600 rounded-full shadow-lg"
-              src={profilePic}
-              alt=""
+              src={imagePreview || user.profilePic || "https://via.placeholder.com/150"}
+              alt="Profile"
             />
           </div>
           <div className="pt-3 mx-6 text-center">
-            <h1 className="text-lg font-bold">Available Points</h1>
-            <h3 className="text-xl font-bold text-green-600">1500</h3>
+            <h1 className="text-lg font-bold">Upload a profile photo</h1>
+            <input type="file" accept="image/*" onChange={handleImageChange} className="mt-2" />
+            
+              <button
+                onClick={handleUpload}
+                className="cursor-pointer px-6 py-2 mt-4 font-bold text-white bg-green-600 rounded-2xl hover:bg-green-800"
+                disabled={uploading}
+              >
+                {uploading ? "Uploading..." : "Upload"}
+              </button>
+            
           </div>
           <div className="text-center">
             <h1 className="text-lg font-bold">Account Status</h1>
@@ -72,7 +112,7 @@ export const Profile = () => {
           <h1 className="text-3xl font-bold">My Profile</h1>
           <h3 className="text-xl font-bold text-green-600">{user.role}</h3>
           <div className="grid grid-cols-1 gap-10 mt-8 xl:grid-cols-2">
-            <div className="">
+            <div>
               <h1 className="text-lg font-bold">Name:</h1>
               <p className="text-xl">{user.name}</p>
               <h1 className="mt-4 text-lg font-bold">Email:</h1>

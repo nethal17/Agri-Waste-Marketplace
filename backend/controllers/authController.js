@@ -3,7 +3,6 @@ import  bcrypt  from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import exp from "constants";
 
 export const blacklistedTokens = new Set();
 

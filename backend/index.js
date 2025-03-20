@@ -7,6 +7,7 @@ import router from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import photoRouter from "./routes/profileRoutes.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 //Nethal
 app.use("/api/auth", router);
 app.use("/api/users", userRouter);
+app.use("/api/photo", photoRouter);
 
 //Ricky
 app.use('/api/inventory', inventoryRoutes);
