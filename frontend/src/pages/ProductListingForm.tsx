@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { FormData } from "../types";
-
-
-
+import { Navbar } from "@/components/Navbar";
 
 const ProductListingForm = () => {
   const [formData, setFormData] = useState<FormData>({
@@ -15,7 +13,6 @@ const ProductListingForm = () => {
     image: null,
   });
 
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
 
@@ -28,7 +25,6 @@ const ProductListingForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Convert price and quantity to numbers
     const price = parseFloat(formData.price);
     const quantity = parseInt(formData.quantity, 10);
 
@@ -67,7 +63,7 @@ const ProductListingForm = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -102,73 +98,75 @@ const ProductListingForm = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Add New Product</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="productName"
-          placeholder="Product Name"
-          value={formData.productName}
-          onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-          rows={4}
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
-        <input
-          type="number"
-          name="quantity"
-          placeholder="Quantity"
-          value={formData.quantity}
-          onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
-        <input
-          type="date"
-          name="expireDate"
-          value={formData.expireDate}
-          onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
-        
-        {/* File Upload with Styled Label */}
-        <div className="w-full">
-          <label className="block text-gray-700 font-medium mb-2">Upload Product Image</label>
-          <input
-            type="file"
-            name="image"
-            onChange={handleChange}
-            className="w-full p-2 border rounded-lg cursor-pointer bg-gray-100 file:bg-blue-500 file:text-white file:py-2 file:px-4 file:border-none file:rounded-lg hover:file:bg-blue-600"
-          />
+    <>
+      <Navbar />
+      <div className="flex justify-center items-center min-h-screen bg-white px-4">
+        <div className="w-full max-w-lg bg-gray-100 shadow-lg rounded-lg p-8">
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Add New Product</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              name="productName"
+              placeholder="Product Name"
+              value={formData.productName}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            />
+            <textarea
+              name="description"
+              placeholder="Description"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+              rows={4}
+            />
+            <input
+              type="number"
+              name="price"
+              placeholder="Price"
+              value={formData.price}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            />
+            <input
+              type="number"
+              name="quantity"
+              placeholder="Quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            />
+            <input
+              type="date"
+              name="expireDate"
+              value={formData.expireDate}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            />
+            <div className="w-full">
+              <label className="block text-gray-700 font-medium mb-2">Upload Product Image</label>
+              <input
+                type="file"
+                name="image"
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg cursor-pointer bg-gray-100 file:bg-green-500 file:text-white file:py-2 file:px-4 file:border-none file:rounded-lg hover:file:bg-green-600"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all duration-200"
+            >
+              Add Product
+            </button>
+          </form>
         </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all duration-200"
-        >
-          Add Product
-        </button>
-      </form>
-    </div>
+      </div>
+    </>
   );
 };
 

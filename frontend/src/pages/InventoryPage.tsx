@@ -3,6 +3,7 @@ import { FiBell } from "react-icons/fi";
 import { Product } from "../types";
 import { Pie } from "react-chartjs-2";
 import "chart.js/auto";
+import { Navbar } from "@/components/Navbar";
 
 const InventoryPage = () => {
   const [approvedProducts, setApprovedProducts] = useState<Product[]>([]);
@@ -47,8 +48,9 @@ const InventoryPage = () => {
   if (error) return <div className="flex justify-center items-center h-screen text-xl text-red-500">{error}</div>;
 
   return (
+    <>
+    <Navbar/>
     <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
         <input
           type="text"
@@ -57,9 +59,7 @@ const InventoryPage = () => {
         />
         <div className="flex items-center space-x-4">
           <FiBell className="text-3xl text-gray-600 cursor-pointer hover:text-gray-900 transition" />
-          <div className="bg-gray-300 p-3 rounded-full text-gray-800 font-semibold cursor-pointer">
-            Profile
-          </div>
+          
         </div>
       </div>
 
@@ -111,6 +111,7 @@ const InventoryPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

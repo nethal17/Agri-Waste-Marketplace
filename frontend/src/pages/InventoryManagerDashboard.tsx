@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { Product } from "../types";
+import { Navbar } from "@/components/Navbar";
 
 const ManagerDashboard = () => {
   const [pendingListings, setPendingListings] = useState<Product[]>([]);
@@ -75,6 +76,8 @@ const ManagerDashboard = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Pending Listings</h1>
       <div className="overflow-x-auto bg-white rounded-xl shadow-lg">
@@ -192,6 +195,7 @@ const ManagerDashboard = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 
