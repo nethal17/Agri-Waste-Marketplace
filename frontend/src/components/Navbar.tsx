@@ -3,6 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { FaRegCircleUser } from "react-icons/fa6";
 
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -80,9 +81,28 @@ export function Navbar() {
             {/* Authentication Buttons */}
             <div className="flex space-x-3">
                 {isAuthenticated ? (
-                    <Button onClick={handleLogout} className="cursor-pointer bg-red-500 hover:bg-red-600">
-                        Logout
-                    </Button>
+                    <>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className="cursor-pointer hover:text-green-600">
+                            <FaRegCircleUser size={30} />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="center" className="mt-2 bg-white shadow-lg border rounded-md">
+                            <DropdownMenuItem className="px-4 py-2 hover:bg-green-600 cursor-pointer">
+                                <Link to="/profile">
+                                    Profile Settings
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                className="px-4 py-2 hover:bg-green-600 cursor-pointer"
+                                onClick={handleLogout}>
+                            
+                                Logout
+                                
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </>
+                    
                 ) : (
                     <>
                         <Link to="/auth/login">

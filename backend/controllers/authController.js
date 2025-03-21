@@ -30,7 +30,7 @@ export const sendVerificationCode = async (email, code) => {
 
 // register user into system
 export const registerUser = async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
     try {
         let user = await User.findOne({ email });
@@ -41,7 +41,7 @@ export const registerUser = async (req, res) => {
 
         const verificationToken = crypto.randomBytes(32).toString("hex");
 
-        user = new User({ name, email, password: hashedPassword, role, verificationToken });
+        user = new User({ name, email, phone, password: hashedPassword, role, verificationToken });
         await user.save();
 
         const transporter = nodemailer.createTransport({

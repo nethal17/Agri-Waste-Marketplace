@@ -135,11 +135,39 @@ export const Profile = () => {
               Update Profile
             </button>
             </Link>
+            {user.role === "admin" && (
             <>
               <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
-                Pending Activities
+                Admin Dashboard
               </button>
             </>
+            )}
+
+            {user.role === "farmer" && (
+            <>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                My Listings
+              </button>
+            </>
+            )}
+
+            {user.role === "buyer" && (
+            <>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                My Orders
+              </button>
+            </>
+            )}
+
+            {user.role === "driver" && (
+            <>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                My Pickups
+              </button>
+            </>
+            )}
+
+            
           </div>
         </div>
       </div>
