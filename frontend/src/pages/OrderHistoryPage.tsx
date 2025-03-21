@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { toast } from 'sonner'; // Toast notifications
-import { useNavigate } from 'react-router-dom'; // For navigation
-import { Order } from '../types';
-import { OrderHistoryProps } from '../types';
-import { ClipLoader } from 'react-spinners'; // Import the ClipLoader spinner
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
 
-const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
+interface Order {
+  _id: string;
+  productId: { _id: string; name: string };
+  quantity: number;
+  totalPrice: number;
+  orderDate: Date;
+}
+
+const OrderHistory: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null); // For popup details
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // For popup visibility
-  const navigate = useNavigate(); // For navigation
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+  // Fetch userId from localStorage
+  const userData = JSON.parse(localStorage.getItem('user') || '{}');
+  const userId = userData._id;
+
+  console.log('User ID:', userId); // Debugging
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -24,9 +36,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
           return;
         }
 
-        const userData = JSON.parse(localStorage.getItem('user') || '{}');
-        const userId = userData._id;
-        const response = await axios.get(`http://localhost:3000/api/orders/userOrder/${userId}`);
+        const response = await axios.get<Order[]>(`http://localhost:3000/api/orders/userOrder/${userId}`);
         setOrders(response.data);
       } catch (error) {
         console.error('Error fetching orders:', error);
@@ -39,22 +49,19 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
     fetchOrders();
   }, [userId]);
 
-  // Open modal with order details
-  const handleReviewClick = (order: Order) => {
+  const handlePreviewClick = (order: Order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
   };
 
-  // Close modal
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedOrder(null);
   };
 
-  // Navigate to AddReviewPage
   const handleAddReview = () => {
     if (selectedOrder) {
-      navigate(`/addreview`, {
+      navigate('/addreview', {
         state: { productId: selectedOrder.productId._id, buyerId: userId },
       });
     }
@@ -63,7 +70,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <ClipLoader color="#3B82F6" size={35} /> {/* Blue spinner, size 35px */}
+        <ClipLoader color="#3B82F6" size={35} />
         <p className="ml-2 text-gray-600">Loading orders...</p>
       </div>
     );
@@ -112,10 +119,10 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900">
                   <button
-                    onClick={() => handleReviewClick(order)}
+                    onClick={() => handlePreviewClick(order)}
                     className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
                   >
-                    Review
+                    Preview
                   </button>
                 </td>
               </tr>
@@ -124,7 +131,6 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
         </table>
       </div>
 
-      {/* Popup Modal */}
       {isModalOpen && selectedOrder && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
@@ -132,6 +138,12 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ userId }) => {
             <div className="space-y-4">
               <p>
                 <span className="font-semibold">Product:</span> {selectedOrder.productId.name}
+              </p>
+              <p>
+                <span className="font-semibold">Product ID:</span> {selectedOrder.productId._id}
+              </p>
+              <p>
+                <span className="font-semibold">Buyer ID:</span> {userId}
               </p>
               <p>
                 <span className="font-semibold">Quantity:</span> {selectedOrder.quantity}

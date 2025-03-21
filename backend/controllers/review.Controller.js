@@ -1,16 +1,15 @@
-import Review from '../models/Review.js';
+import Review from '../models/Review.js'; 
 import Notification from '../models/Notifications.js';
 import { sendNotificationEmail } from '../Utils/emailService.js';
 import { User } from '../models/user.js';
 import mongoose from 'mongoose';
-
-
 
 // Add a review (Buyer)
 export const addReview = async (req, res) => {
   try {
     const { productId, buyerId, rating, review } = req.body;
 
+    // Validate ObjectIds
     if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(buyerId)) {
       return res.status(400).json({ message: 'Invalid productId or buyerId.' });
     }
@@ -20,7 +19,7 @@ export const addReview = async (req, res) => {
       buyerId,
       rating,
       review,
-      image: req.file ? req.file.path : null,
+      image: req.file ? req.file.path : null, // Ensure req.file is populated
     });
 
     await newReview.save();

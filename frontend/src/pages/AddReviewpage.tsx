@@ -14,21 +14,21 @@ const AddReviewPage: React.FC = () => {
   const { productId, buyerId } = (location.state as LocationState) || { productId: '', buyerId: '' };
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState<string>('');
-  const [image, setImage] = useState<File | null>(null);
   const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
+    console.log('Location State:', location.state); // Debugging
+    if (!productId || !buyerId) {
+      setMessage('Product ID or Buyer ID is missing.');
+      return;
+    }
+
     const fetchProductDetails = async () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
           toast.error('No token found, please login again.');
           setMessage('Authentication error. Please login again.');
-          return;
-        }
-
-        if (!productId) {
-          setMessage('Product ID is missing.');
           return;
         }
 
@@ -39,49 +39,56 @@ const AddReviewPage: React.FC = () => {
         });
 
         console.log('Product Details:', response.data);
-
       } catch (error) {
-        console.error('Error fetching product details:', error);
-        setMessage('Failed to fetch product details. Please try again later.');
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 404) {
+            setMessage('Product not found.');
+          } else {
+            console.error('Error fetching product details:', error.response?.data);
+            setMessage('Failed to fetch product details. Please try again later.');
+          }
+        } else {
+          console.error('Error fetching product details:', error);
+          setMessage('Failed to fetch product details. Please try again later.');
+        }
       }
     };
 
-    if (productId) {
-      fetchProductDetails();
-    } else {
-      setMessage('Product ID is missing.');
-    }
-  }, [productId]);
+    fetchProductDetails();
+  }, [productId, buyerId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!productId || !buyerId) {
       setMessage('Product ID or Buyer ID is missing.');
       return;
     }
-
+  
     const formData = new FormData();
     formData.append('productId', productId);
     formData.append('buyerId', buyerId);
     formData.append('rating', rating.toString());
     formData.append('review', review);
-    if (image) {
-      formData.append('image', image);
+  
+    // Debugging: Log FormData
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
     }
-
+  
     try {
       const response = await axios.post('http://localhost:3000/api/reviews/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
       setMessage('Review submitted successfully. It is pending approval.');
-      navigate('/');
+      navigate('/reviewDashboard');
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Error response:', error.response?.data);
-        setMessage(`Error: ${error.response?.data.message || 'Failed to submit review.'}`);
+        setMessage(`Error: ${error.response?.data.message}`);
       } else {
         console.error('Error submitting review:', error);
         setMessage('Error submitting review.');
@@ -93,6 +100,29 @@ const AddReviewPage: React.FC = () => {
     <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
       <h2 className="text-2xl font-bold mb-6 text-center">Add Review</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Product ID Field */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Product ID:</label>
+          <input
+            type="text"
+            value={productId}
+            readOnly
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed"
+          />
+        </div>
+
+        {/* Buyer ID Field */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Buyer ID:</label>
+          <input
+            type="text"
+            value={buyerId}
+            readOnly
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed"
+          />
+        </div>
+
+        {/* Rating Field */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Rating:</label>
           <div className="flex space-x-2 mt-1">
@@ -111,6 +141,7 @@ const AddReviewPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Review Field */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Review:</label>
           <textarea
@@ -121,16 +152,7 @@ const AddReviewPage: React.FC = () => {
             rows={4}
           />
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Upload Image:</label>
-          <input
-            type="file"
-            onChange={(e) => setImage(e.target.files?.[0] || null)}
-            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-          />
-        </div>
-
+        {/* Submit Button */}
         <div>
           <button
             type="submit"
@@ -141,6 +163,7 @@ const AddReviewPage: React.FC = () => {
         </div>
       </form>
 
+      {/* Message Display */}
       {message && (
         <p className="mt-4 text-center text-sm font-medium text-green-600">{message}</p>
       )}
