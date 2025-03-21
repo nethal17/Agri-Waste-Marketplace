@@ -49,7 +49,11 @@ const InventoryPage = () => {
 
   return (
     <>
+
     <Navbar/>
+
+    <Navbar />
+
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <input

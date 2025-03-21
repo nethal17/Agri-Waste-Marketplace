@@ -9,6 +9,11 @@ import { Profile } from "./pages/Profile";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 import { UpdateDetails } from "./pages/UpdateDetails";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { DisplayAll }  from "./pages/DisplayAll";
+import { DisplayFarmers } from "./pages/DisplayFarmers";
+import { DisplayBuyer } from "./pages/DisplayAllBuyers";
+
 
 
 import InventoryPage from "./pages/InventoryPage";
@@ -35,6 +40,13 @@ function App() {
       <Route path="/auth/reset-password/:token" element={<ResetPassword />} />
       <Route path="/profile/update-details" element={<UpdateDetails />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/disAll" element={<DisplayAll />} />
+      <Route path="/disFarmers" element={<DisplayFarmers />} />
+      <Route path="/disBuyers" element={<DisplayBuyer />} />
+
+
+
 
       <Route path="/inventory" element={<InventoryPage />} />
       <Route path="/inventoryManager" element={<ManagerDashboard />} />

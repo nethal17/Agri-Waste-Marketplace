@@ -4,16 +4,16 @@ const UserSchema = new mongoose.Schema({
 
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    phone: { type: String, required: false },
+    phone: { type: String, required: true },
     password: { type: String, required: true },
     role: { type: String, enum: ["farmer", "buyer", "admin", "organic_seller", "truck_driver"], default: "farmer" },
     profilePic: { type: String, default: "https://via.placeholder.com/150" },
     resetPasswordToken: { type: String },
     resetPasswordExpire: { type: Date },
-    isVerified: { type: Boolean, default: false }, // New field for email verification status
-    verificationToken: { type: String }, // New field for storing the verification token
-    twoStepVerificationCode: { type: String }, // New field for 2-step verification code
-    twoStepVerificationExpire: { type: Date } // New field for 2-step verification code expiry
+    isVerified: { type: Boolean, default: false }, 
+    verificationToken: { type: String }, 
+    twoStepVerificationCode: { type: String }, 
+    twoStepVerificationExpire: { type: Date } 
 
 }, { timestamps: true });
 

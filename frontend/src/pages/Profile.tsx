@@ -82,7 +82,7 @@ export const Profile = () => {
     <>
       <Navbar />
       <div className="grid gap-8 p-4 lg:grid-cols-2 md:px-24 sm:py-8">
-        <div className="flex flex-col justify-center items-center lg:py-24 py-10 gap-5 md:m-20 m-5 rounded-lg bg-white p-6 shadow-2xl">
+        <div className="flex flex-col justify-center items-center p-6 rounded-lg bg-white shadow-2xl w-full h-full min-h-[600px]">
           <div>
             <img
               className="object-cover w-48 h-48 border-4 border-green-600 rounded-full shadow-lg"
@@ -92,8 +92,8 @@ export const Profile = () => {
           </div>
           <div className="pt-3 mx-6 text-center">
             <h1 className="text-lg font-bold">Upload a profile photo</h1>
-            <input type="file" accept="image/*" onChange={handleImageChange} className="mt-2" />
-            
+            <input type="file" accept="image/*" onChange={handleImageChange} className="items-center justify-center" />
+            <br></br>
               <button
                 onClick={handleUpload}
                 className="cursor-pointer px-6 py-2 mt-4 font-bold text-white bg-green-600 rounded-2xl hover:bg-green-800"
@@ -103,12 +103,13 @@ export const Profile = () => {
               </button>
             
           </div>
+          <br></br><br></br>
           <div className="text-center">
             <h1 className="text-lg font-bold">Account Status</h1>
             <h3 className="text-xl font-bold text-green-600">Blue</h3>
           </div>
         </div>
-        <div className="flex flex-col items-start justify-center gap-5 p-6 bg-white rounded-lg">
+        <div className="flex flex-col items-start justify-center p-6 rounded-lg bg-white shadow-2xl w-full h-full min-h-[600px]">
           <h1 className="text-3xl font-bold">My Profile</h1>
           <h3 className="text-xl font-bold text-green-600">{user.role}</h3>
           <div className="grid grid-cols-1 gap-10 mt-8 xl:grid-cols-2">
@@ -135,11 +136,39 @@ export const Profile = () => {
               Update Profile
             </button>
             </Link>
+            {user.role === "admin" && (
             <>
               <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
-                Pending Activities
+                Admin Dashboard
               </button>
             </>
+            )}
+
+            {user.role === "farmer" && (
+            <>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                My Listings
+              </button>
+            </>
+            )}
+
+            {user.role === "buyer" && (
+            <>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                My Orders
+              </button>
+            </>
+            )}
+
+            {user.role === "driver" && (
+            <>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                My Pickups
+              </button>
+            </>
+            )}
+
+            
           </div>
         </div>
       </div>
