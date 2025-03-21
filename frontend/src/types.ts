@@ -1,6 +1,7 @@
 // src/types.ts
 // src/types.ts
 export interface Product {
+    category: any;
     _id: string; // MongoDB uses _id by default
     farmerId: {
       _id: string;
@@ -44,6 +45,7 @@ export interface Product {
     farmerDetails: any;
     _id: string;
     productId: {
+      [x: string]: any;
       name: string;
       price: number;
     };

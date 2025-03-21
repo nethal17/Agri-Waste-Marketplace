@@ -1,18 +1,65 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+interface LocationState {
+  productId: string;
+  buyerId: string;
+}
 
 const AddReviewPage: React.FC = () => {
   const location = useLocation();
-  const { productId, buyerId } = location.state || { productId: '', buyerId: '' }; // Default values if state is undefined
+  const navigate = useNavigate();
+  const { productId, buyerId } = (location.state as LocationState) || { productId: '', buyerId: '' };
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState<string>('');
   const [image, setImage] = useState<File | null>(null);
   const [message, setMessage] = useState<string>('');
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          toast.error('No token found, please login again.');
+          setMessage('Authentication error. Please login again.');
+          return;
+        }
+
+        if (!productId) {
+          setMessage('Product ID is missing.');
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:3000/api/products/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log('Product Details:', response.data);
+
+      } catch (error) {
+        console.error('Error fetching product details:', error);
+        setMessage('Failed to fetch product details. Please try again later.');
+      }
+    };
+
+    if (productId) {
+      fetchProductDetails();
+    } else {
+      setMessage('Product ID is missing.');
+    }
+  }, [productId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!productId || !buyerId) {
+      setMessage('Product ID or Buyer ID is missing.');
+      return;
+    }
 
     const formData = new FormData();
     formData.append('productId', productId);
@@ -32,11 +79,12 @@ const AddReviewPage: React.FC = () => {
       setMessage('Review submitted successfully. It is pending approval.');
       navigate('/');
     } catch (error) {
-      setMessage('Error submitting review.');
-      console.error('Error submitting review:', error);
-
       if (axios.isAxiosError(error)) {
-        console.error('Error response:', error.response);
+        console.error('Error response:', error.response?.data);
+        setMessage(`Error: ${error.response?.data.message || 'Failed to submit review.'}`);
+      } else {
+        console.error('Error submitting review:', error);
+        setMessage('Error submitting review.');
       }
     }
   };
@@ -45,7 +93,6 @@ const AddReviewPage: React.FC = () => {
     <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
       <h2 className="text-2xl font-bold mb-6 text-center">Add Review</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Rating Section */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Rating:</label>
           <div className="flex space-x-2 mt-1">
@@ -64,7 +111,6 @@ const AddReviewPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Review Section */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Review:</label>
           <textarea
@@ -76,7 +122,6 @@ const AddReviewPage: React.FC = () => {
           />
         </div>
 
-        {/* Image Upload Section */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Upload Image:</label>
           <input
@@ -86,7 +131,6 @@ const AddReviewPage: React.FC = () => {
           />
         </div>
 
-        {/* Submit Button */}
         <div>
           <button
             type="submit"
@@ -97,7 +141,6 @@ const AddReviewPage: React.FC = () => {
         </div>
       </form>
 
-      {/* Message Display */}
       {message && (
         <p className="mt-4 text-center text-sm font-medium text-green-600">{message}</p>
       )}
