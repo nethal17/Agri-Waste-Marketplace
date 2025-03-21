@@ -49,9 +49,12 @@ const InventoryPage = () => {
 
   return (
     <>
+
+    <Navbar/>
+
     <Navbar />
+
     <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
         <input
           type="text"
@@ -60,9 +63,7 @@ const InventoryPage = () => {
         />
         <div className="flex items-center space-x-4">
           <FiBell className="text-3xl text-gray-600 cursor-pointer hover:text-gray-900 transition" />
-          <div className="bg-gray-300 p-3 rounded-full text-gray-800 font-semibold cursor-pointer">
-            Profile
-          </div>
+          
         </div>
       </div>
 
