@@ -54,7 +54,7 @@ function App() {
       <Route path="/addreview" element={<AddReviewPage />} />
       <Route path="/reviewDashboard" element={<ReviewManagerDashboard />} />
       <Route path="/addorder" element={<AddOrderForm />} />
-      <Route path="/orderHistory" element={<OrderHistory userId={""} />} />
+      <Route path="/orderHistory" element={<OrderHistory/>} />
       
     </Routes>
   );
