@@ -60,8 +60,12 @@ export const AddReviewPage = () => {
         { productId, buyerId, rating, review },
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
-      setMessage('Review submitted successfully. It is pending approval.');
-      navigate('/reviewDashboard');
+
+      // Show success toast message
+      toast.success('Your review is under pending, review submitted successfully.');
+
+      // Navigate to the profile page
+      navigate('/profile');
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setMessage(`Error: ${error.response?.data.message}`);
@@ -76,30 +80,11 @@ export const AddReviewPage = () => {
       <Navbar />
       <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
         <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Add Review</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Rating Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Product ID:</label>
-            <input
-              type="text"
-              value={productId}
-              readOnly
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Buyer ID:</label>
-            <input
-              type="text"
-              value={buyerId}
-              readOnly
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Rating:</label>
-            <div className="flex space-x-2 mt-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Rating:</label>
+            <div className="flex space-x-2 justify-center">
               {[1, 2, 3, 4, 5].map((star) => (
                 <FaStar
                   key={star}
@@ -115,18 +100,20 @@ export const AddReviewPage = () => {
             </div>
           </div>
 
+          {/* Review Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Review:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Review:</label>
             <textarea
               value={review}
               onChange={(e) => setReview(e.target.value)}
               required
-              className="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-              rows={4}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              rows={5}
               placeholder="Write your review here..."
             />
           </div>
 
+          {/* Submit Button */}
           <div>
             <button
               type="submit"
@@ -135,9 +122,14 @@ export const AddReviewPage = () => {
               Submit Review
             </button>
           </div>
-        </form>
 
-        {message && <p className="mt-4 text-center text-sm font-medium text-green-600">{message}</p>}
+          {/* Error/Success Message */}
+          {message && (
+            <div className="mt-4 text-center text-sm text-red-500">
+              {message}
+            </div>
+          )}
+        </form>
       </div>
     </>
   );
