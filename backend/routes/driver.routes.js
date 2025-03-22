@@ -1,6 +1,6 @@
 import express from 'express';
-import { createDriver, getAllDrivers, getDriverById, updateDriverSalary, getAllPayments } from "../controller/driver.controller.js";
-import { createCheckoutSession } from '../controller/stripe.controller.js'; 
+import { createDriver, getAllDrivers, getDriverById, updateDriverSalary, getAllPayments } from "../controllers/driver.controller.js";
+import { createCheckoutSession } from '../controllers/stripe.controller.js'; 
 
 const router = express.Router();
 
