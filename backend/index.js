@@ -10,6 +10,9 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import photoRouter from "./routes/profileRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import driverRoutes from './routes/driver.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
+
 
 dotenv.config();
 
@@ -28,6 +31,10 @@ app.get("/", (req, res) => {
 app.use("/api/auth", router);
 app.use("/api/users", userRouter);
 app.use("/api/photo", photoRouter);
+
+//vibhu
+app.use('/api', driverRoutes);
+app.use('/api', paymentRoutes);
 
 //Ricky
 app.use('/api/inventory', inventoryRoutes);
