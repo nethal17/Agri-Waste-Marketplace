@@ -94,11 +94,17 @@ export const Profile = () => {
           </div>
           <div className="pt-3 mx-6 text-center">
             <h1 className="text-lg font-bold">Upload a profile photo</h1>
-            <input type="file" accept="image/*" onChange={handleImageChange} className="items-center justify-center mt-5" />
+            <div className="w-full">
+              <input
+                type="file"
+                name="image"
+                className="w-full p-1 bg-gray-100 border rounded-lg cursor-pointer file:bg-green-600 file:text-white file:py-2 file:px-4 file:border-none file:rounded-lg hover:file:bg-green-700"
+              />
+            </div>
             <br></br>
               <button
                 onClick={handleUpload}
-                className="cursor-pointer px-6 py-2 mt-4 font-bold text-white bg-green-600 rounded-2xl hover:bg-green-800"
+                className="w-full py-3 text-xl text-white bg-green-600 rounded-full hover:bg-green-700"
                 disabled={uploading}
               >
                 {uploading ? "Uploading..." : "Upload"}
@@ -111,11 +117,12 @@ export const Profile = () => {
             <h3 className="text-xl font-bold text-green-600">Blue</h3>
           </div>
         </div>
-        <div className="flex flex-col place-items-center justify-center p-6 rounded-lg bg-white shadow-2xl w-full h-full min-h-[600px]">
+        
+        <div className="flex flex-col items-start justify-center p-6 rounded-lg bg-white shadow-2xl w-full h-full min-h-[600px]">
           <h1 className="text-3xl font-bold">My Profile</h1>
           <h3 className="text-xl font-bold text-green-600">{user.role}</h3>
           <div className="grid grid-cols-1 gap-12 mt-8 xl:grid-cols-2">
-            <div className="justify-center items-center">
+            <div className="items-center justify-center">
               <h1 className="text-lg font-bold">Name:</h1>
               <p className="text-xl">{user.name}</p>
               <h1 className="mt-4 text-lg font-bold">Email:</h1>
@@ -133,14 +140,14 @@ export const Profile = () => {
           <div className="flex flex-col gap-5 md:flex-row mt-14">
             <Link to="update-details">
             <button
-              className="cursor-pointer px-6 py-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800"
+              className="px-6 py-3 font-bold text-white bg-green-600 rounded-full cursor-pointer hover:bg-green-800"
             >
               Update Profile
             </button>
             </Link>
             {user.role === "admin" && (
             <Link to='/admin-dashboard'>
-              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+              <button className="p-3 font-bold text-white bg-green-600 rounded-full cursor-pointer hover:bg-green-800">
                 Admin Dashboard
               </button>
             </Link>
@@ -148,7 +155,7 @@ export const Profile = () => {
 
             {user.role === "farmer" && (
             <>
-              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+              <button className="p-3 font-bold text-white bg-green-600 rounded-full cursor-pointer hover:bg-green-800">
                 My Listings
               </button>
             </>
@@ -156,7 +163,7 @@ export const Profile = () => {
 
             {user.role === "buyer" && (
             <>
-              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+              <button className="p-3 font-bold text-white bg-green-600 rounded-full cursor-pointer hover:bg-green-800">
                 My Orders
               </button>
             </>
@@ -164,7 +171,7 @@ export const Profile = () => {
 
             {user.role === "driver" && (
             <>
-              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+              <button className="p-3 font-bold text-white bg-green-600 rounded-full cursor-pointer hover:bg-green-800">
                 My Pickups
               </button>
             </>
