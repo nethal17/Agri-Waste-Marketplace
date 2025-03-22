@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Toaster, toast } from "sonner"; // Toast notifications
+import { Toaster, toast } from "react-hot-toast"; // Toast notifications
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { Navbar } from "../components/Navbar";
 
 export const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -32,7 +33,7 @@ export const ResetPassword = () => {
     try {
       await axios.post(`http://localhost:3000/api/auth/reset-password/${token}`, { password });
       toast.success("Password successfully reset.");
-      navigate("/auth/login"); // Redirect to login page after successful reset
+      navigate("/login"); // Redirect to login page after successful reset
     } catch (error) {
       toast.error("Failed to reset password.");
       console.error(error);
@@ -58,7 +59,7 @@ export const ResetPassword = () => {
                 name="password"
                 value={password}
                 onChange={handleChange}
-                className="w-full rounded-3xl py-6"
+                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div className="mb-6">
@@ -69,13 +70,13 @@ export const ResetPassword = () => {
                 name="confirmPassword"
                 value={confirmPassword}
                 onChange={handleChange}
-                className="w-full rounded-3xl py-6"
+                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div className="mb-6">
               <button
                 type="submit"
-                className="cursor-pointer w-full rounded-2xl bg-green-600 hover:bg-green-800 py-6 text-xl"
+                className="w-full bg-green-600 hover:bg-green-700 py-3 text-xl text-white"
                 disabled={loading}
               >
                 {loading ? "Resetting..." : "Reset Password"}

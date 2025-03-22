@@ -14,7 +14,7 @@ export const ForgotPassword = () => {
     } 
   };
 
-  const resetPassword = async (e) => {
+  const forgotPassword = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -42,7 +42,7 @@ export const ForgotPassword = () => {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-zinc-900">Forgot Password</h2>
         </div>
-        <form onSubmit={resetPassword}>
+        <form onSubmit={forgotPassword}>
           <div className="mb-6">
             <input
               type="email"
