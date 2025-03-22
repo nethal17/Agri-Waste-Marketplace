@@ -11,6 +11,7 @@ export const SignUp = () => {
         name: "",
         email: "",
         phone: "",
+        role: "",
         password: "",
         confirmPassword: "",
       });
@@ -42,93 +43,102 @@ export const SignUp = () => {
       });
       };
 
-  return (
-    <div>
-      <Navbar />
-      <Toaster position="top-center" reverseOrder={false} /> {/* Toast container */}
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="w-full max-w-md p-8 bg-white backdrop-blur-md rounded-lg shadow-2xl">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-zinc-900">Register</h2>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-6">
-              <input
-                type="text"
-                placeholder="Full name"
-                name="name"
-                value={user.name}
-                onChange={handleChange}
-                required
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
+      return (
+        <div>
+          <Navbar />
+          <Toaster position="top-center" reverseOrder={false} />
+          <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-2xl backdrop-blur-md">
+              <div className="mb-8 text-center">
+                <h2 className="text-3xl font-bold text-zinc-900">Register</h2>
+              </div>
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    placeholder="Full name"
+                    name="name"
+                    value={user.name}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    name="email"
+                    value={user.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <input
+                    type="telephone"
+                    placeholder="Phone Number"
+                    name="phone"
+                    value={user.phone}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <select
+                    name="role"
+                    value={user.role}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 text-lg border border-gray-400 rounded-3xl focus:outline-none focus:ring-5 focus:ring-green-500"
+                  >
+                    <option value="farmer">Farmer</option>
+                    <option value="buyer">Buyer</option>
+                    <option value="truck_driver">Truck Driver</option>
+                    
+                  </select>
+                </div>
+                <div className="mb-4">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    name="password"
+                    value={user.password}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div className="mb-6">
+                  <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    name="confirmPassword"
+                    value={user.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div className="mb-6">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 text-xl text-white bg-green-600 rounded-2xl hover:bg-green-700"
+                  >
+                    {loading ? "Creating Account..." : "Register"}
+                  </button>
+                </div>
+              </form>
+              <div className="text-center">
+                <p className="mt-4 text-sm text-gray-600">
+                  Already a member?{" "}
+                  <Link to="/login" className="font-semibold text-green-600 hover:underline">
+                    Login
+                  </Link>
+                </p>
+              </div>
             </div>
-            <div className="mb-6">
-              <input
-                type="email"
-                placeholder="Email"
-                name="email"
-                value={user.email}
-                onChange={handleChange}
-                required
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-            <div className="mb-6">
-              <input
-                type="telephone"
-                placeholder="Phone Number"
-                name="phone"
-                value={user.phone}
-                onChange={handleChange}
-                required
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-            <div className="mb-6">
-              <input
-                type="password"
-                placeholder="Password"
-                name="password"
-                value={user.password}
-                onChange={handleChange}
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-            <div className="mb-6">
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                name="confirmPassword"
-                value={user.confirmPassword}
-                onChange={handleChange}
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-            <div className="mb-6">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-2xl bg-green-600 hover:bg-green-700 py-3 text-xl text-white"
-              >
-                {loading ? "Creating Account..." : "Register"}
-              </button>
-            </div>
-          </form>
-
-          <div className="text-center">
-          <p className="mt-4 text-sm text-gray-600">
-            Already a member?{" "}
-            <Link
-              to="/login"
-              className="text-green-600 font-semibold hover:underline"
-            >
-              Login
-            </Link>
-          </p>
           </div>
         </div>
-      </div>
-    </div>
-  );
+      );
 };
