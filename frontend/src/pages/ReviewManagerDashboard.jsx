@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { Navbar } from '../components/Navbar';
+import { FaCheck, FaTrash, FaEye, FaSpinner } from 'react-icons/fa'; // Import icons
 
 export const ReviewManagerDashboard = () => {
   const [pendingReviews, setPendingReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPendingReviews();
@@ -10,78 +14,105 @@ export const ReviewManagerDashboard = () => {
 
   const fetchPendingReviews = async () => {
     try {
-      const response = await axios.get('/api/reviews/pending');
-      // Ensure the response is an array
+      const response = await axios.get(`http://localhost:3000/api/reviews/pending?timestamp=${Date.now()}`);
       setPendingReviews(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching pending reviews:', error);
+      toast.error('Failed to fetch pending reviews. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handlePublishReview = async (reviewId) => {
     try {
-      await axios.put(`http://localhost:3000/api/reviews/publish/${reviewId}`);
-      fetchPendingReviews(); // Refresh the list after publishing
+      const response = await axios.put(`http://localhost:3000/api/reviews/publish/${reviewId}`);
+      if (response.status === 200) {
+        toast.success('Review published successfully!');
+        fetchPendingReviews(); // Refresh the list of pending reviews
+      } else {
+        toast.error('Failed to publish review. Please try again.');
+      }
     } catch (error) {
       console.error('Error publishing review:', error);
+      toast.error('Failed to publish review. Please try again.');
     }
   };
 
   const handleDeleteReview = async (reviewId) => {
     try {
       await axios.delete(`http://localhost:3000/api/reviews/${reviewId}`);
-      fetchPendingReviews(); // Refresh the list after deleting
+      fetchPendingReviews();
+      toast.success('Review deleted successfully!');
     } catch (error) {
       console.error('Error deleting review:', error);
+      toast.error('Failed to delete review. Please try again.');
     }
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-2xl font-bold mb-4">Pending Reviews</h2>
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b bg-gray-200">
-              <th className="p-3">Buyer</th>
-              <th className="p-3">Product</th>
-              <th className="p-3">Rating</th>
-              <th className="p-3">Review</th>
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pendingReviews.map((review) => (
-              <tr key={review._id} className="border-b hover:bg-gray-100 transition">
-                <td className="p-3">{review.buyerId?.name || "Unknown Buyer"}</td>
-                <td className="p-3">{review.productId?.name || "Unknown Product"}</td>
-                <td className="p-3">{review.rating}</td>
-                <td className="p-3">{review.review}</td>
-                <td className="p-3 space-x-2">
-                  <button
-                    onClick={() => handlePublishReview(review._id)}
-                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+    <>
+      <Navbar />
+      <div className="p-6 bg-gray-100 min-h-screen">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Pending Reviews</h2>
+        <div className="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <FaSpinner className="animate-spin text-4xl text-blue-500" />
+            </div>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-100 text-gray-600 uppercase text-sm">
+                  <th className="p-4 text-left">Buyer</th>
+                  <th className="p-4 text-left">Product</th>
+                  <th className="p-4 text-left">Rating</th>
+                  <th className="p-4 text-left">Review</th>
+                  <th className="p-4 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingReviews.map((review) => (
+                  <tr
+                    key={review._id}
+                    className="border-b hover:bg-gray-50 transition"
                   >
-                    Publish
-                  </button>
-                  <button
-                    onClick={() => handleDeleteReview(review._id)}
-                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => {/* Implement preview logic */}}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                  >
-                    Preview
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <td className="p-4 text-gray-700">{review.buyerId?.name || "Unknown Buyer"}</td>
+                    <td className="p-4 text-gray-700">{review.productId?.name || "Unknown Product"}</td>
+                    <td className="p-4 text-gray-700">{review.rating}</td>
+                    <td className="p-4 text-gray-700">{review.review}</td>
+                    <td className="p-4">
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handlePublishReview(review._id)}
+                          className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                          title="Publish"
+                        >
+                          <FaCheck className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteReview(review._id)}
+                          className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                          title="Delete"
+                        >
+                          <FaTrash className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => {/* Implement preview logic */}}
+                          className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                          title="Preview"
+                        >
+                          <FaEye className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
