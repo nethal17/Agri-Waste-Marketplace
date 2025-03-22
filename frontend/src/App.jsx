@@ -40,7 +40,7 @@ function App() {
       <Route path="/all-drivers" element={<DisplayAllDrivers />} />
       <Route path="/contactus" element={<ContactUs />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/table" element={<UsersTable />} />
 
       <Route path="/add-order" element={<AddOrderPage />} />
