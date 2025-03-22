@@ -50,7 +50,7 @@ export const registerUser = async (req, res) => {
         });
 
         // Send verification email
-        const verificationURL = `http://localhost:3000/api/auth/verify-email/${verificationToken}`; 
+        const verificationURL = `http://172.28.12.133:3000/api/auth/verify-email/${verificationToken}`; 
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USER,
@@ -169,7 +169,7 @@ export const forgotPassword = async (req, res) => {
             auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
         });
 
-        const resetURL = `http://localhost:5173/auth/reset-password/${resetToken}`;
+        const resetURL = `http://localhost:5173/reset-password/${resetToken}`;
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USER,
