@@ -3,7 +3,6 @@ import  bcrypt  from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import exp from "constants";
 
 export const blacklistedTokens = new Set();
 
@@ -31,7 +30,7 @@ export const sendVerificationCode = async (email, code) => {
 
 // register user into system
 export const registerUser = async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
     try {
         let user = await User.findOne({ email });
@@ -40,20 +39,18 @@ export const registerUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Generate verification token
         const verificationToken = crypto.randomBytes(32).toString("hex");
 
-        user = new User({ name, email, password: hashedPassword, role, verificationToken });
+        user = new User({ name, email, phone, password: hashedPassword, role, verificationToken });
         await user.save();
 
-        // Configure Email Transport
         const transporter = nodemailer.createTransport({
             service: "Gmail",
             auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
         });
 
         // Send verification email
-        const verificationURL = `http://172.20.10.6:3000/api/auth/verify-email/${verificationToken}`; 
+        const verificationURL = `http://localhost:3000/api/auth/verify-email/${verificationToken}`; 
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USER,
@@ -85,38 +82,28 @@ export const loginUser = async (req, res) => {
             return res.status(400).json({ msg: "Please verify your email before logging in." });
         }
 
-        // Generate access token
         const token = jwt.sign(
             { id: user._id, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
-        // Generate refresh token
         const refreshToken = jwt.sign(
             { id: user._id },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" }
         );
 
-        // Save refresh token in the database
         user.refreshToken = refreshToken;
         await user.save();
 
-        // Set refresh token in an HTTP-only cookie
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
-        // Send response
-        res.json({ 
-            msg: "Login Successful", 
-            token, 
-            expiresIn: 3600, // Token expiry in seconds
-            user_details: user
-        });
+        return res.status(200).json({token, user});
 
     } catch (err) {
         console.log(err);
@@ -133,20 +120,16 @@ export const logoutUser = (req, res) => {
         return res.status(400).json({ message: "No token provided" });
     }
 
-    // Check if the token is already blacklisted
     if (blacklistedTokens.has(token)) {
         return res.status(401).json({ msg: "You are already logged out. Please log in." });
     }
 
     try {
-        // Verify the token before adding it to the blacklist
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Add the token to the blacklist
         blacklistedTokens.add(token);
         console.log("Token blacklisted:", token);
 
-        // Clear the refresh token cookie (if using refresh tokens)
         res.clearCookie("refreshToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -176,19 +159,16 @@ export const forgotPassword = async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ msg: "User not found" });
 
-        // Generate Reset Token
         const resetToken = crypto.randomBytes(32).toString("hex");
         user.resetPasswordToken = resetToken;
         user.resetPasswordExpire = Date.now() + 7200000; // 1 hour expiration
         await user.save();
 
-        // Configure Email Transport
         const transporter = nodemailer.createTransport({
             service: "Gmail",
             auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
         });
 
-        // Send Reset Email
         const resetURL = `http://localhost:5173/auth/reset-password/${resetToken}`;
         const mailOptions = {
             to: user.email,
@@ -196,7 +176,7 @@ export const forgotPassword = async (req, res) => {
             subject: "Password Reset Request",
             html: `
                 <p>You requested a password reset. Click the link below to reset your password:</p>
-                <a href="${resetURL}">Reset Password</a>
+                <a href="${resetURL}"><button>Reset Password</button></a>
                 <p>If you did not request this, please ignore this email.</p>
             `
         };
@@ -216,22 +196,18 @@ export const resetPassword = async (req, res) => {
     const { password } = req.body;
 
     try {
-        console.log("Token received:", token); // Debugging: Log the token
         const user = await User.findOne({
             resetPasswordToken: token,
             resetPasswordExpire: { $gt: Date.now() } // Check if token is still valid
         });
 
         if (!user) {
-            console.log("User not found or token expired"); // Debugging: Log the issue
             return res.status(400).json({ msg: "Invalid or expired token" });
         }
 
-        // Hash new password
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
         
-        // Clear reset fields
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
         await user.save();
@@ -256,7 +232,7 @@ export const verifyEmail = async (req, res) => {
         }
 
         user.isVerified = true;
-        user.verificationToken = undefined; // Clear the verification token after verification
+        user.verificationToken = undefined;
         await user.save();
 
         res.json({ msg: "Email verified successfully. You can now login." });
@@ -277,17 +253,14 @@ export const verifyTwoStepCode = async (req, res) => {
             return res.status(404).json({ msg: "User not found" });
         }
 
-        // Check if the code matches and is not expired
         if (
             user.twoStepVerificationCode === code &&
             user.twoStepVerificationExpire > Date.now()
         ) {
-            // Clear the verification code
             user.twoStepVerificationCode = undefined;
             user.twoStepVerificationExpire = undefined;
             await user.save();
 
-            // Generate a JWT token for the user
             const token = jwt.sign(
                 { id: user._id, role: user.role },
                 process.env.JWT_SECRET,
@@ -335,26 +308,30 @@ export const updateUserDetails = async (req, res) => {
     const { id } = req.params;
 
     try {
-        if (
-            !req.body.name ||
-            !req.body.email ||
-            !req.body.password ||
-            !req.body.role
-        ) {
-            return res.status(400).json({ message: "All fields are required" });
+        const { name, email, phone, password } = req.body;
+        if (!name || !email || !phone) {
+            return res.status(400).json({ message: "Name, email, and phone are required" });
         }
 
-        const result = await User.findByIdAndUpdate(id, req.body);
+        let updatedData = { name, email, phone };
+
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            updatedData.password = hashedPassword;
+        }
+
+        const result = await User.findByIdAndUpdate(id, updatedData, { new: true });
 
         if (!result) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        res.status(200).json({ message: "User updated successfully" });
+        res.status(200).json({ message: "User updated successfully", user: result });
 
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: err.message });
+        console.error("Error updating user:", err);
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 

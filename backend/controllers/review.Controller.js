@@ -1,5 +1,4 @@
-import Review from '../models/Review.js';
-import Order from '../models/Order.js';
+import Review from '../models/Review.js'; 
 import Notification from '../models/Notifications.js';
 import { sendNotificationEmail } from '../Utils/emailService.js';
 import { User } from '../models/user.js';
@@ -12,44 +11,22 @@ export const addReview = async (req, res) => {
 
     // Validate ObjectIds
     if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(buyerId)) {
-      return res.status(400).json({ message: 'Invalid productId or buyerId' });
+      return res.status(400).json({ message: 'Invalid productId or buyerId.' });
     }
 
-    // Check if the buyer has purchased the product
-    const order = await Order.findOne({ buyerId, productId });
-    console.log('Order found:', order); // Debugging: Log the order
-
-    if (order) {
-      return res.status(403).json({ message: 'You can only review products you have purchased.' });
-    }
-
-    // Create a new review
     const newReview = new Review({
       productId,
       buyerId,
       rating,
       review,
-      status: 'pending',
+      image: req.file ? req.file.path : null, // Ensure req.file is populated
     });
+
     await newReview.save();
-
-    // Notify buyer that the review is pending
-    const buyerNotification = new Notification({
-      userId: buyerId,
-      message: 'Your review is pending approval.',
-    });
-    await buyerNotification.save();
-
-    // Send email notification to buyer
-    const buyer = await User.findById(buyerId);
-    if (buyer) {
-      await sendNotificationEmail(buyer.email, 'Your review is pending approval.');
-    }
-
-    res.status(201).json({ message: 'Review submitted successfully. It is pending approval.' });
+    res.status(201).json({ message: 'Review submitted successfully.', review: newReview });
   } catch (error) {
-    console.error('Error adding review:', error); // Log the error for debugging
-    res.status(500).json({ message: error.message });
+    console.error('Error adding review:', error);
+    res.status(500).json({ message: 'Failed to submit review.', error: error.message });
   }
 };
 

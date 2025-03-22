@@ -7,6 +7,12 @@ import router from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import photoRouter from "./routes/profileRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import driverRoutes from './routes/driver.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
+
 
 dotenv.config();
 
@@ -24,11 +30,19 @@ app.get("/", (req, res) => {
 //Nethal
 app.use("/api/auth", router);
 app.use("/api/users", userRouter);
+app.use("/api/photo", photoRouter);
+
+//vibhu
+app.use('/api', driverRoutes);
+app.use('/api', paymentRoutes);
 
 //Ricky
-app.use('/product', router);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/products', productRoutes);
+
+app.use('/api/product', productRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
