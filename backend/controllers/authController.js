@@ -28,6 +28,29 @@ export const sendVerificationCode = async (email, code) => {
     await transporter.sendMail(mailOptions);
 };
 
+// verify email function
+export const verifyEmail = async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const user = await User.findOne({ verificationToken: token });
+
+        if (!user) {
+            return res.status(400).json({ msg: "Invalid or expired token" });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+
+        res.json({ msg: "Email verified successfully. You can now login." });
+        
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ msg: "Server Error" });
+    }
+};
+
 // register user into system
 export const registerUser = async (req, res) => {
     const { name, email, phone, password, role } = req.body;
@@ -49,7 +72,6 @@ export const registerUser = async (req, res) => {
             auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
         });
 
-        // Send verification email
         const verificationURL = `http://localhost:3000/api/auth/verify-email/${verificationToken}`; 
         const mailOptions = {
             to: user.email,
@@ -169,7 +191,7 @@ export const forgotPassword = async (req, res) => {
             auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
         });
 
-        const resetURL = `http://localhost:5173/auth/reset-password/${resetToken}`;
+        const resetURL = `http://localhost:5173/reset-password/${resetToken}`;
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USER,
@@ -214,28 +236,6 @@ export const resetPassword = async (req, res) => {
 
         res.json({ msg: "Password successfully reset" });
 
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ msg: "Server Error" });
-    }
-};
-
-// verify email function
-export const verifyEmail = async (req, res) => {
-    const { token } = req.params;
-
-    try {
-        const user = await User.findOne({ verificationToken: token });
-
-        if (!user) {
-            return res.status(400).json({ msg: "Invalid or expired token" });
-        }
-
-        user.isVerified = true;
-        user.verificationToken = undefined;
-        await user.save();
-
-        res.json({ msg: "Email verified successfully. You can now login." });
     } catch (err) {
         console.log(err);
         res.status(500).json({ msg: "Server Error" });
