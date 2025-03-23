@@ -123,12 +123,7 @@ export const AddReviewPage = () => {
             </button>
           </div>
 
-          {/* Error/Success Message */}
-          {message && (
-            <div className="mt-4 text-center text-sm text-red-500">
-              {message}
-            </div>
-          )}
+
         </form>
       </div>
     </>
