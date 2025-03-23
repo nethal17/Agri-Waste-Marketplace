@@ -1,7 +1,5 @@
 import Review from '../models/Review.js';
-import Notification from '../models/Notifications.js';
-import { sendNotificationEmail } from '../Utils/emailService.js';
-import { User } from '../models/user.js';
+import Inventory from '../models/Inventory.js';
 import mongoose from 'mongoose';
 
 // Add a review (Buyer)
@@ -19,7 +17,7 @@ export const addReview = async (req, res) => {
       buyerId,
       rating,
       review,
-      image: req.file ? req.file.path : null, // Ensure req.file is populated
+      image: req.file ? req.file.path : null, 
     });
 
     await newReview.save();
@@ -51,7 +49,7 @@ export const publishReview = async (req, res) => {
     await review.save();
 
     // Notify buyer and farmer (optional)
-    const buyerNotification = new Notification({
+    /*const buyerNotification = new Notification({
       userId: review.buyerId,
       message: 'Your review has been published.',
     });
@@ -61,13 +59,13 @@ export const publishReview = async (req, res) => {
       userId: review.farmerId,
       message: 'You have a new review for your product.',
     });
-    await farmerNotification.save();
+    await farmerNotification.save();*/
 
     // Send email notifications (optional)
-    const buyer = await User.findById(review.buyerId);
+    /*const buyer = await User.findById(review.buyerId);
     const farmer = await User.findById(review.farmerId);
     await sendNotificationEmail(buyer.email, 'Your review has been published.');
-    await sendNotificationEmail(farmer.email, 'You have a new review for your product.');
+    await sendNotificationEmail(farmer.email, 'You have a new review for your product.');*/
 
     res.status(200).json({ message: 'Review published successfully.' });
   } catch (error) {
@@ -123,6 +121,66 @@ export const deleteReview = async (req, res) => {
     await Review.findByIdAndDelete(reviewId);
 
     res.status(200).json({ message: 'Review deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get review details by reviewId
+export const getReviewDetails = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+
+    // Validate reviewId
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+      return res.status(400).json({ message: 'Invalid review ID.' });
+    }
+
+    // Find the review and populate buyer and product details
+    const review = await Review.findById(reviewId)
+      .populate('buyerId', 'name email') // Populate buyer details
+      .populate('productId', 'name description'); // Populate product details
+
+    if (!review) {
+      return res.status(404).json({ message: 'Review not found.' });
+    }
+
+    // Return the review details
+    res.status(200).json(review);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getFarmerReviews = async (req, res) => {
+  try {
+    const { farmerId } = req.params;
+
+    // Step 1: Validate farmerId
+    if (!mongoose.Types.ObjectId.isValid(farmerId)) {
+      return res.status(400).json({ message: 'Invalid farmer ID.' });
+    }
+
+    // Step 2: Fetch all product IDs for the farmer
+    const products = await Inventory.find({ farmerId }).select('_id');
+    if (products.length === 0) {
+      return res.status(404).json({ message: 'No products found for this farmer.' });
+    }
+
+    // Extract product IDs
+    const productIds = products.map(product => product._id);
+
+    // Step 3: Fetch all published reviews for these product IDs
+    const reviews = await Review.find({ productId: { $in: productIds }, status: 'published' })
+      .populate('buyerId', 'name email') // Populate buyer details
+      .populate('productId', 'name description'); // Populate product details
+
+    if (reviews.length === 0) {
+      return res.status(404).json({ message: 'No reviews found for this farmer\'s products.' });
+    }
+
+    // Step 4: Return the reviews
+    res.status(200).json(reviews);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

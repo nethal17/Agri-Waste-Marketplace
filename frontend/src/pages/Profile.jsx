@@ -131,9 +131,11 @@ export const Profile = () => {
             <p className="mt-2 text-lg font-bold">Created at: <span className="px-5 font-light">{new Date(user.createdAt).toLocaleDateString()}</span></p>
             <p className="mt-2 text-lg font-bold">Updated at: <span className="px-5 font-light">{new Date(user.updatedAt).toLocaleDateString()}</span></p>
           </div>
+
           </div>
           <br/>
           <div className="flex justify-center gap-10 mt-12">
+
             
             <button 
             className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
@@ -149,6 +151,24 @@ export const Profile = () => {
               Admin Dashboard
             </button>
             </>
+
+            <button className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700">Update Profile</button>
+            <button className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700">My Reservations</button>
+
+          <div className="flex flex-col gap-5 md:flex-row mt-14">
+            <Link to="update-details">
+            <button
+              className="cursor-pointer px-6 py-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800"
+            >
+              Update Profile
+            </button>
+            </Link>
+            {user.role === "admin" && (
+            <Link to='/admin-dashboard'>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                Admin Dashboard
+              </button>
+            </Link>
             )}
 
             {user.role === "farmer" && (
@@ -158,26 +178,45 @@ export const Profile = () => {
             onClick={() => navigate("")} >
               My Listings
             </button>
+              <Link to='/farmer-dashboard'>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                My Listings
+              </button>
+              </Link>
             </>
             )}
 
             {user.role === "buyer" && (
             <>
+
             <button 
             className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
             onClick={() => navigate("")} >
               My Orders
             </button>
+
+            <Link to='/order-history'>
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                My Orders
+              </button>
+            </Link>
+
             </>
             )}
 
             {user.role === "driver" && (
             <>
+
             <button 
             className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
             onClick={() => navigate("")} >
               My Pickups
             </button>
+
+              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
+                My Pickups
+              </button>
+
             </>
             )}
           </div>
