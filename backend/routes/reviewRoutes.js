@@ -5,21 +5,17 @@ import {
   getPendingReviews,
   getPublishedReviews,
   getFarmerAverageRating,
+  deleteReview
 } from '../controllers/review.Controller.js'; // Correct path
 
 const router = express.Router();
 
-// Buyer routes
-router.post('/add', addReview);
 
-// Manager routes
+router.post('/add', addReview);
 router.put('/publish/:reviewId', publishReview);
 router.get('/pending', getPendingReviews);
-
-// Marketplace routes
 router.get('/published/:productId', getPublishedReviews);
-
-// Farmer profile routes
 router.get('/average-rating/:farmerId', getFarmerAverageRating);
+router.delete('/review-delete/:reviewId', deleteReview);
 
 export default router;

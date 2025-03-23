@@ -86,7 +86,7 @@ export const Navbar = () => {
               <div className="absolute top-8 left-0 bg-white shadow-lg rounded-lg w-48 border">
                 <ul className="flex flex-col p-2">
                   <li>
-                    <Link to="/buy-products" className="block px-4 py-2 hover:bg-gray-100">
+                    <Link to="" className="block px-4 py-2 hover:bg-gray-100">
                       Buy Products
                     </Link>
                   </li>

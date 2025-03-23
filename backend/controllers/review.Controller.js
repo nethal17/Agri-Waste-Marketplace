@@ -1,4 +1,4 @@
-import Review from '../models/Review.js'; 
+import Review from '../models/Review.js';
 import Notification from '../models/Notifications.js';
 import { sendNotificationEmail } from '../Utils/emailService.js';
 import { User } from '../models/user.js';
@@ -41,25 +41,29 @@ export const publishReview = async (req, res) => {
       return res.status(404).json({ message: 'Review not found.' });
     }
 
+    // Validate buyerId and farmerId
+    if (!mongoose.Types.ObjectId.isValid(review.buyerId)) {
+      return res.status(400).json({ message: 'Invalid buyerId.' });
+    }
+
     // Update review status to published
     review.status = 'published';
     await review.save();
 
-    // Notify buyer that the review is published
+    // Notify buyer and farmer (optional)
     const buyerNotification = new Notification({
       userId: review.buyerId,
       message: 'Your review has been published.',
     });
     await buyerNotification.save();
 
-    // Notify farmer about the new review
     const farmerNotification = new Notification({
       userId: review.farmerId,
       message: 'You have a new review for your product.',
     });
     await farmerNotification.save();
 
-    // Send email notifications
+    // Send email notifications (optional)
     const buyer = await User.findById(review.buyerId);
     const farmer = await User.findById(review.farmerId);
     await sendNotificationEmail(buyer.email, 'Your review has been published.');
@@ -105,6 +109,20 @@ export const getFarmerAverageRating = async (req, res) => {
     const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
 
     res.status(200).json({ averageRating });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { reason } = req.body;
+
+    // Delete the review and log the reason
+    await Review.findByIdAndDelete(reviewId);
+
+    res.status(200).json({ message: 'Review deleted successfully.' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
