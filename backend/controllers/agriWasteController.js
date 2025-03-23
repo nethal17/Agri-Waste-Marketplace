@@ -23,3 +23,21 @@ export const createWaste = async (req, res) => {
   }
 };
 
+export const getWasteByType = async (req, res) => {
+  try {
+    const { waste_type } = req.params; // Use `waste_type` instead of `type`
+    const wastes = await AgriWaste.find({ waste_type: decodeURIComponent(waste_type) });
+
+    if (wastes.length === 0) {
+      return res.status(404).json({ message: "No waste found for this type" });
+    }
+
+    res.json(wastes);
+  } catch (error) {
+    console.error("Error fetching waste by type:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+

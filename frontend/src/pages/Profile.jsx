@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const Profile = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [image, setImage] = useState(null);
@@ -134,9 +135,26 @@ export const Profile = () => {
           </div>
           <br/>
           <div className="flex justify-center gap-10 mt-12">
+
+            
+            <button 
+            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
+            onClick={() => navigate("/profile/update-details")} >
+              Update Details
+            </button>
+            
+            {user.role === "admin" && (
+            <>
+            <button 
+            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
+            onClick={() => navigate("/admin-dashboard")} >
+              Admin Dashboard
+            </button>
+            </>
+
             <button className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700">Update Profile</button>
             <button className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700">My Reservations</button>
-=======
+
           <div className="flex flex-col gap-5 md:flex-row mt-14">
             <Link to="update-details">
             <button
@@ -155,6 +173,11 @@ export const Profile = () => {
 
             {user.role === "farmer" && (
             <>
+            <button 
+            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
+            onClick={() => navigate("")} >
+              My Listings
+            </button>
               <Link to='/farmer-dashboard'>
               <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
                 My Listings
@@ -165,19 +188,35 @@ export const Profile = () => {
 
             {user.role === "buyer" && (
             <>
+
+            <button 
+            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
+            onClick={() => navigate("")} >
+              My Orders
+            </button>
+
             <Link to='/order-history'>
               <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
                 My Orders
               </button>
             </Link>
+
             </>
             )}
 
             {user.role === "driver" && (
             <>
+
+            <button 
+            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
+            onClick={() => navigate("")} >
+              My Pickups
+            </button>
+
               <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
                 My Pickups
               </button>
+
             </>
             )}
           </div>
