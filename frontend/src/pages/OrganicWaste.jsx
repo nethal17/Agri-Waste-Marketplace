@@ -9,8 +9,7 @@ const organicWastes = [
     { name: "Plantation Waste", image: "/images/plantation_waste.jpg", value: "Plantation Waste" },
     { name: "Nut & Seed Waste", image: "/images/nut_seed_waste.jpg", value: "Nut Seed Waste" },
     { name: "Livestock & Dairy Waste", image: "/images/livestock_dairy.jpg", value: "Livestock Dairy Waste" },
-    { name: "Agro-Industrial Waste", image: "/images/agro_industrial.jpg", value: "Agro Industrial Waste" },
-    { name: "Forestry Waste", image: "/images/forestry_waste.jpg", value: "Forestry Waste" }, 
+    { name: "Forestry Waste", image: "/images/forestry_waste.jpg", value: "Forestry Waste" }
   ];
 
 export const  OrganicWaste = () => {
@@ -50,7 +49,7 @@ export const  OrganicWaste = () => {
       {filteredWaste.map((waste, index) => (
         <div key={index} className="relative overflow-hidden rounded-lg shadow-lg"
         onClick={() => navigate(`/organic/${waste.value}`)}>
-        <img src={waste.image} alt={waste.name} className="object-cover w-full h-40" />
+        <img src={waste.image} alt={waste.name} className="object-cover w-full h-60" />
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                 <span className="text-lg font-bold text-white">{waste.name}</span>
         </div>

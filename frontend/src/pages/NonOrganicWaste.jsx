@@ -9,8 +9,7 @@ const nonOrganics = [
     { name: "Metal Waste", image: "/images/Metal_Waste.jpg", value: "Metal Waste" },
     { name: "Fabric & Textile", image: "/images/Fabric_Textile_Waste.jpg", value: "Fabric Textile" }, 
     { name: "Glass & Ceramic", image: "/images/Glass_Ceramic_Waste.jpg", value: "Glass Ceramic" },
-    { name: "Electronic & Electrical", image: "/images/Electronic_Electrical_Waste.jpg", value: "Electronic Electrical" },
-    { name: "Rubber Waste", image: "/images/Rubber_Waste.jpg", value: "Rubber Waste" },
+    { name: "Rubber Waste", image: "/images/Rubber_Waste.jpg", value: "Rubber Waste" }
   ];
 
 export const  NonOrganicWaste = () => {
@@ -48,7 +47,7 @@ export const  NonOrganicWaste = () => {
       {filteredWaste.map((waste, index) => (
         <div key={index} className="relative overflow-hidden rounded-lg shadow-lg"
         onClick={() => navigate(`/non-organic/${waste.value}`)}>
-        <img src={waste.image} alt={waste.name} className="object-cover w-full h-40" />
+        <img src={waste.image} alt={waste.name} className="object-cover w-full h-60" />
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                 <span className="text-lg font-bold text-white">{waste.name}</span>
         </div>
