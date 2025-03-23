@@ -50,7 +50,7 @@ export const OrderHistoryPage = () => {
 
   const handleAddReview = () => {
     if (selectedOrder) {
-      navigate('/addreview', {
+      navigate('/add-review', {
         state: { productId: selectedOrder.productId._id, buyerId: userId },
       });
     }
@@ -121,14 +121,12 @@ export const OrderHistoryPage = () => {
               <div className="mt-6 flex justify-end space-x-4">
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
-                >
+                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
                   Close
                 </button>
                 <button
                   onClick={handleAddReview}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                >
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
                   Add Review
                 </button>
               </div>

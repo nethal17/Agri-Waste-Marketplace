@@ -14,18 +14,15 @@ import { ContactUs } from './pages/ContactUs';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from "./pages/ResetPassword";
 
-
 import { OrganicWaste } from './pages/OrganicWaste';
 import { NonOrganicWaste } from './pages/NonOrganicWaste';
 
-//import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import DriverList from './components/DriverList';
 import DriverForm from './components/DriverForm';
 import PaymentDetails from './components/PaymentDetails';
-import StripePayment from './components/StripePayment'; // Import the new component
+import StripePayment from './components/StripePayment';
 import Success from './components/Success';
 import PayHistory from './components/PayHistory';
-
 
 import { AddOrderPage } from './pages/AddOrderPage';
 import { AddReviewPage } from './pages/AddReviewPage';
@@ -38,8 +35,10 @@ import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
 import UsersTable from './pages/UserTable';
 
 function App() {
+
   return (
     <Routes>
+
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<SignUp />} />
@@ -61,7 +60,7 @@ function App() {
       <Route path="/driver" element={<DriverList />} />
         <Route path="/create" element={<DriverForm />} />
         <Route path="/driver/:id/payment" element={<PaymentDetails />} />
-        <Route path="/payment" element={<StripePayment />} /> {/* Add the new route */}
+        <Route path="/payment" element={<StripePayment />} /> 
         <Route path="/success" element={<Success />} /> 
         <Route path="/pay-history" element={<PayHistory />} />
 

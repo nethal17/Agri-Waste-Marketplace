@@ -11,6 +11,7 @@ export const SignUp = () => {
         name: "",
         email: "",
         phone: "",
+        role: "",
         password: "",
         confirmPassword: "",
       });
@@ -92,9 +93,10 @@ export const SignUp = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-3 text-lg border border-gray-400 rounded-3xl focus:outline-none focus:ring-5 focus:ring-green-500"
                   >
-                    <option value="Farmer">Farmer</option>
-                    <option value="Buyer">Buyer</option>
-                    <option value="Truck Driver">Truck Driver</option>
+                    <option value="farmer">Farmer</option>
+                    <option value="buyer">Buyer</option>
+                    <option value="truck_driver">Truck Driver</option>
+                    
                   </select>
                 </div>
                 <div className="mb-4">
