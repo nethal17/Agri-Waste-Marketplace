@@ -47,6 +47,8 @@ const PaymentDetails = () => {
       // Navigate to Stripe payment gateway
       const stripeResponse = await axios.post('http://localhost:3000/api/create-checkout-session', {
         totalSalary,
+        driverId: id, // Pass driverId to Stripe
+        driverName: driver.name, // Pass driverName to Stripe
       });
 
       window.location.href = stripeResponse.data.url; // Redirect to Stripe
