@@ -14,6 +14,10 @@ import { ContactUs } from './pages/ContactUs';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from "./pages/ResetPassword";
 
+
+import { OrganicWaste } from './pages/OrganicWaste';
+import { NonOrganicWaste } from './pages/NonOrganicWaste';
+
 //import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import DriverList from './components/DriverList';
 import DriverForm from './components/DriverForm';
@@ -50,6 +54,9 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/table" element={<UsersTable />} />
+
+      <Route path="/organic-waste" element={<OrganicWaste />} />
+      <Route path="/non-organic" element={<NonOrganicWaste />} />
 
       <Route path="/driver" element={<DriverList />} />
         <Route path="/create" element={<DriverForm />} />

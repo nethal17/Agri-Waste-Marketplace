@@ -12,6 +12,7 @@ import photoRouter from "./routes/profileRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import driverRoutes from './routes/driver.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
+import agriWasteRoutes from "./routes/agriWasteRoutes.js";
 
 
 dotenv.config();
@@ -43,6 +44,9 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 
 app.use('/api/product', productRoutes);
+
+//Naduli
+app.use("/api/agri-waste", agriWasteRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
