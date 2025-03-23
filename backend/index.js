@@ -43,9 +43,12 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 
+<<<<<<< Updated upstream
 //Naduli
 app.use("/api/agri-waste", agriWasteRoutes);
 
+=======
+>>>>>>> Stashed changes
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
