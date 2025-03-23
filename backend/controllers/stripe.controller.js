@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createCheckoutSession = async (req, res) => {
@@ -15,11 +14,11 @@ export const createCheckoutSession = async (req, res) => {
       line_items: [
         {
           price_data: {
-            currency: 'lkr', // Change currency to LKR (Sri Lankan Rupees)
+            currency: 'lkr', // Sri Lankan Rupees
             product_data: {
               name: 'Driver Salary Payment',
             },
-            unit_amount: totalSalary * 100, // Stripe expects amount in cents (1 LKR = 100 cents)
+            unit_amount: totalSalary * 100, // Stripe expects amount in cents
           },
           quantity: 1,
         },

@@ -29,8 +29,31 @@ const PaymentDetails = () => {
   const deliveryBonus = 500.00;
   const totalSalary = basicSalary + (completedDeliveries * deliveryBonus);
 
-  const handlePay = () => {
-    navigate('/payment', { state: { totalSalary } });
+  const handlePay = async () => {
+    try {
+      // Insert payment data into the database
+      const paymentData = {
+        driverId: id,
+        driverName: driver.name,
+        payAmount: totalSalary,
+      };
+
+      const response = await axios.post('http://localhost:3000/api/payments', paymentData);
+      console.log('Payment inserted:', response.data); // Debugging statement
+
+      // Show success popup
+      alert('Payment data inserted successfully!');
+
+      // Navigate to Stripe payment gateway
+      const stripeResponse = await axios.post('http://localhost:3000/api/create-checkout-session', {
+        totalSalary,
+      });
+
+      window.location.href = stripeResponse.data.url; // Redirect to Stripe
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to process payment. Please try again.');
+    }
   };
 
   return (

@@ -13,7 +13,7 @@ import productRoutes from "./routes/productRoutes.js";
 import driverRoutes from './routes/driver.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import agriWasteRoutes from "./routes/agriWasteRoutes.js";
-
+import stripeRoutes from './routes/stripe.routes.js'
 
 dotenv.config();
 
@@ -36,6 +36,8 @@ app.use("/api/photo", photoRouter);
 //vibhu
 app.use('/api', driverRoutes);
 app.use('/api', paymentRoutes);
+app.use('/api', stripeRoutes);
+
 
 //Ricky
 app.use('/api/inventory', inventoryRoutes);
