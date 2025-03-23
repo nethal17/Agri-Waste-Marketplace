@@ -46,27 +46,16 @@ export const  OrganicWaste = () => {
       </div>
       <br/> <br/>
       <div className="grid grid-cols-3 gap-4">
-<<<<<<< Updated upstream
 
       {filteredWaste.map((waste, index) => (
-        <div key={index} className="relative rounded-lg shadow-lg overflow-hidden"
+        <div key={index} className="relative overflow-hidden rounded-lg shadow-lg"
         onClick={() => navigate(`/organic/${waste.value}`)}>
-        <img src={waste.image} alt={waste.name} className="w-full h-40 object-cover" />
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <span className="text-white text-lg font-bold">{waste.name}</span>
+        <img src={waste.image} alt={waste.name} className="object-cover w-full h-40" />
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <span className="text-lg font-bold text-white">{waste.name}</span>
         </div>
     </div>
   ))}
-=======
-        {filteredWaste.map((waste, index) => (
-          <div key={index} className="relative overflow-hidden rounded-lg shadow-lg">
-            <img src={waste.image} alt={waste.name} className="object-cover w-full h-40" />
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <span className="text-lg font-bold text-white">{waste.name}</span>
-            </div>
-          </div>
-        ))}
->>>>>>> Stashed changes
       </div>
 
     </div>
