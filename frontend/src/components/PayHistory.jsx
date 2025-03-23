@@ -7,14 +7,14 @@ const PayHistory = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch payment history from the backend
+    // Fetch payment history from Stripe
     const fetchPayments = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/payments');
-        console.log('Payments fetched:', response.data); // Debugging statement
+        const response = await axios.get('http://localhost:3000/api/stripe-payments');
+        console.log('Stripe payments fetched:', response.data); // Debugging statement
         setPayments(response.data);
       } catch (error) {
-        console.error('Error fetching payments:', error); // Debugging statement
+        console.error('Error fetching Stripe payments:', error); // Debugging statement
       }
     };
 
@@ -50,7 +50,7 @@ const PayHistory = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {payments.map((payment, index) => (
-                <tr key={payment._id} className="hover:bg-gray-50 transition-colors">
+                <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 text-sm text-gray-700">
                     {index + 1}
                   </td>
@@ -61,7 +61,7 @@ const PayHistory = () => {
                     {payment.payAmount.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-700">
-                    {new Date(payment.createdAt).toLocaleDateString()}
+                    {payment.paymentDate}
                   </td>
                 </tr>
               ))}

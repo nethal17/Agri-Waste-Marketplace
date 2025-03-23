@@ -1,12 +1,5 @@
-import Stripe from 'stripe';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
 export const createCheckoutSession = async (req, res) => {
-  const { totalSalary } = req.body;
+  const { totalSalary, driverId, driverName } = req.body;
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -26,6 +19,11 @@ export const createCheckoutSession = async (req, res) => {
       mode: 'payment',
       success_url: `${process.env.FRONTEND_URL}/success`, // Redirect after successful payment
       cancel_url: `${process.env.FRONTEND_URL}/cancel`, // Redirect if payment is canceled
+      metadata: {
+        driverId, // Ensure this is included
+        driverName, // Ensure this is included
+        type: 'driver', // Ensure this is included
+      },
     });
 
     res.json({ url: session.url }); // Return the Stripe Checkout URL
