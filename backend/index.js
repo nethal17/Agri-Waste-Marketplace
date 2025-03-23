@@ -44,9 +44,12 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 //Naduli
 app.use("/api/agri-waste", agriWasteRoutes);
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 // Start the server

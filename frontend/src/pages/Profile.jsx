@@ -130,7 +130,7 @@ export const Profile = () => {
             <p className="mt-2 text-lg font-bold">Created at: <span className="px-5 font-light">{new Date(user.createdAt).toLocaleDateString()}</span></p>
             <p className="mt-2 text-lg font-bold">Updated at: <span className="px-5 font-light">{new Date(user.updatedAt).toLocaleDateString()}</span></p>
           </div>
-<<<<<<< Updated upstream
+
           </div>
           <br/>
           <div className="flex justify-center gap-10 mt-12">
@@ -180,9 +180,6 @@ export const Profile = () => {
               </button>
             </>
             )}
-
-            
->>>>>>> Stashed changes
           </div>
         </div>
       </div>
