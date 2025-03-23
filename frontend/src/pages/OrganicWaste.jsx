@@ -25,26 +25,28 @@ export const  OrganicWaste = () => {
   return (
     <>
     <Navbar />
-    <br/>
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
+    <br/> <br/>
+    <div className="container p-4 mx-auto">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <Link to="/organic-waste">
-          <button className="bg-black text-white px-4 py-2 mr-2 rounded">Organic Waste</button>
+          <button className="px-4 py-2 mr-2 text-white bg-black rounded">Organic Waste</button>
           </Link>
           <Link to="/non-organic">
-          <button className="bg-black text-white px-4 py-2 rounded">Non-Organic Waste</button>
+          <button className="px-4 py-2 text-white bg-black rounded">Non-Organic Waste</button>
           </Link>
         </div>
         <input
           type="text"
           placeholder="Search Agri-Waste"
-          className="border p-2 rounded w-1/3"
+          className="w-1/3 p-2 border rounded"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+      <br/> <br/>
       <div className="grid grid-cols-3 gap-4">
+<<<<<<< Updated upstream
 
       {filteredWaste.map((waste, index) => (
         <div key={index} className="relative rounded-lg shadow-lg overflow-hidden"
@@ -55,6 +57,16 @@ export const  OrganicWaste = () => {
         </div>
     </div>
   ))}
+=======
+        {filteredWaste.map((waste, index) => (
+          <div key={index} className="relative overflow-hidden rounded-lg shadow-lg">
+            <img src={waste.image} alt={waste.name} className="object-cover w-full h-40" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <span className="text-lg font-bold text-white">{waste.name}</span>
+            </div>
+          </div>
+        ))}
+>>>>>>> Stashed changes
       </div>
 
     </div>
