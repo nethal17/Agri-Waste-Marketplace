@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import "react-toastify/dist/ReactToastify.css";
 
 export const AllUsers = () => {
     const [allUsers, setAllUsers] = useState([]); 
