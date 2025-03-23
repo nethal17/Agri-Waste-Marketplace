@@ -5,7 +5,7 @@ import { BsInfoCircle } from "react-icons/bs";
 import { MdOutlineDelete } from "react-icons/md";
 
 export const AllUsers = () => {
-    const [allUsers, setAllUsers] = useState([]); // Explicitly define the state type
+    const [allUsers, setAllUsers] = useState([]); 
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -25,36 +25,36 @@ export const AllUsers = () => {
     return (
         <div>
             {loading ? (
-                <p className="text-center text-lg font-semibold">Loading users...</p>
+                <p className="text-lg font-semibold text-center">Loading users...</p>
             ) : (
                 <div className="w-full h-full p-6">
                 <table className="w-full border-separate border-spacing-2">
                     <thead>
                         <tr>
-                            <th className="border border-slate-600 rounded-md">No</th>
-                            <th className="border border-slate-600 rounded-md">Name</th>
-                            <th className="border border-slate-600 rounded-md max-md:hidden">Email</th>
-                            <th className="border border-slate-600 rounded-md max-md:hidden">Mobile</th>
-                            <th className="border border-slate-600 rounded-md">Operations</th>
+                            <th className="border rounded-md border-slate-600">No</th>
+                            <th className="border rounded-md border-slate-600">Name</th>
+                            <th className="border rounded-md border-slate-600 max-md:hidden">Email</th>
+                            <th className="border rounded-md border-slate-600 max-md:hidden">Mobile</th>
+                            <th className="border rounded-md border-slate-600">Operations</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         {allUsers.map((user, index) => (
                             <tr key={user._id} className="h-8">
-                                <td className="border border-slate-700 rounded-md text-center">
+                                <td className="text-center border rounded-md border-slate-700">
                                     {index + 1}
                                 </td>
-                                <td className="border border-slate-700 rounded-md text-center">
+                                <td className="text-center border rounded-md border-slate-700">
                                     {user.name}
                                 </td>
-                                <td className="border border-slate-700 rounded-md text-center max-md:hidden">
+                                <td className="text-center border rounded-md border-slate-700 max-md:hidden">
                                     {user.email}
                                 </td>
-                                <td className="border border-slate-700 rounded-md text-center max-md:hidden">
+                                <td className="text-center border rounded-md border-slate-700 max-md:hidden">
                                     {user.phone}
                                 </td>
-                                <td className="border border-slate-700 rounded-md text-center">
+                                <td className="text-center border rounded-md border-slate-700">
                                     <div className="flex justify-center gap-x-4">
                                         <Link to={`/users/details/${user._id}`}>
                                             <BsInfoCircle className="text-2xl text-green-800"/>

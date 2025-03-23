@@ -10,24 +10,20 @@ export const Profile = () => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-
         const token = localStorage.getItem("token");
-        
         if (!token) {
           toast.error("No token found, please login again.");
           return;
         }
-
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         const userId = userData._id;
-
         const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`);
         setUser(response.data);
-
       } catch (error) {
         toast.error("Failed to fetch user data.");
         console.error(error);
@@ -35,7 +31,6 @@ export const Profile = () => {
         setLoading(false);
       }
     };
-
     fetchUserData();
   }, []);
 
@@ -49,18 +44,15 @@ export const Profile = () => {
 
   const handleUpload = async () => {
     if (!image || !user) return;
-
     setUploading(true);
     const formData = new FormData();
     formData.append("profilePic", image);
-
     try {
       const response = await axios.post(
         `http://localhost:3000/api/photo/upload-profile-pic/${user._id}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
       setUser((prevUser) => ({ ...prevUser, profilePic: response.data.profilePic }));
       toast.success("Profile picture updated successfully!");
       setImagePreview(null);
@@ -70,6 +62,10 @@ export const Profile = () => {
     } finally {
       setUploading(false);
     }
+  };
+
+  const toggle2FA = () => {
+    setIs2FAEnabled((prev) => !prev);
   };
 
   if (loading) {
@@ -83,94 +79,62 @@ export const Profile = () => {
   return (
     <>
       <Navbar />
-      <div className="grid gap-8 p-4 lg:grid-cols-2 md:px-24 sm:py-8">
-        <div className="flex flex-col justify-center items-center p-6 rounded-lg bg-white shadow-2xl w-full h-full min-h-[600px]">
-          <div>
-            <img
-              className="object-cover w-48 h-48 border-4 border-green-600 rounded-full shadow-lg"
-              src={imagePreview || user.profilePic || "https://via.placeholder.com/150"}
-              alt="Profile"
+      <br/><br/><br/><br/>
+      <div className="grid gap-12 p-4 lg:grid-cols-2 md:px-24 sm:py-8">
+        {/* Left Section */}
+        <div className="flex flex-col justify-center items-center p-6 rounded-lg bg-white shadow-lg w-full h-full min-h-[500px] shadow-gray-400">
+          <img
+            className="object-cover w-48 h-48 border-4 border-green-600 rounded-full shadow-md"
+            src={imagePreview || user.profilePic || "https://via.placeholder.com/150"}
+            alt="Profile"
+          />
+          <div className="pt-4 text-center">
+            <h1 className="text-xl font-bold">Upload a profile photo</h1>
+            <input
+              type="file"
+              onChange={handleImageChange}
+              className="w-full p-2 mt-2 bg-gray-100 border rounded-lg cursor-pointer file:bg-green-600 file:text-white file:py-2 file:px-4 file:border-none file:rounded-lg hover:file:bg-green-700"
             />
+            <button
+              onClick={handleUpload}
+              className="w-full py-2 mt-4 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
+              disabled={uploading}
+            >
+              {uploading ? "Uploading..." : "Upload"}
+            </button>
           </div>
-          <div className="pt-3 mx-6 text-center">
-            <h1 className="text-lg font-bold">Upload a profile photo</h1>
-            <input type="file" accept="image/*" onChange={handleImageChange} className="items-center justify-center mt-5" />
-            <br></br>
-              <button
-                onClick={handleUpload}
-                className="cursor-pointer px-6 py-2 mt-4 font-bold text-white bg-green-600 rounded-2xl hover:bg-green-800"
-                disabled={uploading}
-              >
-                {uploading ? "Uploading..." : "Upload"}
-              </button>
-            
-          </div>
-          <br></br><br></br>
-          <div className="text-center">
-            <h1 className="text-lg font-bold">Account Status</h1>
-            <h3 className="text-xl font-bold text-green-600">Blue</h3>
+
+          {/* 2FA Toggle Button */}
+          <div className="flex items-center gap-3 mt-6">
+            <span className="text-lg font-bold">2-Factor Authentication</span>
+            <button
+              onClick={toggle2FA}
+              className={`w-12 h-6 flex items-center bg-gray-300 rounded-full p-1 duration-300 ${is2FAEnabled ? "bg-green-600" : "bg-gray-400"}`}
+            >
+              <span
+                className={`w-5 h-5 bg-white rounded-full shadow-md transform duration-300 ${is2FAEnabled ? "translate-x-6" : "translate-x-0"}`}
+              ></span>
+            </button>
           </div>
         </div>
-        <div className="flex flex-col place-items-center justify-center p-6 rounded-lg bg-white shadow-2xl w-full h-full min-h-[600px]">
+
+        {/* Right Section */}
+        <div className="flex flex-col p-6 rounded-lg bg-white shadow-lg w-full h-full min-h-[500px] shadow-gray-400">
           <h1 className="text-3xl font-bold">My Profile</h1>
-          <h3 className="text-xl font-bold text-green-600">{user.role}</h3>
-          <div className="grid grid-cols-1 gap-12 mt-8 xl:grid-cols-2">
-            <div className="justify-center items-center">
-              <h1 className="text-lg font-bold">Name:</h1>
-              <p className="text-xl">{user.name}</p>
-              <h1 className="mt-4 text-lg font-bold">Email:</h1>
-              <p className="text-xl">{user.email}</p>
-              <h1 className="mt-4 text-lg font-bold">Mobile:</h1>
-              <p className="text-xl">{user.phone}</p>
-            </div>
-            <div>
-              <h1 className="mt-4 text-lg font-bold">Created at:</h1>
-              <p className="text-xl">{new Date(user.createdAt).toLocaleDateString()}</p>
-              <h1 className="mt-4 text-lg font-bold">Updated at:</h1>
-              <p className="text-xl">{new Date(user.updatedAt).toLocaleDateString()}</p>
-            </div>
+          <div className="place-items-center">
+          <h3 className="text-2xl font-bold text-green-600">{user.role}</h3>
+          <div className="mt-10">
+            <p className="text-lg font-bold">Name: <span className="px-5 font-light">{user.name}</span></p>
+            <p className="mt-2 text-lg font-bold">Email: <span className="px-5 font-light">{user.email}</span></p>
+            <p className="mt-2 text-lg font-bold">Mobile: <span className="px-5 font-light">{user.phone}</span></p>
+            <p className="mt-2 text-lg font-bold">Created at: <span className="px-5 font-light">{new Date(user.createdAt).toLocaleDateString()}</span></p>
+            <p className="mt-2 text-lg font-bold">Updated at: <span className="px-5 font-light">{new Date(user.updatedAt).toLocaleDateString()}</span></p>
           </div>
-          <div className="flex flex-col gap-5 md:flex-row mt-14">
-            <Link to="update-details">
-            <button
-              className="cursor-pointer px-6 py-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800"
-            >
-              Update Profile
-            </button>
-            </Link>
-            {user.role === "admin" && (
-            <Link to='/admin-dashboard'>
-              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
-                Admin Dashboard
-              </button>
-            </Link>
-            )}
-
-            {user.role === "farmer" && (
-            <>
-              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
-                My Listings
-              </button>
-            </>
-            )}
-
-            {user.role === "buyer" && (
-            <>
-              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
-                My Orders
-              </button>
-            </>
-            )}
-
-            {user.role === "driver" && (
-            <>
-              <button className="cursor-pointer p-3 font-bold text-white bg-green-600 rounded-xl hover:bg-green-800">
-                My Pickups
-              </button>
-            </>
-            )}
-
-            
+          </div>
+          <br/>
+          <div className="flex justify-center gap-10 mt-12">
+            <button className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700">Update Profile</button>
+            <button className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700">My Reservations</button>
           </div>
         </div>
       </div>
