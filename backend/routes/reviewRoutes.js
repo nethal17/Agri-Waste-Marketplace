@@ -8,7 +8,7 @@ import {
   deleteReview,
   getReviewDetails,
   getFarmerReviews
-} from '../controllers/review.Controller.js'; // Correct path
+} from '../controllers/review.Controller.js'; 
 
 const router = express.Router();
 
