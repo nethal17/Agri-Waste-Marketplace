@@ -45,7 +45,7 @@ export const Navbar = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('user'); // ✅ Remove user data as well
+        localStorage.removeItem('user');
         navigate('/');
         window.location.reload();
     };

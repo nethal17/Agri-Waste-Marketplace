@@ -13,6 +13,7 @@ import { DisplayAllDrivers } from './pages/DisplayAllDrivers';
 import { ContactUs } from './pages/ContactUs';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from "./pages/ResetPassword";
+import { StartList } from './pages/StartList';
 
 import { OrganicWaste } from './pages/OrganicWaste';
 import { NonOrganicWaste } from './pages/NonOrganicWaste';
@@ -67,6 +68,7 @@ function App() {
       <Route path="/contactus" element={<ContactUs />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/start-listing" element={<StartList />} />
 
       <Route path="/organic-waste" element={<OrganicWaste />} />
       <Route path="/non-organic" element={<NonOrganicWaste />} />
