@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { Navbar } from '../components/Navbar';
-import { FaCheck, FaTrash, FaEye, FaSpinner } from 'react-icons/fa'; // Import icons
+import { FaCheck, FaTrash, FaEye, FaSpinner } from 'react-icons/fa'; 
 
 export const ReviewManagerDashboard = () => {
   const [pendingReviews, setPendingReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   useEffect(() => {
     fetchPendingReviews();
@@ -41,7 +43,7 @@ export const ReviewManagerDashboard = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/reviews/${reviewId}`);
+      await axios.delete(`http://localhost:3000/api/reviews/review-delete/${reviewId}`);
       fetchPendingReviews();
       toast.success('Review deleted successfully!');
     } catch (error) {
@@ -49,6 +51,18 @@ export const ReviewManagerDashboard = () => {
       toast.error('Failed to delete review. Please try again.');
     }
   };
+
+  const handlePreviewReview = async (reviewId) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/reviews/details/${reviewId}`);
+      setSelectedReview(response.data); // Set the selected review
+      setIsPreviewModalOpen(true); // Open the preview modal
+    } catch (error) {
+      console.error('Error fetching review details:', error);
+      toast.error('Failed to fetch review details. Please try again.');
+    }
+  };
+
 
   return (
     <>
@@ -98,7 +112,7 @@ export const ReviewManagerDashboard = () => {
                           <FaTrash className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => {/* Implement preview logic */}}
+                          onClick={() => handlePreviewReview(review._id)}
                           className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                           title="Preview"
                         >

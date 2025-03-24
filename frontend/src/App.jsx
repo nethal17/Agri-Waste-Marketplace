@@ -16,6 +16,22 @@ import { ResetPassword } from "./pages/ResetPassword";
 
 import { OrganicWaste } from './pages/OrganicWaste';
 import { NonOrganicWaste } from './pages/NonOrganicWaste';
+import { CropResidues } from './pages/CropResidues';
+import { FruitVegetable } from './pages/FruitVegetable';
+import { PlantationWaste } from './pages/PlantationWaste';
+import { NutSeedWaste } from './pages/NutSeedWaste';
+import { LivestockDairyWaste } from './pages/LivestockDairyWaste';
+import { AgroIndustrialWaste } from './pages/AgroIndustrialWaste';
+import { ForestryWaste } from './pages/ForestryWaste';
+import { PlasticWaste } from './pages/PlasticWaste';
+import { MetalWaste } from './pages/MetalWaste';
+import { FabricTextile } from './pages/FabricTextile';
+import { GlassCeramic } from './pages/GlassCeramic';
+import { ElectronicElectrical } from './pages/ElectronicElectrical';
+import { RubberWaste } from './pages/RubberWaste';
+import { ChemicalWaste } from './pages/ChemicalWaste';
+import { Cart } from './pages/Cart';
+
 
 import DriverList from './components/DriverList';
 import DriverForm from './components/DriverForm';
@@ -31,6 +47,7 @@ import { InventoryPage } from './pages/InventoryPage';
 import { OrderHistoryPage } from './pages/OrderHistoryPage';
 import { ProductListingForm } from './pages/ProductListingForm';
 import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
+import { FarmerDashboard } from './pages/FarmerDashboard';
 
 import UsersTable from './pages/UserTable';
 
@@ -56,13 +73,29 @@ function App() {
 
       <Route path="/organic-waste" element={<OrganicWaste />} />
       <Route path="/non-organic" element={<NonOrganicWaste />} />
+      <Route path="/organic/:waste_type" element={<CropResidues />} />
+      <Route path="/organic/:waste_type" element={<FruitVegetable />} /> 
+      <Route path="/organic/:waste_type" element={<PlantationWaste />} />
+      <Route path="/organic/:waste_type" element={<NutSeedWaste />} /> 
+      <Route path="/organic/:waste_type" element={<LivestockDairyWaste />} /> 
+      <Route path="/organic/:waste_type" element={<AgroIndustrialWaste />} />
+      <Route path="/organic/:waste_type" element={<ForestryWaste />} />
+      <Route path="/non-organic/:waste_type" element={<ChemicalWaste />} />
+      <Route path="/non-organic/:waste_type" element={<PlasticWaste />} />
+      <Route path="/non-organic/:waste_type" element={<MetalWaste />} />
+      <Route path="/non-organic/:waste_type" element={<FabricTextile />} />
+      <Route path="/non-organic/:waste_type" element={<GlassCeramic />} />
+      <Route path="/non-organic/:waste_type" element={<ElectronicElectrical />} />
+      <Route path="/non-organic/:waste_type" element={<RubberWaste />} />
+      <Route path="/cart" element={<Cart />} />
+      
 
       <Route path="/driver" element={<DriverList />} />
-        <Route path="/create" element={<DriverForm />} />
-        <Route path="/driver/:id/payment" element={<PaymentDetails />} />
-        <Route path="/payment" element={<StripePayment />} /> 
-        <Route path="/success" element={<Success />} /> 
-        <Route path="/pay-history" element={<PayHistory />} />
+      <Route path="/create" element={<DriverForm />} />
+      <Route path="/driver/:id/payment" element={<PaymentDetails />} />
+      <Route path="/payment" element={<StripePayment />} /> 
+      <Route path="/success" element={<Success />} /> 
+      <Route path="/pay-history" element={<PayHistory />} />
 
       <Route path="/add-order" element={<AddOrderPage />} />
       <Route path="/add-review" element={<AddReviewPage />} />
@@ -71,6 +104,10 @@ function App() {
       <Route path="/order-history" element={<OrderHistoryPage />} />
       <Route path="/listing-form" element={<ProductListingForm />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
+      <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
+      
+      
+      
 
     </Routes>
   )

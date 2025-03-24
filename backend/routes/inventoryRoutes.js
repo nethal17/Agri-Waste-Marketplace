@@ -174,4 +174,29 @@ router.get('/reports', async (req, res) => {
   }
 });
 
+router.get('/getProductIds/:farmerId',async (req, res) => {
+  try {
+    const { farmerId } = req.params;
+
+    // Validate farmerId
+    if (!mongoose.Types.ObjectId.isValid(farmerId)) {
+      return res.status(400).json({ message: 'Invalid farmer ID.' });
+    }
+
+    // Find products associated with the farmer and return only their IDs
+    const products = await Inventory.find({ farmerId }).select('_id');
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: 'No products found for this farmer.' });
+    }
+
+    // Extract product IDs
+    const productIds = products.map(product => product._id);
+
+    res.status(200).json(productIds);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
