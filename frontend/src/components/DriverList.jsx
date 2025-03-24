@@ -39,15 +39,17 @@ const DriverList = () => {
             <th>#</th>
             <th>Name</th>
             <th>Age</th>
+            <th>Deliveries</th> {/* Add this column */}
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {drivers.map((driver, index) => (
             <tr key={driver._id}>
-              <td>{index + 1}</td> {/* Numbering starts from 1 */}
+              <td>{index + 1}</td>
               <td>{driver.name}</td>
               <td>{driver.age}</td>
+              <td>{driver.deliveryCount || 0}</td> {/* Show delivery count */}
               <td>
                 <button
                   className="calculate-button"

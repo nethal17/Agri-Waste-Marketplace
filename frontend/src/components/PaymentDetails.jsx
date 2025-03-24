@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import './PaymentDetails.css'; // Ensure this CSS file exists
+import './PaymentDetails.css';
 
 const PaymentDetails = () => {
   const { id } = useParams();
@@ -10,14 +10,12 @@ const PaymentDetails = () => {
   const [completedDeliveries, setCompletedDeliveries] = useState(0);
 
   useEffect(() => {
-    // Fetch driver details
+    // Fetch driver details including deliveryCount
     axios.get(`http://localhost:3000/api/drivers/${id}`)
-      .then(response => setDriver(response.data))
-      .catch(error => console.error(error));
-
-    // Fetch completed delivery count
-    axios.get(`http://localhost:3000/api/drivers/${id}/deliveries`)
-      .then(response => setCompletedDeliveries(response.data.count))
+      .then(response => {
+        setDriver(response.data);
+        setCompletedDeliveries(response.data.deliveryCount || 0);
+      })
       .catch(error => console.error(error));
   }, [id]);
 
@@ -27,11 +25,11 @@ const PaymentDetails = () => {
 
   const basicSalary = 20000.00;
   const deliveryBonus = 500.00;
-  const totalSalary = basicSalary + (completedDeliveries * deliveryBonus);
+  const bonusDeliveries = Math.max(0, completedDeliveries - 15); // Only count deliveries above 15
+  const totalSalary = basicSalary + (bonusDeliveries * deliveryBonus);
 
   const handlePay = async () => {
     try {
-      // Insert payment data into the database
       const paymentData = {
         driverId: id,
         driverName: driver.name,
@@ -39,19 +37,27 @@ const PaymentDetails = () => {
       };
 
       const response = await axios.post('http://localhost:3000/api/payments', paymentData);
-      console.log('Payment inserted:', response.data); // Debugging statement
+      console.log('Payment inserted:', response.data);
 
-      // Show success popup
-      alert('Payment data inserted successfully!');
-
-      // Navigate to Stripe payment gateway
-      const stripeResponse = await axios.post('http://localhost:3000/api/create-checkout-session', {
-        totalSalary,
-        driverId: id, // Pass driverId to Stripe
-        driverName: driver.name, // Pass driverName to Stripe
+      // Update driver's total salary
+      await axios.put(`http://localhost:3000/api/drivers/${id}/salary`, {
+        totalSalary: driver.totalSalary + totalSalary
       });
 
-      window.location.href = stripeResponse.data.url; // Redirect to Stripe
+      // Reset delivery count after payment
+      await axios.put(`http://localhost:3000/api/drivers/${id}/delivery-count`, {
+        deliveryCount: 0
+      });
+
+      alert('Payment data inserted successfully!');
+
+      const stripeResponse = await axios.post('http://localhost:3000/api/create-checkout-session', {
+        totalSalary,
+        driverId: id,
+        driverName: driver.name,
+      });
+
+      window.location.href = stripeResponse.data.url;
     } catch (error) {
       console.error('Error:', error);
       alert('Failed to process payment. Please try again.');
@@ -71,6 +77,9 @@ const PaymentDetails = () => {
           <h2>Salary Details</h2>
           <p><strong>Basic Salary:</strong> Rs. {basicSalary.toFixed(2)}</p>
           <p><strong>Completed Delivery Count:</strong> {completedDeliveries}</p>
+          {bonusDeliveries > 0 && (
+            <p><strong>Bonus Deliveries (above 15):</strong> {bonusDeliveries} × Rs. 500.00</p>
+          )}
           <p><strong>Total Salary:</strong> Rs. {totalSalary.toFixed(2)}</p>
         </div>
         <button className="pay-button" onClick={handlePay}>Pay Now</button>

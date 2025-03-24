@@ -1,5 +1,20 @@
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 export const createCheckoutSession = async (req, res) => {
   const { totalSalary, driverId, driverName } = req.body;
+
+  // Validate input
+  if (!totalSalary || !driverId || !driverName) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  if (isNaN(totalSalary) || totalSalary <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -7,27 +22,32 @@ export const createCheckoutSession = async (req, res) => {
       line_items: [
         {
           price_data: {
-            currency: 'lkr', // Sri Lankan Rupees
+            currency: 'lkr',
             product_data: {
-              name: 'Driver Salary Payment',
+              name: `Salary Payment for ${driverName}`,
             },
-            unit_amount: totalSalary * 100, // Stripe expects amount in cents
+            unit_amount: Math.round(totalSalary * 100), // Convert to cents
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL}/success`, // Redirect after successful payment
-      cancel_url: `${process.env.FRONTEND_URL}/cancel`, // Redirect if payment is canceled
+      success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/cancel`,
       metadata: {
-        driverId, // Ensure this is included
-        driverName, // Ensure this is included
-        type: 'driver', // Ensure this is included
+        driverId,
+        driverName,
+        type: 'driver',
       },
     });
 
-    res.json({ url: session.url }); // Return the Stripe Checkout URL
+    console.log('Stripe session created:', session.id);
+    res.json({ url: session.url });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Stripe error:', error);
+    res.status(500).json({ 
+      error: 'Failed to create payment session',
+      details: error.message 
+    });
   }
 };

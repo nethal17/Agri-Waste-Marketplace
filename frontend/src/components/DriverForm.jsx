@@ -4,14 +4,20 @@ import axios from 'axios';
 const DriverForm = () => {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
+  const [deliveryCount, setDeliveryCount] = useState(0); // Add this state
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/drivers', { name, age });
+      await axios.post('http://localhost:3000/api/drivers', { 
+        name, 
+        age,
+        deliveryCount // Include delivery count
+      });
       alert('Driver created successfully!');
       setName('');
       setAge('');
+      setDeliveryCount(0);
     } catch (error) {
       console.error(error);
     }
@@ -36,6 +42,16 @@ const DriverForm = () => {
             type="text"
             value={age}
             onChange={(e) => setAge(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Delivery Count:</label>
+          <input
+            type="number"
+            value={deliveryCount}
+            onChange={(e) => setDeliveryCount(parseInt(e.target.value) || 0)}
+            min="0"
             required
           />
         </div>
