@@ -40,12 +40,46 @@ export const getOrdersByUserId = async (req, res) => {
 
     // Find all orders for the user
     const orders = await Order.find({ buyerId: userId })
-      .populate('productId', 'name price') // Populate product details
-      .sort({ orderDate: -1 }); // Sort by order date (newest first)
+    .populate({
+      path: 'productId',
+      select: 'wasteItem description price', // Select the fields you need
+      model: 'Marketplace'
+    })
+    .exec();
 
-    res.status(200).json(orders);
+  res.status(200).json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const getOrderIdByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid userId' 
+      });
+    }
+
+    // Find all orders for the user and return only IDs
+    const orders = await Order.find({ buyerId: userId }).select('_id');
+
+    // Extract just the ID strings from the documents
+    //const orderIds = orders.map(order => order._id.toString());
+
+    res.status(200).json({orders});
+
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to fetch order IDs',
+      error: error.message 
+    });
   }
 };

@@ -129,7 +129,7 @@ export const Navbar = () => {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to="/list-products" className="block px-4 py-2 hover:bg-gray-100">
+                                        <Link to="/product-listing-form" className="block px-4 py-2 hover:bg-gray-100">
                                             List Products
                                         </Link>
                                     </li>
