@@ -161,7 +161,7 @@ export const Navbar = () => {
                                 <span>{loading ? "Loading..." : user?.email || "No Email"}</span>
                                 <img
                                   className="object-cover w-[50px] h-[50px] border-2 border-green-600 rounded-full shadow-md"
-                                  src={user.profilePic || "https://via.placeholder.com/150"}
+                                  src={user.profilePic || "https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg"}
                                   alt="Profile"
                                 />
                               </div>
