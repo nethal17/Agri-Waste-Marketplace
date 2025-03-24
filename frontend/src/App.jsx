@@ -48,6 +48,10 @@ import { ProductListingForm } from './pages/ProductListingForm';
 import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
 import { FarmerDashboard } from './pages/FarmerDashboard';
 
+import Delivery from './pages/Delivery';
+import TruckDriverDashboard from './pages/TruckDriverDashboard';
+import FarmerReqForm from './pages/FarmerReqForm';
+
 import UsersTable from './pages/UserTable';
 
 function App() {
@@ -104,7 +108,9 @@ function App() {
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
       <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
       
-      
+      <Route path='/Delivery' element={<Delivery/>} />
+      <Route path='/truck-dashboard' element={<TruckDriverDashboard/>} />
+      <Route path='/farmer-ReqForm' element={<FarmerReqForm/>} />
       
 
     </Routes>
