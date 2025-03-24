@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import { blacklistedTokens } from "../controllers/authController.js";
 
 export const authMiddleware = (req, res, next) => {
