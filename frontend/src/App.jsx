@@ -46,6 +46,7 @@ import { InventoryPage } from './pages/InventoryPage';
 import { OrderHistoryPage } from './pages/OrderHistoryPage';
 import { ProductListingForm } from './pages/ProductListingForm';
 import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
+import { FarmerDashboard } from './pages/FarmerDashboard';
 
 import UsersTable from './pages/UserTable';
 
@@ -88,11 +89,11 @@ function App() {
       
 
       <Route path="/driver" element={<DriverList />} />
-        <Route path="/create" element={<DriverForm />} />
-        <Route path="/driver/:id/payment" element={<PaymentDetails />} />
-        <Route path="/payment" element={<StripePayment />} /> 
-        <Route path="/success" element={<Success />} /> 
-        <Route path="/pay-history" element={<PayHistory />} />
+      <Route path="/create" element={<DriverForm />} />
+      <Route path="/driver/:id/payment" element={<PaymentDetails />} />
+      <Route path="/payment" element={<StripePayment />} /> 
+      <Route path="/success" element={<Success />} /> 
+      <Route path="/pay-history" element={<PayHistory />} />
 
       <Route path="/add-order" element={<AddOrderPage />} />
       <Route path="/add-review" element={<AddReviewPage />} />
@@ -101,6 +102,10 @@ function App() {
       <Route path="/order-history" element={<OrderHistoryPage />} />
       <Route path="/listing-form" element={<ProductListingForm />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
+      <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
+      
+      
+      
 
     </Routes>
   )

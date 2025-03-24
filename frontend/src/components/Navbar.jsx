@@ -60,13 +60,12 @@ export const Navbar = () => {
     return (
     <>
       
-      <nav className="bg-green-100 p-5 flex font-light justify-between items-center shadow-lg text-lg 
-                      fixed top-0 w-full z-50">
+      <nav className="fixed top-0 z-50 flex items-center justify-between w-full p-5 text-lg font-light bg-green-100 shadow-lg">
         
         <div className="text-2xl font-bold text-zinc-900">Waste2Wealth</div>
 
         
-        <div className="flex space-x-6 items-center text-zinc-900">
+        <div className="flex items-center space-x-6 text-zinc-900">
 
           <Link to="/" className="hover:text-green-600">Home</Link>
 
@@ -83,10 +82,10 @@ export const Navbar = () => {
             </button>
 
             {dropdownOpen && (
-              <div className="absolute top-8 left-0 bg-white shadow-lg rounded-lg w-48 border">
+              <div className="absolute left-0 w-48 bg-white border rounded-lg shadow-lg top-8">
                 <ul className="flex flex-col p-2">
                   <li>
-                    <Link to="" className="block px-4 py-2 hover:bg-gray-100">
+                    <Link to="http://localhost:5173/organic-waste" className="block px-4 py-2 hover:bg-gray-100">
                       Buy Products
                     </Link>
                   </li>
@@ -124,13 +123,13 @@ export const Navbar = () => {
 
       
       {dropdownOpen && (
-        <div className="absolute right-0 mt-2 bg-white shadow-lg border rounded-md w-48">
+        <div className="absolute right-0 w-48 mt-2 bg-white border rounded-md shadow-lg">
           <ul className="flex flex-col p-2">
-            <li className="px-4 py-2 hover:bg-green-600 cursor-pointer">
+            <li className="px-4 py-2 cursor-pointer hover:bg-green-600">
               <Link to="/profile">Profile Settings</Link>
             </li>
             <li 
-              className="px-4 py-2 hover:bg-green-600 cursor-pointer"
+              className="px-4 py-2 cursor-pointer hover:bg-green-600"
               onClick={handleLogout}
             >
               Logout
@@ -143,10 +142,10 @@ export const Navbar = () => {
             ) : (
             <>
             <Link to="/login">
-            <button className="cursor-pointer px-4 py-2 border border-green-800 text-green-800 rounded-lg hover:bg-white">Sign in</button>
+            <button className="px-4 py-2 text-green-800 border border-green-800 rounded-lg cursor-pointer hover:bg-white">Sign in</button>
             </Link>
             <Link to="/register">
-            <button className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-800">Sign up</button>
+            <button className="px-4 py-2 text-white bg-green-600 rounded-lg cursor-pointer hover:bg-green-800">Sign up</button>
             </Link>
             </>
             )}
