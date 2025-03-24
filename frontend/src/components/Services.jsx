@@ -1,21 +1,19 @@
-import { FaHotel, FaTrain } from "react-icons/fa";
-import { MdTour } from "react-icons/md";
-import { AiFillCar } from "react-icons/ai";
-import { BiRestaurant } from "react-icons/bi";
-import { BsCalendarEvent } from "react-icons/bs";
+import { FaShopify } from "react-icons/fa";
+import { TbTruckDelivery } from "react-icons/tb";
+import { MdAddBusiness } from "react-icons/md";
 
 const categories = [
   {
     name: "Marketplace",
-    icon: <FaHotel />,
+    icon: <FaShopify size={60}/>,
   },
   {
     name: "List Agriculural Waste",
-    icon: <MdTour />,
+    icon: <MdAddBusiness size={60}/>,
   },
   {
     name: "Pickup and Delivery",
-    icon: <AiFillCar />,
+    icon: <TbTruckDelivery size={60}/>,
   },
 ];
 export const Services = () => {
