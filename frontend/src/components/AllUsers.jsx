@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-
 export const AllUsers = () => {
     const [allUsers, setAllUsers] = useState([]); 
     const [loading, setLoading] = useState(false);
