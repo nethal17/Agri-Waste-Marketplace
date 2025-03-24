@@ -56,3 +56,21 @@ export const getDriverById = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+// new controller function
+export const updateDriverDeliveryCount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { deliveryCount } = req.body;
+    
+    const driver = await Driver.findByIdAndUpdate(
+      id, 
+      { deliveryCount }, 
+      { new: true }
+    );
+    
+    res.status(200).json(driver);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
