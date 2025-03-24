@@ -1,6 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+    window.location.reload();
+  };
+  
   return (
     <div className="p-8 text-white bg-zinc-900 w-[225px] text-lg">
       <ul>
@@ -32,10 +41,19 @@ export const Sidebar = () => {
         
         <div className="mt-[450px]">
         <li className="mb-4">
-          <a href="#" className="hover:text-green-600">Profile Settings</a>
+          <button
+            className="hover:text-green-600"
+            onClick={() => navigate("/profile")}
+          >
+            Profile Settings
+          </button>
         </li>
         <li className="mb-4">
-          <a href="#" className="hover:text-green-600">Log Out</a>
+          <button 
+            className="hover:text-green-600"
+            onClick={handleLogout}>
+            Log Out
+          </button>
         </li>
         </div>
       </ul>

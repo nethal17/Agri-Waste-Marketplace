@@ -1,38 +1,49 @@
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
 import { Payment } from '../models/payment.model.js';
+import { Driver } from '../models/driver.model.js';
 
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const handleWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
-  const payload = req.body;
+  let event;
 
   try {
-    // Verify the webhook signature
-    const event = stripe.webhooks.constructEvent(payload, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
-    // Handle the checkout.session.completed event
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
 
-      // Extract payment details from the session
-      const paymentData = {
+    try {
+      // Create payment record
+      const payment = await Payment.create({
         driverId: session.metadata.driverId,
         driverName: session.metadata.driverName,
-        payAmount: session.amount_total / 100, // Convert from cents to dollars
-      };
+        payAmount: session.amount_total / 100,
+      });
 
-      // Save the payment to your database
-      await Payment.create(paymentData);
+      // Update driver's total salary
+      await Driver.findByIdAndUpdate(
+        session.metadata.driverId,
+        { $inc: { totalSalary: session.amount_total / 100 } },
+        { new: true }
+      );
 
-      console.log('Payment saved:', paymentData);
+      console.log('Payment processed successfully:', payment);
+    } catch (err) {
+      console.error('Failed to save payment:', err);
     }
-
-    res.status(200).json({ received: true });
-  } catch (error) {
-    console.error('Webhook error:', error);
-    res.status(400).json({ error: error.message });
   }
+
+  res.json({ received: true });
 };
