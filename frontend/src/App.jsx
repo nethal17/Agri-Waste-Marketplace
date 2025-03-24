@@ -48,8 +48,6 @@ import { ProductListingForm } from './pages/ProductListingForm';
 import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
 import { FarmerDashboard } from './pages/FarmerDashboard';
 
-import UsersTable from './pages/UserTable';
-
 function App() {
 
   return (
@@ -68,7 +66,6 @@ function App() {
       <Route path="/contactus" element={<ContactUs />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
-      <Route path="/table" element={<UsersTable />} />
 
       <Route path="/organic-waste" element={<OrganicWaste />} />
       <Route path="/non-organic" element={<NonOrganicWaste />} />
