@@ -30,6 +30,7 @@ import { GlassCeramic } from './pages/GlassCeramic';
 import { ElectronicElectrical } from './pages/ElectronicElectrical';
 import { RubberWaste } from './pages/RubberWaste';
 import { ChemicalWaste } from './pages/ChemicalWaste';
+import { Cart } from './pages/Cart';
 
 
 import DriverList from './components/DriverList';
@@ -86,6 +87,7 @@ function App() {
       <Route path="/non-organic/:waste_type" element={<GlassCeramic />} />
       <Route path="/non-organic/:waste_type" element={<ElectronicElectrical />} />
       <Route path="/non-organic/:waste_type" element={<RubberWaste />} />
+      <Route path="/cart" element={<Cart />} />
       
 
       <Route path="/driver" element={<DriverList />} />

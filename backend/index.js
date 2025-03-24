@@ -46,8 +46,6 @@ app.use('/api', webhookRoutes);
 app.use('/api', stripePaymentsRoutes);
 app.use('/api', driverPaymentsRoutes);
 
-
-
 //Ricky
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/reviews', reviewRoutes);
