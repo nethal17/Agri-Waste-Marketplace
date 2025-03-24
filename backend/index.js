@@ -13,10 +13,12 @@ import productRoutes from "./routes/productRoutes.js";
 import driverRoutes from './routes/driver.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import agriWasteRoutes from "./routes/agriWasteRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
 import stripeRoutes from './routes/stripe.routes.js'
 import webhookRoutes from './routes/webhook.routes.js';
 import stripePaymentsRoutes from './routes/stripePayments.routes.js';
 import driverPaymentsRoutes from './routes/driverPayments.routes.js';
+
 
 dotenv.config();
 
@@ -44,8 +46,6 @@ app.use('/api', webhookRoutes);
 app.use('/api', stripePaymentsRoutes);
 app.use('/api', driverPaymentsRoutes);
 
-
-
 //Ricky
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/reviews', reviewRoutes);
@@ -54,6 +54,7 @@ app.use('/api/products', productRoutes);
 
 //Naduli
 app.use("/api/agri-waste", agriWasteRoutes);
+app.use("/api/cart", cartRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
