@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
-import { Toaster, toast } from "react-hot-toast"; // Import react-hot-toast
+import { Toaster, toast } from "react-hot-toast";
 
 export const SignUp = () => {
     const navigate = useNavigate();
@@ -91,7 +91,7 @@ export const SignUp = () => {
                     name="role"
                     value={user.role}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 text-lg border border-gray-400 rounded-3xl focus:outline-none focus:ring-5 focus:ring-green-500"
+                    className="w-full px-4 py-3 border border-gray-400 text-md rounded-3xl focus:outline-none focus:ring-5 focus:ring-green-500"
                   >
                     <option value="farmer">Farmer</option>
                     <option value="buyer">Buyer</option>
