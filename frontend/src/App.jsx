@@ -44,9 +44,9 @@ import { AddReviewPage } from './pages/AddReviewPage';
 import { InventoryManagerDashboard } from './pages/InventoryManagerDashboard';
 import { InventoryPage } from './pages/InventoryPage';
 import { OrderHistoryPage } from './pages/OrderHistoryPage';
-import { ProductListingForm } from './pages/ProductListingForm';
 import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
 import { FarmerDashboard } from './pages/FarmerDashboard';
+import { ProductListingForm } from './pages/ProductListingForm';
 
 import UsersTable from './pages/UserTable';
 
@@ -100,13 +100,11 @@ function App() {
       <Route path="/inventory-dashboard" element={<InventoryManagerDashboard />}/>
       <Route path="/inventory" element={<InventoryPage />} />
       <Route path="/order-history" element={<OrderHistoryPage />} />
-      <Route path="/listing-form" element={<ProductListingForm />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
       <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
-      
-      
-      
+      <Route path="/product-listing-form" element={<ProductListingForm />} />
 
+  
     </Routes>
   )
 }

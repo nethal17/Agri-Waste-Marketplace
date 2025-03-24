@@ -1,47 +1,65 @@
-import { useState, useEffect } from "react";
-import { toast } from "react-hot-toast";
-import { Navbar } from "../components/Navbar";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { Navbar } from '../components/Navbar';
 
 export const InventoryManagerDashboard = () => {
-  const [pendingListings, setPendingListings] = useState([]);
+  const [listings, setListings] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteReason, setDeleteReason] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [approving, setApproving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    fetchPendingListings();
+    fetchListings();
   }, []);
 
-  const fetchPendingListings = async () => {
+  const fetchListings = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/inventory/pending");
-      if (!response.ok) {
-        throw new Error("Failed to fetch pending listings.");
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('No token found, please login again.');
+        return;
       }
-      const data = await response.json();
-      setPendingListings(data);
+
+      const response = await axios.get('http://localhost:3000/api/product-listing/admin/listings', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setListings(response.data);
+      
     } catch (error) {
-      toast.error("Failed to fetch pending listings.");
+      console.error('Error fetching listings:', error);
+      toast.error('Failed to fetch listings. Please try again.');
     }
   };
 
-  const handleApprove = async (id) => {
+  const pendingListings = listings.filter((listing) => listing.status === 'Pending');
+
+  const handleApprove = async (listingId) => {
     setApproving(true);
     try {
-      const response = await fetch(`http://localhost:3000/api/inventory/approve/${id}`, {
-        method: "PUT",
-      });
-      if (response.ok) {
-        toast.success("Product approved!");
-        fetchPendingListings();
-      } else {
-        toast.error("Approval failed.");
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('No token found, please login again.');
+        return;
       }
+
+      await axios.put(`http://localhost:3000/api/product-listing/admin/approve/${listingId}`, null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      toast.success('Listing approved and moved to Marketplace.');
+      fetchListings();
     } catch (error) {
-      toast.error("An error occurred.");
+      console.error('Error approving listing:', error);
+      toast.error('Failed to approve listing. Please try again.');
     } finally {
       setApproving(false);
     }
@@ -51,23 +69,27 @@ export const InventoryManagerDashboard = () => {
     if (!productToDelete) return;
     setDeleting(true);
     try {
-      const response = await fetch(`http://localhost:3000/api/inventory/delete/${productToDelete}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ reason: deleteReason }),
-      });
-      if (response.ok) {
-        toast.success("Product deleted!");
-        setShowDeleteModal(false);
-        setDeleteReason("");
-        fetchPendingListings();
-      } else {
-        toast.error("Deletion failed.");
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('No token found, please login again.');
+        return;
       }
+
+      await axios.delete(`http://localhost:3000/api/product-listing/admin/delete/${productToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        data: { reason: deleteReason },
+      });
+
+      toast.success('Listing deleted successfully.');
+      setShowDeleteModal(false);
+      setDeleteReason('');
+      fetchListings();
     } catch (error) {
-      toast.error("An error occurred.");
+      console.error('Error deleting listing:', error);
+      toast.error('Failed to delete listing. Please try again.');
     } finally {
       setDeleting(false);
     }
@@ -82,7 +104,8 @@ export const InventoryManagerDashboard = () => {
           <table className="min-w-full">
             <thead className="bg-green-100">
               <tr>
-                <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase">Product Name</th>
+                <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase">Farmer</th>
+                <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase">Product</th>
                 <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase">Description</th>
                 <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase">Price</th>
                 <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700 uppercase">Quantity</th>
@@ -92,23 +115,35 @@ export const InventoryManagerDashboard = () => {
             <tbody>
               {pendingListings.map((listing) => (
                 <tr key={listing._id} className="border-b hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-6 text-sm text-gray-800 font-medium">{listing.productName}</td>
+                  <td className="py-4 px-6 text-sm text-gray-800 font-medium">{listing.farmerId?.name || 'Unknown Farmer'}</td>
+                  <td className="py-4 px-6 text-sm text-gray-700">{listing.wasteItem}</td>
                   <td className="py-4 px-6 text-sm text-gray-700">{listing.description}</td>
                   <td className="py-4 px-6 text-sm text-gray-700">${listing.price}</td>
                   <td className="py-4 px-6 text-sm text-gray-700">{listing.quantity}</td>
                   <td className="py-4 px-6 text-sm">
                     <div className="flex items-center space-x-3">
-                      <button onClick={() => setSelectedProduct(listing)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                      <button 
+                        onClick={() => setSelectedProduct(listing)} 
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                      >
                         Preview
                       </button>
-                      <button onClick={() => handleApprove(listing._id)} disabled={approving} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                        {approving ? "Approving..." : "Approve"}
+                      <button 
+                        onClick={() => handleApprove(listing._id)} 
+                        disabled={approving} 
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                      >
+                        {approving ? 'Approving...' : 'Approve'}
                       </button>
-                      <button onClick={() => {
-                        setProductToDelete(listing._id);
-                        setShowDeleteModal(true);
-                      }} disabled={deleting} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-                        {deleting ? "Deleting..." : "Delete"}
+                      <button 
+                        onClick={() => {
+                          setProductToDelete(listing._id);
+                          setShowDeleteModal(true);
+                        }} 
+                        disabled={deleting} 
+                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                      >
+                        {deleting ? 'Deleting...' : 'Delete'}
                       </button>
                     </div>
                   </td>
@@ -117,6 +152,40 @@ export const InventoryManagerDashboard = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-xl shadow-xl w-96">
+              <h3 className="text-xl font-semibold mb-4">Delete Product</h3>
+              <p className="mb-4">Are you sure you want to delete this product?</p>
+              <textarea
+                className="w-full p-2 border rounded-lg mb-4"
+                placeholder="Reason for deletion..."
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+              />
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeleteReason('');
+                  }}
+                  className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
