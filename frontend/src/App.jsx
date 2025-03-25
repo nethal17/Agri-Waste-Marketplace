@@ -58,7 +58,6 @@ import Delivery from './pages/Delivery';
 import TruckDriverDashboard from './pages/TruckDriverDashboard';
 import FarmerReqForm from './pages/FarmerReqForm';
 
-import UsersTable from './pages/UserTable';
 
 
 function App() {
@@ -105,7 +104,7 @@ function App() {
       <Route path="/order-history" element={<OrderHistoryPage />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
 
-      <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
+      
       
       <Route path='/Delivery' element={<Delivery/>} />
       <Route path='/truck-dashboard' element={<TruckDriverDashboard/>} />
