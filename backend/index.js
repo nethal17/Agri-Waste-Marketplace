@@ -19,6 +19,7 @@ import webhookRoutes from './routes/webhook.routes.js';
 import stripePaymentsRoutes from './routes/stripePayments.routes.js';
 import driverPaymentsRoutes from './routes/driverPayments.routes.js';
 import ProductListingRoutes from './routes/ProductListingRoutes.js';
+import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
 
 
 dotenv.config();
@@ -53,6 +54,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/product-listing', ProductListingRoutes);
+app.use('/api/marketplace', MarketplaceRoutes);
 
 
 //Naduli

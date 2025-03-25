@@ -155,7 +155,7 @@ export const Profile = () => {
             <>
             <button 
             className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
-            onClick={() => navigate("")} >
+            onClick={() => navigate("/farmer-dashboard")} >
               My Listings
             </button>
             </>
@@ -165,7 +165,7 @@ export const Profile = () => {
             <>
             <button 
             className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
-            onClick={() => navigate("")} >
+            onClick={() => navigate("/order-history")} >
               My Orders
             </button>
             </>

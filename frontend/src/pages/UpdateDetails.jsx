@@ -99,9 +99,9 @@ export const UpdateDetails = () => {
     <div>
       <Navbar />
       <Toaster position="top-center" reverseOrder={false} /> {/* Toast container */}
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="w-full max-w-md p-8 bg-white backdrop-blur-md rounded-lg shadow-2xl">
-          <div className="text-center mb-8">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-2xl backdrop-blur-md">
+          <div className="mb-8 text-center">
             <h2 className="text-4xl font-bold text-zinc-900">Register</h2>
           </div>
           <form onSubmit={handleSubmit}>
@@ -113,7 +113,7 @@ export const UpdateDetails = () => {
                 value={user.name}
                 onChange={handleChange}
                 required
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div className="mb-6">
@@ -124,7 +124,8 @@ export const UpdateDetails = () => {
                 value={user.email}
                 onChange={handleChange}
                 required
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                readOnly
+                className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div className="mb-6">
@@ -135,7 +136,7 @@ export const UpdateDetails = () => {
                 value={user.phone}
                 onChange={handleChange}
                 required
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div className="mb-6">
@@ -145,7 +146,7 @@ export const UpdateDetails = () => {
                 name="password"
                 value={user.password}
                 onChange={handleChange}
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div className="mb-6">
@@ -155,14 +156,14 @@ export const UpdateDetails = () => {
                 name="confirmPassword"
                 value={user.confirmPassword}
                 onChange={handleChange}
-                className="w-full rounded-3xl py-3 px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div className="mb-6">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-2xl bg-green-600 hover:bg-green-700 py-3 text-xl text-white"
+                className="w-full py-3 text-xl text-white bg-green-600 rounded-2xl hover:bg-green-700"
               >
                 {loading ? "Updating details..." : "Update"}
               </button>

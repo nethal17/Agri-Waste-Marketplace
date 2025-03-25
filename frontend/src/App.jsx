@@ -13,6 +13,7 @@ import { DisplayAllDrivers } from './pages/DisplayAllDrivers';
 import { ContactUs } from './pages/ContactUs';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from "./pages/ResetPassword";
+import { StartList } from './pages/StartList';
 
 import { OrganicWaste } from './pages/OrganicWaste';
 import { NonOrganicWaste } from './pages/NonOrganicWaste';
@@ -46,8 +47,10 @@ import { InventoryManagerDashboard } from './pages/InventoryManagerDashboard';
 import { InventoryPage } from './pages/InventoryPage';
 import { OrderHistoryPage } from './pages/OrderHistoryPage';
 import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
-import { FarmerDashboard } from './pages/FarmerDashboard';
 import { ProductListingForm } from './pages/ProductListingForm';
+import { DisplayFarmerListings } from './pages/DisplayFarmerListings';
+import { DisplayFarmerReviews } from './pages/DisplayFarmerReviews';
+
 
 function App() {
 
@@ -67,6 +70,7 @@ function App() {
       <Route path="/contactus" element={<ContactUs />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/start-listing" element={<StartList />} />
 
       <Route path="/organic-waste" element={<OrganicWaste />} />
       <Route path="/non-organic" element={<NonOrganicWaste />} />
@@ -100,8 +104,9 @@ function App() {
       <Route path="/inventory" element={<InventoryPage />} />
       <Route path="/order-history" element={<OrderHistoryPage />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
-      <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
       <Route path="/product-listing-form" element={<ProductListingForm />} />
+      <Route path="/farmer-listings" element={<DisplayFarmerListings />} /> 
+      <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 
 
   
     </Routes>

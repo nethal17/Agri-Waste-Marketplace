@@ -92,7 +92,7 @@ export const ReviewManagerDashboard = () => {
                     className="border-b hover:bg-gray-50 transition"
                   >
                     <td className="p-4 text-gray-700">{review.buyerId?.name || "Unknown Buyer"}</td>
-                    <td className="p-4 text-gray-700">{review.productId?.name || "Unknown Product"}</td>
+                    <td className="p-4 text-gray-700">{review.productId?.wasteItem || "Unknown Product"}</td>
                     <td className="p-4 text-gray-700">{review.rating}</td>
                     <td className="p-4 text-gray-700">{review.review}</td>
                     <td className="p-4">
