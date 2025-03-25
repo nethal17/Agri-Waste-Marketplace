@@ -207,6 +207,7 @@ export const ProductListingForm = () => {
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Add New Product Listing</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Form fields remain the same as in your original code */}
+            
             {/* Waste Category (Radio Buttons) */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">Waste Category</label>

@@ -77,6 +77,7 @@ export const ReviewManagerDashboard = () => {
           ) : (
             <table className="w-full">
               <thead>
+                  
                 <tr className="bg-gray-100 text-gray-600 uppercase text-sm">
                   <th className="p-4 text-left">Buyer</th>
                   <th className="p-4 text-left">Product</th>
@@ -110,13 +111,6 @@ export const ReviewManagerDashboard = () => {
                           title="Delete"
                         >
                           <FaTrash className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handlePreviewReview(review._id)}
-                          className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                          title="Preview"
-                        >
-                          <FaEye className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
