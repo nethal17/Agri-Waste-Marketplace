@@ -385,7 +385,7 @@ export const ProductListingForm = () => {
 
             {/* Image Upload */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Upload Product Image</label>
+              <label className="block text-gray-700 font-medium mb-2">Upload Product Image (*Optianal)</label>
               <input
                 type="file"
                 name="image"
