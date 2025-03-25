@@ -43,7 +43,6 @@ export const getCart = async (req, res) => {
 };
 
 //  Update cart item quantity
-
 export const updateCartItem = async (req, res) => {
   try {
     console.log("Received update request:", req.body); 
@@ -79,12 +78,12 @@ export const updateCartItem = async (req, res) => {
   }
 };
 
-
 //  Remove item from cart
 export const removeCartItem = async (req, res) => {
   try {
     const { userId, wasteId } = req.body;
     const cart = await Cart.findOne({ userId });
+    
     if (!cart) return res.status(404).json({ message: "Cart not found" });
     cart.items = cart.items.filter(item => item.wasteId.toString() !== wasteId);
 

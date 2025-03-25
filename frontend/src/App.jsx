@@ -18,7 +18,7 @@ import { StartList } from './pages/StartList';
 import { OrganicWaste } from './pages/OrganicWaste';
 import { NonOrganicWaste } from './pages/NonOrganicWaste';
 import { CropResidues } from './pages/CropResidues';
-import { FruitVegetable } from './pages/FruitVegetable';
+/*import { FruitVegetable } from './pages/FruitVegetable';
 import { PlantationWaste } from './pages/PlantationWaste';
 import { NutSeedWaste } from './pages/NutSeedWaste';
 import { LivestockDairyWaste } from './pages/LivestockDairyWaste';
@@ -29,9 +29,11 @@ import { MetalWaste } from './pages/MetalWaste';
 import { FabricTextile } from './pages/FabricTextile';
 import { GlassCeramic } from './pages/GlassCeramic';
 import { ElectronicElectrical } from './pages/ElectronicElectrical';
-import { RubberWaste } from './pages/RubberWaste';
+import { RubberWaste } from './pages/RubberWaste';*/
 import { ChemicalWaste } from './pages/ChemicalWaste';
 import { Cart } from './pages/Cart';
+import { Checkout } from './pages/Checkout';
+import { BuyerAddressForm } from './pages/BuyerAddressForm';
 
 
 import DriverList from './components/DriverList';
@@ -56,7 +58,6 @@ import Delivery from './pages/Delivery';
 import TruckDriverDashboard from './pages/TruckDriverDashboard';
 import FarmerReqForm from './pages/FarmerReqForm';
 
-import UsersTable from './pages/UserTable';
 
 
 function App() {
@@ -82,20 +83,10 @@ function App() {
       <Route path="/organic-waste" element={<OrganicWaste />} />
       <Route path="/non-organic" element={<NonOrganicWaste />} />
       <Route path="/organic/:waste_type" element={<CropResidues />} />
-      <Route path="/organic/:waste_type" element={<FruitVegetable />} /> 
-      <Route path="/organic/:waste_type" element={<PlantationWaste />} />
-      <Route path="/organic/:waste_type" element={<NutSeedWaste />} /> 
-      <Route path="/organic/:waste_type" element={<LivestockDairyWaste />} /> 
-      <Route path="/organic/:waste_type" element={<AgroIndustrialWaste />} />
-      <Route path="/organic/:waste_type" element={<ForestryWaste />} />
       <Route path="/non-organic/:waste_type" element={<ChemicalWaste />} />
-      <Route path="/non-organic/:waste_type" element={<PlasticWaste />} />
-      <Route path="/non-organic/:waste_type" element={<MetalWaste />} />
-      <Route path="/non-organic/:waste_type" element={<FabricTextile />} />
-      <Route path="/non-organic/:waste_type" element={<GlassCeramic />} />
-      <Route path="/non-organic/:waste_type" element={<ElectronicElectrical />} />
-      <Route path="/non-organic/:waste_type" element={<RubberWaste />} />
       <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/buyer-address-form" element={<BuyerAddressForm />} />
       
 
       <Route path="/driver" element={<DriverList />} />
@@ -113,7 +104,7 @@ function App() {
       <Route path="/order-history" element={<OrderHistoryPage />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
 
-      <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
+      
       
       <Route path='/Delivery' element={<Delivery/>} />
       <Route path='/truck-dashboard' element={<TruckDriverDashboard/>} />
