@@ -1,9 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+    window.location.reload();
+  };
+  
   return (
-    <div className="w-50 bg-zinc-900 text-white p-6">
+    <div className="p-8 text-white bg-zinc-900 w-[225px] text-lg">
       <ul>
+        <div>
         <Link to="/all-users">
         <li className="mb-4">
           <a href="#" className="hover:text-green-600">All Users</a>
@@ -27,20 +37,25 @@ export const Sidebar = () => {
           <a href="#" className="hover:text-green-600">Truck Drivers</a>
         </li>
         </Link>
-
+        </div>
+        
+        <div className="mt-[450px]">
         <li className="mb-4">
-          <a href="#" className="hover:text-green-600">Organic Fertilizer Sellers</a>
+          <button
+            className="hover:text-green-600"
+            onClick={() => navigate("/profile")}
+          >
+            Profile Settings
+          </button>
         </li>
         <li className="mb-4">
-          <a href="#" className="hover:text-green-600">Recycling Companies</a>
+          <button 
+            className="hover:text-green-600"
+            onClick={handleLogout}>
+            Log Out
+          </button>
         </li>
-        <br></br> <br></br> <br></br> <br></br> <br></br> <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
-        <li className="mb-4">
-          <a href="#" className="hover:text-green-600">Settings</a>
-        </li>
-        <li className="mb-4">
-          <a href="#" className="hover:text-green-600">Log Out</a>
-        </li>
+        </div>
       </ul>
     </div>
   );

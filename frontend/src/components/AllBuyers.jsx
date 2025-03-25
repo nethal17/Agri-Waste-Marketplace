@@ -26,61 +26,88 @@ export const AllBuyers = () => {
     const buyers = allUsers.filter((user) => user.role === "buyer");
 
     return (
-        <div>
-            {loading ? (
-                <p className="text-center text-lg font-semibold">Loading users...</p>
-            ) : (
-                <div className="w-full h-full p-6">
-                    <table className="w-full border-separate border-spacing-2">
-                        <thead>
-                            <tr>
-                                <th className="border border-slate-600 rounded-md">No</th>
-                                <th className="border border-slate-600 rounded-md">Name</th>
-                                <th className="border border-slate-600 rounded-md max-md:hidden">Email</th>
-                                <th className="border border-slate-600 rounded-md max-md:hidden">Mobile</th>
-                                <th className="border border-slate-600 rounded-md">Operations</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {buyers.length > 0 ? (
-                                buyers.map((user, index) => (
-                                    <tr key={user._id} className="h-8">
-                                        <td className="border border-slate-700 rounded-md text-center">
-                                            {index + 1}
-                                        </td>
-                                        <td className="border border-slate-700 rounded-md text-center">
-                                            {user.name}
-                                        </td>
-                                        <td className="border border-slate-700 rounded-md text-center max-md:hidden">
-                                            {user.email}
-                                        </td>
-                                        <td className="border border-slate-700 rounded-md text-center max-md:hidden">
-                                            {user.phone}
-                                        </td>
-                                        <td className="border border-slate-700 rounded-md text-center">
-                                            <div className="flex justify-center gap-x-4">
-                                                <Link to={`/users/details/${user._id}`}>
-                                                    <BsInfoCircle className="text-2xl text-green-800"/>
-                                                </Link>
-                                                <Link to={`/users/delete/${user._id}`}>
-                                                    <MdOutlineDelete className="text-2xl text-red-600"/>
-                                                </Link>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className="text-center p-4">
-                                        No buyers found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+        <>
+      <div className="max-w-6xl px-8 py-8 mx-auto mt-6 sm:px-6 lg:px-8">
+      <h2 className="mb-5 text-3xl font-semibold text-center text-gray-900">All Waste Buyers</h2>
+        <div className="flex flex-col">
+          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                <table className="min-w-full divide-y divide-gray-300">
+                  <thead className="bg-green-100 ">
+                    <tr>
+                      <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-lg font-semibold text-gray-900 sm:pl-6">
+                        Name
+                      </th>
+                      <th scope="col" className="px-3 py-3.5 text-left text-lg font-semibold text-gray-900">
+                        Created At
+                      </th>
+                      <th scope="col" className="px-3 py-3.5 text-left text-lg font-semibold text-gray-900">
+                        Status
+                      </th>
+                      <th scope="col" className="px-3 py-3.5 text-left text-lg font-semibold text-gray-900">
+                        Telephone
+                      </th>
+                      <th scope="col" className="px-3 py-3.5 text-left text-lg font-semibold text-gray-900">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {buyers.length > 0 ? (
+                        buyers.map((user) => (
+                      <tr key={user._id} className="cursor-pointer hover:bg-green-300">
+                        <td className="py-4 pl-4 pr-3 text-sm whitespace-nowrap sm:pl-6">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 w-10 h-10">
+                              <img
+                                className="object-cover w-10 h-10 rounded-full"
+                                src={user.profilePic}
+                                alt="profile picture"
+                              />
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-lg font-light text-black">{user.name}</div>
+                              <div className="font-semibold text-gray-500">{user.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-4 text-md whitespace-nowrap">
+                        {new Date(user?.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                        </td>
+                        <td className="px-3 py-4 text-sm whitespace-nowrap">
+                        <span
+                            className={`inline-flex px-2 font-bold leading-5 rounded-full text-md ${
+                            user.isVerified ? "text-green-700" : "text-red-700"}`}
+                        >
+                            {user.isVerified ? "Verified" : "Not Verified"}
+                        </span>
+                        </td>
+                        <td className="px-3 py-4 text-black text-md whitespace-nowrap">{user.phone}</td>
+                        <td className="relative py-4 pl-3 pr-4 text-sm font-medium text-right whitespace-nowrap sm:pr-6">
+                        <button 
+                          onClick={() => handleUserDelete(user._id)}
+                          className="justify-center w-full h-[35px] text-center text-white bg-red-600 border rounded-md cursor-pointer justify"
+                        >
+                          Deactivate
+                        </button>
+                        </td>
+                      </tr>
+                    )) 
+                    ): (
+                        <tr>
+                            <td colSpan={5} className="p-4 text-center">
+                                No farmers found.
+                            </td>
+                        </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      </>
     );
 };

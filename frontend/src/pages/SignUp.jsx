@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
-import { Toaster, toast } from "react-hot-toast"; // Import react-hot-toast
+import { Toaster, toast } from "react-hot-toast";
 
 export const SignUp = () => {
     const navigate = useNavigate();
@@ -23,25 +23,27 @@ export const SignUp = () => {
       const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-    
+      
         if (user.password !== user.confirmPassword) {
           toast.error("Passwords do not match");
+          setLoading(false);
           return;
         }
-    
-        toast.success("Account created successfully. Please check your email to verify your account.");
-        navigate("/login");
-    
+      
         axios
           .post("http://localhost:3000/api/auth/register", user)
           .then((res) => {
             console.log(res.data);
+            toast.success("Account created successfully. Please check your email to verify your account.");
+            navigate("/login");
           })
           .catch((err) => {
             console.error(err);
-            setLoading(false);
-      });
+            toast.error("Registration failed. Please try again.");
+          })
+          .finally(() => setLoading(false));
       };
+      
 
       return (
         <div>
@@ -91,7 +93,7 @@ export const SignUp = () => {
                     name="role"
                     value={user.role}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 text-lg border border-gray-400 rounded-3xl focus:outline-none focus:ring-5 focus:ring-green-500"
+                    className="w-full px-4 py-3 border border-gray-400 text-md rounded-3xl focus:outline-none focus:ring-5 focus:ring-green-500"
                   >
                     <option value="farmer">Farmer</option>
                     <option value="buyer">Buyer</option>

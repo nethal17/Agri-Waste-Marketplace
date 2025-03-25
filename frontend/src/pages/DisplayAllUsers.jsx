@@ -8,10 +8,7 @@ export const DisplayAllUsers = () => {
     <Navbar />
     <div className="flex h-fit">
         <Sidebar />
-        <div className="flex-grow p-4 overflow-auto">
-        <div className="text-center text-3xl text-bold p-3">
-            All System Users
-        </div>
+        <div className="flex-grow overflow-auto">
         <AllUsers />
         </div>
     </div>

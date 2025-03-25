@@ -33,7 +33,7 @@ export const addToCart = async (req, res) => {
 export const getCart = async (req, res) => {
   try {
     const { userId } = req.params;
-    const cart = await Cart.findOne({ userId }).populate("items.wasteId");
+    const cart = await Cart.findOne({ userId }).populate("items._id");
     if (!cart) return res.status(404).json({ message: "Cart is empty" });
     res.status(200).json(cart);
   } catch (error) {
@@ -43,23 +43,42 @@ export const getCart = async (req, res) => {
 };
 
 //  Update cart item quantity
+
 export const updateCartItem = async (req, res) => {
   try {
+    console.log("Received update request:", req.body); 
     const { userId, wasteId, quantity } = req.body;
+    if (!userId || !wasteId || quantity === undefined) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
     const cart = await Cart.findOne({ userId });
-    if (!cart) return res.status(404).json({ message: "Cart not found" });
-    const item = cart.items.find(item => item.wasteId.toString() === wasteId);
-    if (item) item.quantity = quantity;
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+    const itemIndex = cart.items.findIndex(
+      (item) => item.wasteId.toString() === wasteId
+    );
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: "Item not found in cart" });
+    }
+    cart.items[itemIndex].quantity = quantity;
+
+    //Recalculate total price
     cart.totalPrice = cart.items.reduce(
       (total, item) => total + item.price * item.quantity + item.deliveryCost,
       0
     );
+
     await cart.save();
+
+    console.log("Cart updated successfully:", cart);
     res.status(200).json(cart);
   } catch (error) {
-    res.status(500).json({ error: "Failed to update item quantity" });
+    console.error("Error updating cart item:", error);
+    res.status(500).json({ error: "Failed to update item quantity", details: error.message });
   }
 };
+
 
 //  Remove item from cart
 export const removeCartItem = async (req, res) => {

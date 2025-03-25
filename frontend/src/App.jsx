@@ -13,6 +13,7 @@ import { DisplayAllDrivers } from './pages/DisplayAllDrivers';
 import { ContactUs } from './pages/ContactUs';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from "./pages/ResetPassword";
+import { StartList } from './pages/StartList';
 
 import { OrganicWaste } from './pages/OrganicWaste';
 import { NonOrganicWaste } from './pages/NonOrganicWaste';
@@ -30,6 +31,7 @@ import { GlassCeramic } from './pages/GlassCeramic';
 import { ElectronicElectrical } from './pages/ElectronicElectrical';
 import { RubberWaste } from './pages/RubberWaste';
 import { ChemicalWaste } from './pages/ChemicalWaste';
+import { Cart } from './pages/Cart';
 
 
 import DriverList from './components/DriverList';
@@ -38,21 +40,24 @@ import PaymentDetails from './components/PaymentDetails';
 import StripePayment from './components/StripePayment';
 import Success from './components/Success';
 import PayHistory from './components/PayHistory';
+import HighPayments from './components/HighPayments';
 
 import { AddOrderPage } from './pages/AddOrderPage';
 import { AddReviewPage } from './pages/AddReviewPage';
 import { InventoryManagerDashboard } from './pages/InventoryManagerDashboard';
 import { InventoryPage } from './pages/InventoryPage';
 import { OrderHistoryPage } from './pages/OrderHistoryPage';
-import { ProductListingForm } from './pages/ProductListingForm';
 import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
-import { FarmerDashboard } from './pages/FarmerDashboard';
+import { ProductListingForm } from './pages/ProductListingForm';
+import { DisplayFarmerListings } from './pages/DisplayFarmerListings';
+import { DisplayFarmerReviews } from './pages/DisplayFarmerReviews';
 
 import Delivery from './pages/Delivery';
 import TruckDriverDashboard from './pages/TruckDriverDashboard';
 import FarmerReqForm from './pages/FarmerReqForm';
 
 import UsersTable from './pages/UserTable';
+
 
 function App() {
 
@@ -72,7 +77,7 @@ function App() {
       <Route path="/contactus" element={<ContactUs />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
-      <Route path="/table" element={<UsersTable />} />
+      <Route path="/start-listing" element={<StartList />} />
 
       <Route path="/organic-waste" element={<OrganicWaste />} />
       <Route path="/non-organic" element={<NonOrganicWaste />} />
@@ -90,6 +95,7 @@ function App() {
       <Route path="/non-organic/:waste_type" element={<GlassCeramic />} />
       <Route path="/non-organic/:waste_type" element={<ElectronicElectrical />} />
       <Route path="/non-organic/:waste_type" element={<RubberWaste />} />
+      <Route path="/cart" element={<Cart />} />
       
 
       <Route path="/driver" element={<DriverList />} />
@@ -98,21 +104,26 @@ function App() {
       <Route path="/payment" element={<StripePayment />} /> 
       <Route path="/success" element={<Success />} /> 
       <Route path="/pay-history" element={<PayHistory />} />
+      <Route path="/high-payments" element={<HighPayments />} />
 
       <Route path="/add-order" element={<AddOrderPage />} />
       <Route path="/add-review" element={<AddReviewPage />} />
       <Route path="/inventory-dashboard" element={<InventoryManagerDashboard />}/>
       <Route path="/inventory" element={<InventoryPage />} />
       <Route path="/order-history" element={<OrderHistoryPage />} />
-      <Route path="/listing-form" element={<ProductListingForm />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
+
       <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
       
       <Route path='/Delivery' element={<Delivery/>} />
       <Route path='/truck-dashboard' element={<TruckDriverDashboard/>} />
       <Route path='/farmer-ReqForm' element={<FarmerReqForm/>} />
       
+      <Route path="/product-listing-form" element={<ProductListingForm />} />
+      <Route path="/farmer-listings" element={<DisplayFarmerListings />} /> 
+      <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 
 
+  
     </Routes>
   )
 }

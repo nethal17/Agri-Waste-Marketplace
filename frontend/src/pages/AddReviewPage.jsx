@@ -16,6 +16,7 @@ export const AddReviewPage = () => {
 
   useEffect(() => {
     console.log('Location State:', location.state);
+    
     if (!productId || !buyerId) {
       setMessage('Product ID or Buyer ID is missing.');
       return;

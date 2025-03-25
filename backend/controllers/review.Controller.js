@@ -76,7 +76,14 @@ export const publishReview = async (req, res) => {
 // Get pending reviews (Manager Dashboard)
 export const getPendingReviews = async (req, res) => {
   try {
-    const pendingReviews = await Review.find({ status: 'pending' }).populate('buyerId productId');
+    const pendingReviews = await Review.find({ status: 'pending' })
+      .populate('buyerId', 'name email')
+      .populate({
+        path: 'productId',
+        model: 'Marketplace',
+        select: 'wasteItem description farmerId' // Include farmerId if needed
+      });
+    
     res.status(200).json(pendingReviews);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -131,21 +138,22 @@ export const getReviewDetails = async (req, res) => {
   try {
     const { reviewId } = req.params;
 
-    // Validate reviewId
     if (!mongoose.Types.ObjectId.isValid(reviewId)) {
       return res.status(400).json({ message: 'Invalid review ID.' });
     }
 
-    // Find the review and populate buyer and product details
     const review = await Review.findById(reviewId)
-      .populate('buyerId', 'name email') // Populate buyer details
-      .populate('productId', 'name description'); // Populate product details
+      .populate('buyerId', 'name email')
+      .populate({
+        path: 'productId',
+        model: 'Marketplace',
+        select: 'wasteItem description price farmerId'
+      });
 
     if (!review) {
       return res.status(404).json({ message: 'Review not found.' });
     }
 
-    // Return the review details
     res.status(200).json(review);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -156,31 +164,28 @@ export const getFarmerReviews = async (req, res) => {
   try {
     const { farmerId } = req.params;
 
-    // Step 1: Validate farmerId
     if (!mongoose.Types.ObjectId.isValid(farmerId)) {
       return res.status(400).json({ message: 'Invalid farmer ID.' });
     }
 
-    // Step 2: Fetch all product IDs for the farmer
-    const products = await Inventory.find({ farmerId }).select('_id');
-    if (products.length === 0) {
-      return res.status(404).json({ message: 'No products found for this farmer.' });
+    // Find all reviews for products belonging to this farmer
+    const reviews = await Review.find()
+      .populate({
+        path: 'productId',
+        match: { farmerId: farmerId },
+        model: 'Marketplace',
+        select: 'wasteItem'
+      })
+      .populate('buyerId', 'name email');
+
+    // Filter out reviews that don't have a product (due to the match)
+    const filteredReviews = reviews.filter(review => review.productId);
+
+    if (filteredReviews.length === 0) {
+      return res.status(404).json({ message: 'No reviews found for this farmer.' });
     }
 
-    // Extract product IDs
-    const productIds = products.map(product => product._id);
-
-    // Step 3: Fetch all published reviews for these product IDs
-    const reviews = await Review.find({ productId: { $in: productIds }, status: 'published' })
-      .populate('buyerId', 'name email') // Populate buyer details
-      .populate('productId', 'name description'); // Populate product details
-
-    if (reviews.length === 0) {
-      return res.status(404).json({ message: 'No reviews found for this farmer\'s products.' });
-    }
-
-    // Step 4: Return the reviews
-    res.status(200).json(reviews);
+    res.status(200).json(filteredReviews);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
