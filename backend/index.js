@@ -19,7 +19,8 @@ import webhookRoutes from './routes/webhook.routes.js';
 import stripePaymentsRoutes from './routes/stripePayments.routes.js';
 import driverPaymentsRoutes from './routes/driverPayments.routes.js';
 import ProductListingRoutes from './routes/ProductListingRoutes.js';
-
+import checkoutRoutes from "./routes/checkout.routes.js";
+import buyerAddressRoutes from "./routes/buyerAddressRoutes.js";
 
 dotenv.config();
 
@@ -58,6 +59,9 @@ app.use('/api/product-listing', ProductListingRoutes);
 //Naduli
 app.use("/api/agri-waste", agriWasteRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/checkout", checkoutRoutes);
+app.use("/api/buyer-address", buyerAddressRoutes);
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;
