@@ -52,6 +52,12 @@ import { ProductListingForm } from './pages/ProductListingForm';
 import { DisplayFarmerListings } from './pages/DisplayFarmerListings';
 import { DisplayFarmerReviews } from './pages/DisplayFarmerReviews';
 
+import Delivery from './pages/Delivery';
+import TruckDriverDashboard from './pages/TruckDriverDashboard';
+import FarmerReqForm from './pages/FarmerReqForm';
+
+import UsersTable from './pages/UserTable';
+
 
 function App() {
 
@@ -106,6 +112,13 @@ function App() {
       <Route path="/inventory" element={<InventoryPage />} />
       <Route path="/order-history" element={<OrderHistoryPage />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
+
+      <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
+      
+      <Route path='/Delivery' element={<Delivery/>} />
+      <Route path='/truck-dashboard' element={<TruckDriverDashboard/>} />
+      <Route path='/farmer-ReqForm' element={<FarmerReqForm/>} />
+      
       <Route path="/product-listing-form" element={<ProductListingForm />} />
       <Route path="/farmer-listings" element={<DisplayFarmerListings />} /> 
       <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 

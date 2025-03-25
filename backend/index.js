@@ -18,6 +18,9 @@ import stripeRoutes from './routes/stripe.routes.js'
 import webhookRoutes from './routes/webhook.routes.js';
 import stripePaymentsRoutes from './routes/stripePayments.routes.js';
 import driverPaymentsRoutes from './routes/driverPayments.routes.js';
+
+import deliveryReqRoutes from"./routes/deliveryReqRoutes.js";
+
 import ProductListingRoutes from './routes/ProductListingRoutes.js';
 import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
 
@@ -60,6 +63,9 @@ app.use('/api/marketplace', MarketplaceRoutes);
 //Naduli
 app.use("/api/agri-waste", agriWasteRoutes);
 app.use("/api/cart", cartRoutes);
+
+// yuwani
+app.use('/api/deliveryReq', deliveryReqRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
