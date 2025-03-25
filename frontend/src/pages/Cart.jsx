@@ -84,11 +84,11 @@ export const Cart = () => {
         <p className="text-center text-gray-500 mt-4">Your cart is empty.</p>
       )}
       <div className="flex justify-between mt-4">
-        <button className="bg-purple-600 text-white px-4 py-2" onClick={() => navigate("/organic-waste")}>
+        <button className="bg-green-700 text-white px-4 py-2" onClick={() => navigate("/organic-waste")}>
           Continue Shopping
         </button>
-        <button className="bg-purple-600 text-white px-4 py-2">
-          Proceed to Checkout
+        <button className="bg-green-700 text-white px-4 py-2" onClick={() => navigate("/buyer-address-form")}>
+          Add Address
         </button>
       </div>
     </div>
