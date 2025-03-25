@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 
 
 export const wasteTypes = {
-  'Organic Waste': ['Crop Residues', 'Fruit & Vegetable Waste','Plantation Waste',' Nut & Seed Waste','Livestock & Dairy Waste','Forestry Waste'],
+  'Organic Waste': ['Crop Residues', 'Fruit & Vegetable Waste','Plantation Waste','Nut & Seed Waste','Livestock & Dairy Waste','Forestry Waste'],
   'Inorganic Waste': ['Chemical Waste','Plastic Waste', 'Metal Waste','Fabric & Textile Waste','Glass & Ceramic Waste','Rubber Waste'],
 };
 

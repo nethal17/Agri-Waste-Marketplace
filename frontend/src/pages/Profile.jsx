@@ -155,7 +155,7 @@ export const Profile = () => {
             <>
             <button 
             className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
-            onClick={() => navigate("/farmer-dashboard")} >
+            onClick={() => navigate("/farmer-listings")} >
               My Listings
             </button>
             </>
