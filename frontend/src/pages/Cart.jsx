@@ -177,6 +177,7 @@ export const Cart = () => {
       )}
 
       <div className="flex justify-between mt-4">
+
         <button 
           className="px-4 py-2 text-white bg-purple-600 rounded"
           onClick={() => navigate("/organic-waste")}
@@ -191,6 +192,12 @@ export const Cart = () => {
             Proceed to Checkout
           </button>
         )}
+        <button className="px-4 py-2 text-white bg-green-700" onClick={() => navigate("/organic-waste")}>
+          Continue Shopping
+        </button>
+        <button className="px-4 py-2 text-white bg-green-700" onClick={() => navigate("/buyer-address-form")}>
+          Add Address
+        </button>
       </div>
     </div>
   );
