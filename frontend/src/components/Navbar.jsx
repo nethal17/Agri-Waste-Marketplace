@@ -45,7 +45,7 @@ export const Navbar = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('user'); // ✅ Remove user data as well
+        localStorage.removeItem('user');
         navigate('/');
         window.location.reload();
     };
@@ -129,7 +129,7 @@ export const Navbar = () => {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to="/list-products" className="block px-4 py-2 hover:bg-gray-100">
+                                        <Link to="/product-listing-form" className="block px-4 py-2 hover:bg-gray-100">
                                             List Products
                                         </Link>
                                     </li>
@@ -161,7 +161,7 @@ export const Navbar = () => {
                                 <span>{loading ? "Loading..." : user?.email || "No Email"}</span>
                                 <img
                                   className="object-cover w-[50px] h-[50px] border-2 border-green-600 rounded-full shadow-md"
-                                  src={user.profilePic || "https://via.placeholder.com/150"}
+                                  src={user.profilePic || "https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg"}
                                   alt="Profile"
                                 />
                               </div>

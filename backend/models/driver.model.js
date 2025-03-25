@@ -14,6 +14,10 @@ const driverSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    deliveryCount: {  // Add this field
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

@@ -23,25 +23,27 @@ export const SignUp = () => {
       const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-    
+      
         if (user.password !== user.confirmPassword) {
           toast.error("Passwords do not match");
+          setLoading(false);
           return;
         }
-    
-        toast.success("Account created successfully. Please check your email to verify your account.");
-        navigate("/login");
-    
+      
         axios
           .post("http://localhost:3000/api/auth/register", user)
           .then((res) => {
             console.log(res.data);
+            toast.success("Account created successfully. Please check your email to verify your account.");
+            navigate("/login");
           })
           .catch((err) => {
             console.error(err);
-            setLoading(false);
-      });
+            toast.error("Registration failed. Please try again.");
+          })
+          .finally(() => setLoading(false));
       };
+      
 
       return (
         <div>

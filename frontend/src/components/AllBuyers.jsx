@@ -62,8 +62,8 @@ export const AllBuyers = () => {
                             <div className="flex-shrink-0 w-10 h-10">
                               <img
                                 className="object-cover w-10 h-10 rounded-full"
-                                src={`/placeholder.svg?height=40&width=40`}
-                                alt=""
+                                src={user.profilePic}
+                                alt="profile picture"
                               />
                             </div>
                             <div className="ml-4">

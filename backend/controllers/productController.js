@@ -1,4 +1,4 @@
-import Inventory from '../models/Inventory.js';
+
 import Product from '../models/Product.js'; // Import the Product model
 import mongoose from 'mongoose';
 
@@ -38,7 +38,7 @@ export const getFarmerListings = async (req, res) => {
     }
 
     // Find all products associated with the farmer
-    const products = await Inventory.find({ farmerId: farmerId}); // Populate farmer details
+    const products = await Marketplace.find({ farmerId: farmerId}); // Populate farmer details
 
     if (products.length === 0) {
       return res.status(404).json({ message: 'No listings found for this farmer.' });

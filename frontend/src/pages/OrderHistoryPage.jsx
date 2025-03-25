@@ -90,7 +90,7 @@ export const OrderHistoryPage = () => {
             <tbody className="divide-y divide-gray-200">
               {orders.map((order) => (
                 <tr key={order._id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4">{order.productId.name}</td>
+                  <td className="px-6 py-4">{order.productId?.wasteItem || 'Product not found'}</td>
                   <td className="px-6 py-4">{order.quantity}</td>
                   <td className="px-6 py-4">${order.totalPrice.toFixed(2)}</td>
                   <td className="px-6 py-4">{new Date(order.orderDate).toLocaleDateString()}</td>
@@ -113,7 +113,7 @@ export const OrderHistoryPage = () => {
             <div className="bg-white p-8 rounded-lg shadow-xl w-96">
               <h3 className="text-2xl font-bold mb-4">Order Details</h3>
               <div className="space-y-3">
-                <p><span className="font-semibold">Product:</span> {selectedOrder.productId.name}</p>
+                <p><span className="font-semibold">Product:</span> {selectedOrder.productId?.wasteItem || 'Product not found'}</p>
                 <p><span className="font-semibold">Quantity:</span> {selectedOrder.quantity}</p>
                 <p><span className="font-semibold">Total Price:</span> ${selectedOrder.totalPrice.toFixed(2)}</p>
                 <p><span className="font-semibold">Order Date:</span> {new Date(selectedOrder.orderDate).toLocaleDateString()}</p>
