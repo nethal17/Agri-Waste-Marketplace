@@ -40,6 +40,7 @@ import PaymentDetails from './components/PaymentDetails';
 import StripePayment from './components/StripePayment';
 import Success from './components/Success';
 import PayHistory from './components/PayHistory';
+import HighPayments from './components/HighPayments';
 
 import { AddOrderPage } from './pages/AddOrderPage';
 import { AddReviewPage } from './pages/AddReviewPage';
@@ -97,6 +98,7 @@ function App() {
       <Route path="/payment" element={<StripePayment />} /> 
       <Route path="/success" element={<Success />} /> 
       <Route path="/pay-history" element={<PayHistory />} />
+      <Route path="/high-payments" element={<HighPayments />} />
 
       <Route path="/add-order" element={<AddOrderPage />} />
       <Route path="/add-review" element={<AddReviewPage />} />
