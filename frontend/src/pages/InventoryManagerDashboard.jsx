@@ -11,6 +11,7 @@ export const InventoryManagerDashboard = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [approving, setApproving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   useEffect(() => {
     fetchListings();
@@ -95,6 +96,11 @@ export const InventoryManagerDashboard = () => {
     }
   };
 
+  const handlePreview = (listing) => {
+    setSelectedProduct(listing);
+    setShowPreviewModal(true);
+  };
+
   return (
     <>
       <Navbar />
@@ -117,13 +123,13 @@ export const InventoryManagerDashboard = () => {
                 <tr key={listing._id} className="border-b hover:bg-gray-50 transition-colors">
                   <td className="py-4 px-6 text-sm text-gray-800 font-medium">{listing.farmerId?.name || 'Unknown Farmer'}</td>
                   <td className="py-4 px-6 text-sm text-gray-700">{listing.wasteItem}</td>
-                  <td className="py-4 px-6 text-sm text-gray-700">{listing.description}</td>
+                  <td className="py-4 px-6 text-sm text-gray-700 max-w-xs truncate">{listing.description}</td>
                   <td className="py-4 px-6 text-sm text-gray-700">${listing.price}</td>
                   <td className="py-4 px-6 text-sm text-gray-700">{listing.quantity}</td>
                   <td className="py-4 px-6 text-sm">
                     <div className="flex items-center space-x-3">
                       <button 
-                        onClick={() => setSelectedProduct(listing)} 
+                        onClick={() => handlePreview(listing)} 
                         className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                       >
                         Preview
@@ -152,6 +158,78 @@ export const InventoryManagerDashboard = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Preview Modal - Simple Vertical List */}
+        {showPreviewModal && selectedProduct && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-6">
+                  <h3 className="text-2xl font-bold text-gray-800">Listing Details</h3>
+                  <button 
+                    onClick={() => setShowPreviewModal(false)} 
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Farmer Name</p>
+                    <p className="font-medium mt-1">{selectedProduct.farmerId?.name || 'Unknown Farmer'}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500">Waste Item</p>
+                    <p className="font-medium mt-1">{selectedProduct.wasteItem}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500">Waste Type</p>
+                    <p className="font-medium mt-1">{selectedProduct.wasteType || 'Not specified'}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500">Description</p>
+                    <p className="font-medium mt-1">{selectedProduct.description}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500">Price</p>
+                    <p className="font-medium mt-1">${selectedProduct.price} per KG</p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500">Quantity Available</p>
+                    <p className="font-medium mt-1">{selectedProduct.quantity} KG</p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500">Expiry Date</p>
+                    <p className="font-medium mt-1">
+                      {selectedProduct.expireDate ? new Date(selectedProduct.expireDate).toLocaleDateString() : 'Not specified'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500">District</p>
+                    <p className="font-medium mt-1">{selectedProduct.district || 'Not specified'}</p>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={() => setShowPreviewModal(false)}
+                    className="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (

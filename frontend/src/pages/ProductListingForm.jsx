@@ -217,6 +217,7 @@ export const ProductListingForm = () => {
           <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">Add New Product Listing</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Form fields remain the same as in your original code */}
+            
             {/* Waste Category (Radio Buttons) */}
             <div>
               <label className="block mb-2 font-medium text-gray-700">Waste Category</label>
@@ -340,11 +341,12 @@ export const ProductListingForm = () => {
 
             {/* Quantity */}
             <div>
-              <label className="block mb-2 font-medium text-gray-700">Quantity (1 Kg)</label>
+              <label className="block mb-2 font-medium text-gray-700">Quantity (Kg)</label>
+
               <input
-                type="number"
+                type="text"
                 name="quantity"
-                placeholder="Quantity"
+                placeholder="Enter quantity in kilograms"
                 value={formData.quantity}
                 onChange={handleChange}
                 className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -354,11 +356,13 @@ export const ProductListingForm = () => {
 
             {/* Price */}
             <div>
-              <label className="block mb-2 font-medium text-gray-700">Price (Per Unit)</label>
+
+              <label className="block mb-2 font-medium text-gray-700">Price (Per Kg)</label>
+
               <input
-                type="number"
+                type="text"
                 name="price"
-                placeholder="Price"
+                placeholder="Enter price per kilogram"
                 value={formData.price}
                 onChange={handleChange}
                 className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
