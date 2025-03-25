@@ -330,11 +330,11 @@ export const ProductListingForm = () => {
 
             {/* Quantity */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Quantity (1 Kg)</label>
+              <label className="block text-gray-700 font-medium mb-2">Quantity (Kg)</label>
               <input
-                type="number"
+                type="text"
                 name="quantity"
-                placeholder="Quantity"
+                placeholder="Enter quantity in kilograms"
                 value={formData.quantity}
                 onChange={handleChange}
                 className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -344,11 +344,11 @@ export const ProductListingForm = () => {
 
             {/* Price */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Price (Per Unit)</label>
+              <label className="block text-gray-700 font-medium mb-2">Price (Per Kg)</label>
               <input
-                type="number"
+                type="text"
                 name="price"
-                placeholder="Price"
+                placeholder="Enter price per kilogram"
                 value={formData.price}
                 onChange={handleChange}
                 className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
