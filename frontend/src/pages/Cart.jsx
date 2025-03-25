@@ -2,12 +2,29 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { loadStripe } from "@stripe/stripe-js";
 
 export const Cart = () => {
   const [cart, setCart] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [stripe, setStripe] = useState(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const navigate = useNavigate();
+
+  // Load Stripe when component mounts
+  useEffect(() => {
+    const initializeStripe = async () => {
+      try {
+        const stripeInstance = await loadStripe('pk_test_51R1MPn02Tln9XO2Pw0O2KdyFoYGjTVHjsfD7SXT7yLTuzA00iYnUSj1Bh9fxN3GabW3Ud2DVaMssJvoV8ODbHgWc00m3XhcXZ0');
+        setStripe(stripeInstance);
+      } catch (error) {
+        console.error("Failed to initialize Stripe:", error);
+        toast.error("Payment system initialization failed");
+      }
+    };
+    initializeStripe();
+  }, []);
 
   // Function to get user details from local storage
   useEffect(() => {
@@ -15,35 +32,34 @@ export const Cart = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          toast.error("No token found, please login again.");
+          toast.error("Please login to view your cart");
           navigate("/login");
           return;
         }
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         setUser(userData);
-        fetchCart(userData._id);
+        await fetchCart(userData._id);
       } catch (error) {
-        toast.error("Failed to fetch user data.");
-        console.error(error);
+        toast.error("Failed to load user data");
+        console.error("User data error:", error);
       } finally {
         setLoading(false);
       }
     };
     fetchUserData();
-  }, []);
+  }, [navigate]);
 
-  // Function to get cart items for relevant user from database
+  // Function to get cart items
   const fetchCart = async (userId) => {
     try {
       const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
       setCart(response.data);
     } catch (error) {
       if (error.response?.status === 404) {
-        // Cart doesn't exist yet, create an empty one
         setCart({ items: [], totalPrice: 0 });
       } else {
-        toast.error("Failed to fetch cart items.");
-        console.error(error);
+        toast.error("Failed to load cart items");
+        console.error("Cart fetch error:", error);
       }
     }
   };
@@ -58,7 +74,6 @@ export const Cart = () => {
 
       const newQuantity = item.quantity + change;
       if (newQuantity < 1) {
-        // If quantity would be 0, remove the item instead
         await removeItem(wasteId);
         return;
       }
@@ -70,10 +85,10 @@ export const Cart = () => {
       });
 
       setCart(response.data);
-      toast.success("Quantity updated successfully");
+      toast.success("Quantity updated");
     } catch (error) {
       toast.error("Failed to update quantity");
-      console.error(error);
+      console.error("Quantity update error:", error);
     }
   };
 
@@ -83,20 +98,62 @@ export const Cart = () => {
     
     try {
       const response = await axios.delete("http://localhost:3000/api/cart/remove", {
-        userId: user._id,
-        wasteId
+        data: {
+          userId: user._id,
+          wasteId
+        }
       });
 
       setCart(response.data);
-      toast.success("Item removed from cart");
+      toast.success("Item removed");
     } catch (error) {
       toast.error("Failed to remove item");
-      console.error(error);
+      console.error("Remove item error:", error);
+    }
+  };
+
+  // Function to handle payment
+  const handlePayment = async () => {
+    if (!user || !cart || cart.items.length === 0 || !stripe) {
+      toast.error("Cannot process payment");
+      return;
+    }
+    
+    setIsProcessingPayment(true);
+    
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/stripe/checkout",
+        {
+          userId: user._id,
+          cartId: cart._id || 'temp-cart',
+          amount: Math.round(cart.totalPrice * 100), // Convert to cents
+          currency: "LKR"
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      const result = await stripe.redirectToCheckout({
+        sessionId: response.data.id
+      });
+
+      if (result.error) {
+        throw result.error;
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error(error.message || "Payment failed");
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
   if (loading) {
-    return <div className="p-6">Loading...</div>;
+    return <div className="p-6">Loading cart...</div>;
   }
 
   if (!user) {
@@ -117,7 +174,7 @@ export const Cart = () => {
           <table className="w-full mt-4 border-collapse">
             <thead>
               <tr className="bg-red-100">
-                <th className="p-2 text-left">Description</th>
+                <th className="p-2 text-left">Item</th>
                 <th className="text-left">Quantity</th>
                 <th className="text-left">Price</th>
                 <th className="text-left">Delivery</th>
@@ -132,15 +189,17 @@ export const Cart = () => {
                   <td>
                     <div className="flex items-center">
                       <button
-                        className="px-2 py-1 bg-gray-300 rounded-l"
+                        className="px-2 py-1 bg-gray-300 rounded-l hover:bg-gray-400"
                         onClick={() => updateQuantity(item.wasteId, -1)}
+                        disabled={isProcessingPayment}
                       >
                         -
                       </button>
                       <span className="mx-2">{item.quantity}</span>
                       <button
-                        className="px-2 py-1 bg-gray-300 rounded-r"
+                        className="px-2 py-1 bg-gray-300 rounded-r hover:bg-gray-400"
                         onClick={() => updateQuantity(item.wasteId, 1)}
+                        disabled={isProcessingPayment}
                       >
                         +
                       </button>
@@ -151,8 +210,9 @@ export const Cart = () => {
                   <td>Rs. {(item.price * item.quantity + item.deliveryCost).toFixed(2)}</td>
                   <td>
                     <button
-                      className="px-2 py-1 text-white bg-red-500 rounded"
+                      className="px-2 py-1 text-white bg-red-500 rounded hover:bg-red-600"
                       onClick={() => removeItem(item.wasteId)}
+                      disabled={isProcessingPayment}
                     >
                       Remove
                     </button>
@@ -173,31 +233,36 @@ export const Cart = () => {
           </div>
         </>
       ) : (
-        <p className="mt-4 text-center text-gray-500">Your cart is empty.</p>
+        <p className="mt-4 text-center text-gray-500">Your cart is empty</p>
       )}
 
       <div className="flex justify-between mt-4">
-
         <button 
-          className="px-4 py-2 text-white bg-purple-600 rounded"
+          className="px-4 py-2 text-white bg-purple-600 rounded hover:bg-purple-700"
           onClick={() => navigate("/organic-waste")}
+          disabled={isProcessingPayment}
         >
           Continue Shopping
         </button>
+        
         {cart?.items?.length > 0 && (
-          <button 
-            className="px-4 py-2 text-white bg-purple-600 rounded"
-            onClick={() => navigate("/checkout")}
-          >
-            Proceed to Checkout
-          </button>
+          <div className="flex gap-4">
+            <button 
+              className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
+              onClick={() => navigate("/buyer-address-form")}
+              disabled={isProcessingPayment}
+            >
+              Add Address
+            </button>
+            <button 
+              className={`px-4 py-2 text-white rounded ${isProcessingPayment ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+              onClick={handlePayment}
+              disabled={isProcessingPayment}
+            >
+              {isProcessingPayment ? 'Processing...' : 'Pay with Stripe'}
+            </button>
+          </div>
         )}
-        <button className="px-4 py-2 text-white bg-green-700" onClick={() => navigate("/organic-waste")}>
-          Continue Shopping
-        </button>
-        <button className="px-4 py-2 text-white bg-green-700" onClick={() => navigate("/buyer-address-form")}>
-          Add Address
-        </button>
       </div>
     </div>
   );
