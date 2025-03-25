@@ -2,29 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { loadStripe } from "@stripe/stripe-js";
+import { Navbar } from "../components/Navbar";
 
 export const Cart = () => {
   const [cart, setCart] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [stripe, setStripe] = useState(null);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const navigate = useNavigate();
-
-  // Load Stripe when component mounts
-  useEffect(() => {
-    const initializeStripe = async () => {
-      try {
-        const stripeInstance = await loadStripe('pk_test_51R1MPn02Tln9XO2Pw0O2KdyFoYGjTVHjsfD7SXT7yLTuzA00iYnUSj1Bh9fxN3GabW3Ud2DVaMssJvoV8ODbHgWc00m3XhcXZ0');
-        setStripe(stripeInstance);
-      } catch (error) {
-        console.error("Failed to initialize Stripe:", error);
-        toast.error("Payment system initialization failed");
-      }
-    };
-    initializeStripe();
-  }, []);
 
   // Function to get user details from local storage
   useEffect(() => {
@@ -112,46 +96,6 @@ export const Cart = () => {
     }
   };
 
-  // Function to handle payment
-  const handlePayment = async () => {
-    if (!user || !cart || cart.items.length === 0 || !stripe) {
-      toast.error("Cannot process payment");
-      return;
-    }
-    
-    setIsProcessingPayment(true);
-    
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/stripe/checkout",
-        {
-          userId: user._id,
-          cartId: cart._id || 'temp-cart',
-          amount: Math.round(cart.totalPrice * 100), // Convert to cents
-          currency: "LKR"
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      const result = await stripe.redirectToCheckout({
-        sessionId: response.data.id
-      });
-
-      if (result.error) {
-        throw result.error;
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      toast.error(error.message || "Payment failed");
-    } finally {
-      setIsProcessingPayment(false);
-    }
-  };
-
   if (loading) {
     return <div className="p-6">Loading cart...</div>;
   }
@@ -166,8 +110,10 @@ export const Cart = () => {
   }
 
   return (
+    <>
+    <Navbar />
     <div className="p-6">
-      <h2 className="text-xl font-bold text-red-500">My Cart</h2>
+      <h2 className="justify-center text-2xl font-bold text-red-500 justify place-items-center">My Cart</h2>
       
       {cart?.items?.length > 0 ? (
         <>
@@ -191,7 +137,7 @@ export const Cart = () => {
                       <button
                         className="px-2 py-1 bg-gray-300 rounded-l hover:bg-gray-400"
                         onClick={() => updateQuantity(item.wasteId, -1)}
-                        disabled={isProcessingPayment}
+                        
                       >
                         -
                       </button>
@@ -199,7 +145,7 @@ export const Cart = () => {
                       <button
                         className="px-2 py-1 bg-gray-300 rounded-r hover:bg-gray-400"
                         onClick={() => updateQuantity(item.wasteId, 1)}
-                        disabled={isProcessingPayment}
+                        
                       >
                         +
                       </button>
@@ -212,7 +158,6 @@ export const Cart = () => {
                     <button
                       className="px-2 py-1 text-white bg-red-500 rounded hover:bg-red-600"
                       onClick={() => removeItem(item.wasteId)}
-                      disabled={isProcessingPayment}
                     >
                       Remove
                     </button>
@@ -240,7 +185,6 @@ export const Cart = () => {
         <button 
           className="px-4 py-2 text-white bg-purple-600 rounded hover:bg-purple-700"
           onClick={() => navigate("/organic-waste")}
-          disabled={isProcessingPayment}
         >
           Continue Shopping
         </button>
@@ -250,20 +194,13 @@ export const Cart = () => {
             <button 
               className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
               onClick={() => navigate("/buyer-address-form")}
-              disabled={isProcessingPayment}
             >
-              Add Address
-            </button>
-            <button 
-              className={`px-4 py-2 text-white rounded ${isProcessingPayment ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}`}
-              onClick={handlePayment}
-              disabled={isProcessingPayment}
-            >
-              {isProcessingPayment ? 'Processing...' : 'Pay with Stripe'}
+              Checkout
             </button>
           </div>
         )}
       </div>
     </div>
+    </>
   );
 };
