@@ -38,12 +38,16 @@ export const AdminDashboard = () => {
             <div className={"p-8 rounded-lg shadow-md flex items-center justify-center cursor-pointer bg-green-600 text-white hover:shadow-2xl hover:bg-green-800"}>
               <h2 className="text-xl font-semibold">Transport Management</h2>
             </div>
+            <Link to="/inventory-dashboard">
             <div className={"p-8 rounded-lg shadow-md flex items-center justify-center cursor-pointer bg-green-600 text-white hover:shadow-2xl hover:bg-green-800"}>
               <h2 className="text-xl font-semibold">Inventory Management</h2>
             </div>
+            </Link>
+            <Link to="/review-manager">
             <div className={"p-8 rounded-lg shadow-md flex items-center justify-center cursor-pointer bg-green-600 text-white hover:shadow-2xl hover:bg-green-800"}>
               <h2 className="text-xl font-semibold">Review Management</h2>
             </div>
+            </Link>
         </div>
       </main>
     </div>

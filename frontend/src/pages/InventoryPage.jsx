@@ -68,7 +68,7 @@ export const InventoryPage = () => {
   const filteredListings = marketplaceListings.filter(listing => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      (listing.wasteType && listing.wasteType.toLowerCase().includes(searchLower)) 
+      ( listing.wasteItem.toLowerCase().includes(searchLower)) 
     );
   });
 
@@ -150,7 +150,7 @@ export const InventoryPage = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 overflow-auto h-[800px]">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <tr className="border-b border-gray-600 bg-green-100">
                     <th className="p-4 text-left text-gray-700 font-medium">Waste Type</th>
                     <th className="p-4 text-left text-gray-700 font-medium">Waste Item</th>
                     <th className="p-4 text-left text-gray-700 font-medium">Description</th>
