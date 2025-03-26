@@ -86,7 +86,7 @@ const HighPayments = () => {
     
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-        Paid Driver Sallary
+        Paid Driver Salaries
       </h1>
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
