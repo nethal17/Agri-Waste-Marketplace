@@ -4,7 +4,6 @@ import { connect } from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import router from "./routes/authRoutes.js";
-import userRouter from "./routes/userRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
@@ -44,7 +43,6 @@ app.get("/", (req, res) => {
 
 //Nethal
 app.use("/api/auth", router);
-app.use("/api/users", userRouter);
 app.use("/api/photo", photoRouter);
 
 //vibhu
