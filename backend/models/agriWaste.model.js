@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Define the schema
 const agriWasteSchema = new mongoose.Schema({
   waste_type: { 
     type: String,

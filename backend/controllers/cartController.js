@@ -16,12 +16,10 @@ export const addToCart = async (req, res) => {
     } else {
       cart.items.push({ wasteId, description, price, quantity, deliveryCost });
     }
-
     cart.totalPrice = cart.items.reduce(
       (total, item) => total + item.price * item.quantity + item.deliveryCost,
       0
     );
-
     await cart.save();
     res.status(200).json(cart);
   } catch (error) {

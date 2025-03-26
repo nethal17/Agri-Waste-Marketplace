@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Define the schema
 const buyerAddressSchema = new mongoose.Schema({
   buyerId: {
     type: String,

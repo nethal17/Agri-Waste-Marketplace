@@ -91,7 +91,7 @@ export const Login = () => {
             >
               Forgot Password?
             </Link>
-            <p className="mt-4 text-sm text-gray-600">
+            <p className="justify-center mt-4 text-sm text-gray-600 mx-[100px]">
               Not a member yet?{" "}
               <Link
                 to="/register"

@@ -13,7 +13,7 @@ export const createPayment = async (req, res) => {
 
 export const getAllPayments = async (req, res) => {
   try {
-    const payments = await Payment.find().sort({ createdAt: -1 }); // Fetch all payments, sorted by latest first
+    const payments = await Payment.find().sort({ createdAt: -1 }); 
     res.status(200).json(payments);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,6 +1,6 @@
 import AgriWaste from "../models/agriWaste.model.js";
 
-// Get all waste
+// Get all waste 
 export const getAllWaste = async (req, res) => {
   try {
     const waste = await AgriWaste.find({});
@@ -23,6 +23,7 @@ export const createWaste = async (req, res) => {
   }
 };
 
+// Get waste by type  
 export const getWasteByType = async (req, res) => {
   try {
     const { waste_type } = req.params; // Use `waste_type` instead of `type`

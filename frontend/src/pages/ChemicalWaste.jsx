@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Navbar } from "../components/Navbar";
+import { toast } from "react-hot-toast";
+import { FaShoppingCart } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export const ChemicalWaste = () => {
   const { waste_type } = useParams(); // Extract waste type from URL params
@@ -38,8 +41,14 @@ export const ChemicalWaste = () => {
  return (
        <>
          <Navbar />
+          <Link to="/cart">
+                <div className="justify-center justify place-items-end mt-[35px] px-[50px]">
+                <FaShoppingCart size={35} className="text-green-600 cursor-pointer"/>
+                </div>
+                </Link>
+
          <div className="container mx-auto p-4">
-           <h1 className="text-2xl font-bold">Chemical Waste</h1>
+           <h1 className="text-2xl font-bold text-center" >Waste Materials</h1>
            <div className="grid grid-cols-1 gap-4 mt-4">
              {wasteData.length > 0 ? (
                wasteData.map((waste) => (
@@ -52,7 +61,7 @@ export const ChemicalWaste = () => {
                      <p>Expire Date: {new Date(waste.expire_date).toLocaleDateString()}</p>
                    </div>
                    <button 
-                     className="bg-purple-600 text-white px-4 py-2 rounded"
+                     className="bg-green-600 text-white px-4 py-2 rounded"
                      onClick={() => handleAddToCart(waste)} // Call function on click
                    >
                      Add To Cart

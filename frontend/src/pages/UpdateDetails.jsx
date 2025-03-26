@@ -36,7 +36,7 @@ export const UpdateDetails = () => {
           name: response.data.name || "",
           email: response.data.email || "",
           phone: response.data.phone || "",
-          password: "", // Do not prefill password for security reasons
+          password: "", 
           confirmPassword: "",
         });
 
@@ -55,6 +55,9 @@ export const UpdateDetails = () => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
+  const validatePhone = (phone) => /^[0-9]{10}$/.test(phone); 
+  const validateEmail = (email) => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email); 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,8 +66,23 @@ export const UpdateDetails = () => {
       return;
     }
 
+    if (!validateEmail(user.email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    if (!validatePhone(user.phone)) {
+      toast.error("Please enter a valid phone number.");
+      return;
+    }
+
     if (user.password !== user.confirmPassword) {
       toast.error("Passwords do not match.");
+      return;
+    }
+
+    if (user.password && user.password.length < 8) {
+      toast.error("Password must be at least 8 characters long.");
       return;
     }
 
@@ -102,7 +120,7 @@ export const UpdateDetails = () => {
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-2xl backdrop-blur-md">
           <div className="mb-8 text-center">
-            <h2 className="text-4xl font-bold text-zinc-900">Register</h2>
+            <h2 className="text-4xl font-bold text-zinc-900">Update Details</h2>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
