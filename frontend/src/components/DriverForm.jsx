@@ -4,7 +4,7 @@ import axios from 'axios';
 const DriverForm = () => {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
-  const [deliveryCount, setDeliveryCount] = useState(0); // Add this state
+  const [deliveryCount, setDeliveryCount] = useState(0); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -12,7 +12,7 @@ const DriverForm = () => {
       await axios.post('http://localhost:3000/api/drivers', { 
         name, 
         age,
-        deliveryCount // Include delivery count
+        deliveryCount 
       });
       alert('Driver created successfully!');
       setName('');

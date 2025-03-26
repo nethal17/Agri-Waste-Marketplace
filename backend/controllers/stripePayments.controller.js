@@ -8,15 +8,15 @@ export const getStripePayments = async (req, res) => {
   try {
     // Fetch all checkout sessions from Stripe
     const sessions = await stripe.checkout.sessions.list({
-      limit: 100, // Adjust the limit as needed
+      limit: 100, 
     });
 
-    // Map sessions to a simpler format for the frontend
+    
     const payments = sessions.data.map(session => ({
       id: session.id,
-      driverName: session.metadata.driverName || 'Unknown', // Use metadata to get driver name
-      payAmount: session.amount_total / 100, // Convert from cents to dollars
-      paymentDate: new Date(session.created * 1000).toLocaleDateString(), // Convert timestamp to date
+      driverName: session.metadata.driverName || 'Unknown', 
+      payAmount: session.amount_total / 100, 
+      paymentDate: new Date(session.created * 1000).toLocaleDateString(), 
     }));
 
     res.status(200).json(payments);
