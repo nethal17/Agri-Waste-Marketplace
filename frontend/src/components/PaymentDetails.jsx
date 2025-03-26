@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Navbar } from "../components/Navbar";
 
 const PaymentDetails = () => {
   const { id } = useParams();
@@ -66,6 +67,8 @@ const PaymentDetails = () => {
   }
 
   return (
+    <>
+    <Navbar />
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
@@ -162,6 +165,7 @@ const PaymentDetails = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
