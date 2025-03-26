@@ -11,6 +11,12 @@ export const ProductListingForm = () => {
     toast.error("Please login to list agri-waste");
     navigate("/login");
   }
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const userRole = userData.role;
+  if (userRole !== "farmer") {
+    toast.error("Only farmers can list agri-waste");
+    navigate("/");
+  }
   const [formData, setFormData] = useState({
     wasteCategory: "",
     wasteType: "",
