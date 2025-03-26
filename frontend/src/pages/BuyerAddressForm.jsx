@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 export const BuyerAddressForm = () => {
   const navigate = useNavigate();

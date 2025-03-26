@@ -13,6 +13,8 @@ export const CropResidues = () => {
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
 
+
+  // Fetch waste data
   useEffect(() => {
     
     const fetchWasteData = async () => {
@@ -32,6 +34,7 @@ export const CropResidues = () => {
     fetchWasteData();
   }, [waste_type]);
 
+  // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -102,7 +105,7 @@ export const CropResidues = () => {
       </Link>
 
       <div className="container mx-auto">
-        <h1 className="text-2xl font-bold">Waste Materials</h1>
+        <h1 className="text-2xl font-bold text-center">Waste Materials</h1>
         <div className="grid grid-cols-1 gap-5 mt-4">
           {wasteData.length > 0 ? (
             wasteData.map((waste) => (
@@ -115,7 +118,7 @@ export const CropResidues = () => {
                   <p>Expire Date: {new Date(waste.expire_date).toLocaleDateString()}</p>
                 </div>
                 <button 
-                  className={`px-4 py-2 text-white rounded ${addingToCart ? 'bg-gray-500' : 'bg-purple-600'}`}
+                  className={`px-4 py-2 text-white rounded ${addingToCart ? 'bg-gray-500' : 'bg-green-600 : hover:bg-green-700' }`}
                   onClick={() => handleAddToCart(waste)}
                   disabled={addingToCart}
                 >

@@ -113,13 +113,13 @@ export const Cart = () => {
     <>
     <Navbar />
     <div className="p-6">
-      <h2 className="justify-center text-2xl font-bold text-red-500 justify place-items-center">My Cart</h2>
+      <h2 className="justify-center text-2xl font-bold text-green-800 justify place-items-center">My Cart</h2>
       
       {cart?.items?.length > 0 ? (
         <>
           <table className="w-full mt-4 border-collapse">
             <thead>
-              <tr className="bg-red-100">
+              <tr className="bg-green-600">
                 <th className="p-2 text-left">Item</th>
                 <th className="text-left">Quantity</th>
                 <th className="text-left">Price</th>
@@ -183,7 +183,7 @@ export const Cart = () => {
 
       <div className="flex justify-between mt-4">
         <button 
-          className="px-4 py-2 text-white bg-purple-600 rounded hover:bg-purple-700"
+          className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
           onClick={() => navigate("/organic-waste")}
         >
           Continue Shopping
