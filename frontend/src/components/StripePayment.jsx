@@ -18,7 +18,7 @@ const StripePayment = () => {
         window.location.href = response.data.url;
       } catch (error) {
         console.error('Error creating Stripe session:', error);
-        navigate('/'); // Redirect to home if there's an error
+        navigate('/'); 
       }
     };
 

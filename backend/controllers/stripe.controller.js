@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export const createCheckoutSession = async (req, res) => {
   const { totalSalary, driverId, driverName } = req.body;
 
-  // Validate input
+  // Validate inputs
   if (!totalSalary || !driverId || !driverName) {
     return res.status(400).json({ error: 'Missing required fields' });
   }

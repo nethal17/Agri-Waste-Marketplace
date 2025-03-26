@@ -3,8 +3,10 @@ import { FiBell } from "react-icons/fi";
 import { Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import { Navbar } from "../components/Navbar";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
-// Define the 12 waste types and their possible waste items
+
 const WASTE_TYPES = {
   'Crop Residues': ['Wheat straw', 'Rice husk', 'Corn stalks', 'Lentil husks', 'Chickpea stalks', 'Pea pods','Mustard stalks', 'Sunflower husks', 'Groundnut shells'],
   'Fruit & Vegetable Waste': ['Banana peels', 'Orange pulp', 'Mango peels', 'Tomato skins', 'Potato peels', 'Carrot tops','Rotten tomatoes', 'Overripe bananas'],
@@ -33,6 +35,23 @@ const getWasteType = (wasteItem) => {
 };
 
 export const InventoryPage = () => {
+
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    toast.error("Please login to view this page");
+    navigate("/login");
+  }
+
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const userRole = userData.role;
+
+  if (userRole !== "admin") {
+    toast.error("Only Admin can view this page");
+    navigate("/");
+  }
+
   const [marketplaceListings, setMarketplaceListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -116,19 +135,18 @@ export const InventoryPage = () => {
         <div className="flex justify-between items-center mb-6">
           <input
             type="text"
-            placeholder="Search waste types..."
-            className="border border-gray-300 p-3 rounded-lg w-1/3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            placeholder="Search waste items..."
+            className="border border-gray-300 p-3 rounded-lg w-1/3 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <FiBell className="text-3xl text-gray-600 cursor-pointer hover:text-gray-900 transition" />
         </div>
-
-        {/* Stats cards section - only shown when not searching */}
+        
         {!searchTerm && (
           <div className="grid grid-cols-6 gap-4 mb-8">
             {existingWasteTypes.slice(0, 6).map((wasteType) => (
-              <div key={wasteType} className="p-6 border border-gray-200 rounded-lg shadow-sm bg-white hover:shadow-md transition">
+              <div key={wasteType} className="p-6 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200 hover:border-green-200">
                 <h3 className="text-lg font-semibold text-gray-800 truncate" title={wasteType}>
                   {wasteType}
                 </h3>
@@ -143,33 +161,36 @@ export const InventoryPage = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4"> {/* Changed to responsive grid */}
-          {/* Main table section - now always takes full width when searching */}
-          <div className={searchTerm ? "col-span-1 lg:col-span-3" : "col-span-1 lg:col-span-2"}>
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Main table section */}
+          <div className={`${searchTerm ? "w-full" : "w-full lg:w-2/3"}`}>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Inventory Details</h2>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 overflow-auto h-[800px]">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 overflow-auto h-[800px]">
               <table className="w-full">
                 <thead>
-                    <tr className="border-b border-gray-600 bg-green-100">
-                    <th className="p-4 text-left text-gray-700 font-medium">Waste Type</th>
-                    <th className="p-4 text-left text-gray-700 font-medium">Waste Item</th>
-                    <th className="p-4 text-left text-gray-700 font-medium">Description</th>
-                    <th className="p-4 text-left text-gray-700 font-medium">District</th>
-                    <th className="p-4 text-left text-gray-700 font-medium">Price (per KG)</th>
-                    <th className="p-4 text-left text-gray-700 font-medium">Quantity (KG)</th>
-                    <th className="p-4 text-left text-gray-700 font-medium">Expire Date</th>
+                  <tr className="border-b border-gray-200 bg-gradient-to-r from-green-50 to-green-100">
+                    <th className="p-2 text-left text-gray-700 font-semibold">Waste Type</th>
+                    <th className="p-2 text-left text-gray-700 font-semibold">Waste Item</th>
+                    <th className="p-2 text-left text-gray-700 font-semibold">Description</th>
+                    <th className="p-2 text-left text-gray-700 font-semibold">District</th>
+                    <th className="p-2 text-left text-gray-700 font-semibold">Price</th>
+                    <th className="p-2 text-left text-gray-700 font-semibold">Quantity</th>
+                    <th className="p-2 text-left text-gray-700 font-semibold">Expire Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredListings.map((listing) => (
-                    <tr key={listing._id} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                      <td className="p-4 text-gray-800 font-medium">{listing.wasteType}</td>
-                      <td className="p-4 text-gray-700">{listing.wasteItem}</td>
-                      <td className="p-4 text-gray-700 max-w-xs">{listing.description}</td>
-                      <td className="p-4 text-gray-700">{listing.district}</td>
-                      <td className="p-4 text-green-600 font-semibold">Rs.{listing.price}</td>
-                      <td className="p-4 text-gray-700">{listing.quantity} KG</td>
-                      <td className="p-4 text-gray-700">{new Date(listing.expireDate).toLocaleDateString()}</td>
+                    <tr 
+                      key={listing._id} 
+                      className="border-b border-gray-100 hover:bg-green-50 transition-all duration-150"
+                    >
+                      <td className="p-2 text-gray-800 font-medium">{listing.wasteType}</td>
+                      <td className="p-2 text-gray-700">{listing.wasteItem}</td>
+                      <td className="p-2 text-gray-700 max-w-xs truncate">{listing.description}</td>
+                      <td className="p-2 text-gray-700">{listing.district}</td>
+                      <td className="p-2 text-green-600 font-semibold whitespace-nowrap">Rs.{listing.price}</td>
+                      <td className="p-2 text-gray-700 whitespace-nowrap">{listing.quantity} KG</td>
+                      <td className="p-2 text-gray-700 whitespace-nowrap">{new Date(listing.expireDate).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -184,34 +205,56 @@ export const InventoryPage = () => {
 
           {/* Pie chart section - hidden when searching */}
           {!searchTerm && existingWasteTypes.length > 0 && (
-            <div className="col-span-1 p-2 bg-white rounded-lg shadow-sm border border-gray-200"> 
-              <h2 className="text-xl font-bold text-gray-800 mb-3">Waste Distribution</h2> 
-              <div className="h-[400px]"> 
-                <Pie 
-                  data={pieData} 
-                  options={{
-                    plugins: {
-                      tooltip: {
-                        callbacks: {
-                          label: function(context) {
-                            return `${context.label}: ${context.raw} KG`;
+            <div className="w-full lg:w-1/3"> 
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 h-[800px] flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">Waste Distribution</h2>
+                </div>
+                <div className="flex-grow relative">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Pie 
+                      data={pieData} 
+                      options={{
+                        plugins: {
+                          tooltip: {
+                            callbacks: {
+                              label: function(context) {
+                                return `${context.label}: ${context.raw} KG`;
+                              }
+                            },
+                            displayColors: false,
+                            backgroundColor: '#4B5563',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 10 },
+                            padding: 12,
+                            cornerRadius: 8
+                          },
+                          legend: {
+                            position: 'right',
+                            labels: {
+                              boxWidth: 12,
+                              padding: 16,
+                              font: {
+                                size: 12,
+                                family: 'Inter'
+                              },
+                              usePointStyle: true,
+                              pointStyle: 'circle'
+                            }
                           }
-                        }
-                      },
-                      legend: {
-                        position: 'right',
-                        labels: {
-                          boxWidth: 10, 
-                          padding: 15,
-                          font: {
-                            size: 11 
+                        },
+                        elements: {
+                          arc: {
+                            borderWidth: 0,
+                            borderColor: '#fff'
                           }
-                        }
-                      }
-                    },
-                    maintainAspectRatio: false
-                  }}
-                />
+                        },
+                        cutout: '40%',
+                        maintainAspectRatio: false
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}

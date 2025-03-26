@@ -4,7 +4,6 @@ import { connect } from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import router from "./routes/authRoutes.js";
-import userRouter from "./routes/userRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
@@ -32,7 +31,7 @@ import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
 dotenv.config();
 
 const app = express();
-
+app.use('/api/webhook', express.raw({ type: 'application/json' }));
 // Middleware
 app.use(json());
 app.use(cors());
@@ -44,14 +43,13 @@ app.get("/", (req, res) => {
 
 //Nethal
 app.use("/api/auth", router);
-app.use("/api/users", userRouter);
 app.use("/api/photo", photoRouter);
 
 //vibhu
 app.use('/api', driverRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', stripeRoutes);
-app.use('/api', webhookRoutes);
+app.use('/api/webhook', webhookRoutes);
 app.use('/api', stripePaymentsRoutes);
 app.use('/api', driverPaymentsRoutes);
 
