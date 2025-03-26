@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Navbar } from "../components/Navbar";
 
 const PayHistory = () => {
   const [payments, setPayments] = useState([]);
@@ -73,6 +74,8 @@ const PayHistory = () => {
   }
 
   return (
+    <>
+    <Navbar />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
         Payment Transactions
@@ -130,6 +133,7 @@ const PayHistory = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 
