@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@react-google-maps/api": "^2.20.6",
     "@shadcn/ui": "^0.0.4",
+    "@stripe/stripe-js": "^6.1.0",
     "axios": "^1.8.4",
     "chart.js": "^4.4.8",
     "class-variance-authority": "^0.7.1",

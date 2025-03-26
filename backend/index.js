@@ -55,6 +55,7 @@ app.use('/api', webhookRoutes);
 app.use('/api', stripePaymentsRoutes);
 app.use('/api', driverPaymentsRoutes);
 
+
 //Ricky
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/reviews', reviewRoutes);
@@ -68,7 +69,7 @@ app.use('/api/marketplace', MarketplaceRoutes);
 app.use("/api/agri-waste", agriWasteRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
-app.use("/api/buyer-address", buyerAddressRoutes);
+app.use("/api/address", buyerAddressRoutes);
 
 
 // yuwani

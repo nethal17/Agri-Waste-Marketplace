@@ -44,6 +44,7 @@ import Success from './components/Success';
 import PayHistory from './components/PayHistory';
 import HighPayments from './components/HighPayments';
 
+
 import { AddOrderPage } from './pages/AddOrderPage';
 import { AddReviewPage } from './pages/AddReviewPage';
 import { InventoryManagerDashboard } from './pages/InventoryManagerDashboard';
@@ -109,7 +110,6 @@ function App() {
       <Route path='/Delivery' element={<Delivery/>} />
       <Route path='/truck-dashboard' element={<TruckDriverDashboard/>} />
       <Route path='/farmer-ReqForm' element={<FarmerReqForm/>} />
-      
       <Route path="/product-listing-form" element={<ProductListingForm />} />
       <Route path="/farmer-listings" element={<DisplayFarmerListings />} /> 
       <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 

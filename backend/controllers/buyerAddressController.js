@@ -22,3 +22,24 @@ export const getBuyerAddresses = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch buyer addresses" });
   }
 };
+
+export const getAddressByBuyerId = async (req, res) => {
+  try {
+    const { buyerId } = req.params;
+    
+    if (!buyerId) {
+      return res.status(400).json({ error: "Buyer ID is required" });
+    }
+
+    // Find address for the specific buyer
+    const address = await BuyerAddress.findOne({ buyerId });
+    
+    if (!address) {
+      return res.status(404).json({ message: "Address not found for this buyer" });
+    }
+    res.status(200).json(address);
+  } catch (error) {
+    console.error("Error fetching buyer address:", error);
+    res.status(500).json({ error: "Failed to fetch buyer address" });
+  }
+};

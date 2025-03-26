@@ -2,15 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Navbar } from "../components/Navbar";
+import { toast } from "react-hot-toast";
+import { FaShoppingCart } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export const CropResidues = () => {
   const { waste_type } = useParams(); 
   const [wasteData, setWasteData] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [cartMessage, setCartMessage] = useState({ text: "", isError: false });
 
   useEffect(() => {
     
@@ -21,7 +22,7 @@ export const CropResidues = () => {
         );
         setWasteData(response.data);
       } catch (error) {
-        setError("Failed to load data. Please try again.");
+        toast.error("Failed to load data. Please try again.");
         console.error("Error fetching crop residues:", error);
       } finally {
         setLoading(false);
@@ -35,8 +36,9 @@ export const CropResidues = () => {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("token");
+        
         if (!token) {
-          toast.error("No token found, please login again.");
+          console.error("No token found, please login again.");
           return;
         }
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -56,7 +58,7 @@ export const CropResidues = () => {
   const handleAddToCart = async (waste) => {
     
     if (!user) {
-      setCartMessage({ text: "Please login to add items to cart", isError: true });
+      toast.error("Please login to add items to cart");
       return;
     }
     
@@ -74,37 +76,34 @@ export const CropResidues = () => {
           quantity: 1 // Default quantity, can be made adjustable
         }
       );
-
-      setCartMessage({ text: "Item added to cart successfully!", isError: false });
+      
+      toast.success("Item added to cart successfully!");
+      
     } catch (error) {
+      toast.error("Failed to add item to cart");
       console.error("Error adding to cart:", error);
-      setCartMessage({ text: "Failed to add item to cart", isError: true });
     } finally {
       setAddingToCart(false);
-      // Clear message after 3 seconds
-      setTimeout(() => setCartMessage({ text: "", isError: false }), 3000);
+      
     }
   };
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  
 
   return (
     <>
       <Navbar />
-      
-      <div className="relative">
-        {cartMessage.text && (
-          <div className={`fixed top-20 right-4 p-4 rounded shadow-lg z-50 
-            ${cartMessage.isError ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-            {cartMessage.text}
-          </div>
-        )}
-      </div>
 
-      <div className="container p-4 mx-auto">
+      <Link to="/cart">
+      <div className="justify-center justify place-items-end mt-[35px] px-[50px]">
+      <FaShoppingCart size={35} className="text-green-600 cursor-pointer"/>
+      </div>
+      </Link>
+
+      <div className="container mx-auto">
         <h1 className="text-2xl font-bold">Waste Materials</h1>
-        <div className="grid grid-cols-1 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-5 mt-4">
           {wasteData.length > 0 ? (
             wasteData.map((waste) => (
               <div key={waste._id} className="flex items-center justify-between p-4 border rounded shadow">
