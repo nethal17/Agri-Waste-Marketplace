@@ -61,6 +61,10 @@ export const CropResidues = () => {
       toast.error("Please login to add items to cart");
       return;
     }
+    if(user.role !== "buyer"){
+      toast.error("Only buyers can add items to cart");
+      return;
+    }
     
     setAddingToCart(true);
     
@@ -97,7 +101,8 @@ export const CropResidues = () => {
 
       <Link to="/cart">
       <div className="justify-center justify place-items-end mt-[35px] px-[50px]">
-      <FaShoppingCart size={35} className="text-green-600 cursor-pointer"/>
+      <FaShoppingCart size={35} className="text-green-600 cursor-pointer"
+      />
       </div>
       </Link>
 

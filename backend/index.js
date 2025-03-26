@@ -31,7 +31,7 @@ import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
 dotenv.config();
 
 const app = express();
-
+app.use('/api/webhook', express.raw({ type: 'application/json' }));
 // Middleware
 app.use(json());
 app.use(cors());
@@ -49,7 +49,7 @@ app.use("/api/photo", photoRouter);
 app.use('/api', driverRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', stripeRoutes);
-app.use('/api', webhookRoutes);
+app.use('/api/webhook', webhookRoutes);
 app.use('/api', stripePaymentsRoutes);
 app.use('/api', driverPaymentsRoutes);
 
