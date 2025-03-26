@@ -102,15 +102,15 @@ const HighPayments = () => {
             <div className="space-y-4">
               <div className="p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-gray-600">Total High Payments</p>
-                <p className="text-2xl font-bold text-green-600">Rs. {totalAmount.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-black-600">Rs. {totalAmount.toFixed(2)}</p>
               </div>
-              <div className="p-4 bg-blue-50 rounded-lg">
+              <div className="p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-gray-600">Number of Transactions</p>
-                <p className="text-2xl font-bold text-blue-600">{highPayments.length}</p>
+                <p className="text-2xl font-bold text-black-600">{highPayments.length}</p>
               </div>
-              <div className="p-4 bg-purple-50 rounded-lg">
+              <div className="p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-gray-600">Average Payment</p>
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-2xl font-bold text-black-600">
                   Rs. {highPayments.length > 0 ? (totalAmount / highPayments.length).toFixed(2) : '0.00'}
                 </p>
               </div>
@@ -156,10 +156,10 @@ const HighPayments = () => {
           className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
           onClick={() => navigate('/pay-history')}
         >
-          View All Payments
+          View Product Payments
         </button>
         <button
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           onClick={() => navigate('/')}
         >
           Back to Driver List

@@ -1,8 +1,18 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { Navbar } from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
 
 export const ProductListingForm = () => {
+
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    toast.error("Please login to list agri-waste");
+    navigate("/login");
+  }
+  
   const [formData, setFormData] = useState({
     wasteCategory: "",
     wasteType: "",
@@ -202,15 +212,15 @@ export const ProductListingForm = () => {
   return (
     <>
       <Navbar />
-      <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4">
-        <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Add New Product Listing</h2>
+      <div className="flex items-center justify-center min-h-screen px-4 bg-gray-50">
+        <div className="w-full max-w-2xl p-8 bg-white rounded-lg shadow-lg">
+          <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">Add New Product Listing</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Form fields remain the same as in your original code */}
             
             {/* Waste Category (Radio Buttons) */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Waste Category</label>
+              <label className="block mb-2 font-medium text-gray-700">Waste Category</label>
               <div className="flex space-x-4">
                 <label className="flex items-center space-x-2">
                   <input
@@ -219,7 +229,7 @@ export const ProductListingForm = () => {
                     value="Organic Waste"
                     checked={formData.wasteCategory === "Organic Waste"}
                     onChange={handleChange}
-                    className="form-radio h-5 w-5 text-green-500"
+                    className="w-5 h-5 text-green-500 form-radio"
                     required
                   />
                   <span className="text-gray-700">Organic Waste</span>
@@ -231,7 +241,7 @@ export const ProductListingForm = () => {
                     value="Inorganic Waste"
                     checked={formData.wasteCategory === "Inorganic Waste"}
                     onChange={handleChange}
-                    className="form-radio h-5 w-5 text-green-500"
+                    className="w-5 h-5 text-green-500 form-radio"
                     required
                   />
                   <span className="text-gray-700">Inorganic Waste</span>
@@ -241,12 +251,12 @@ export const ProductListingForm = () => {
 
             {/* Waste Type */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Waste Type</label>
+              <label className="block mb-2 font-medium text-gray-700">Waste Type</label>
               <select
                 name="wasteType"
                 value={formData.wasteType}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               >
                 <option value="">Select Waste Type</option>
@@ -260,12 +270,12 @@ export const ProductListingForm = () => {
 
             {/* Waste Item */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Waste Item</label>
+              <label className="block mb-2 font-medium text-gray-700">Waste Item</label>
               <select
                 name="wasteItem"
                 value={formData.wasteItem}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               >
                 <option value="">Select Waste Item</option>
@@ -279,12 +289,12 @@ export const ProductListingForm = () => {
 
             {/* Province */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Province</label>
+              <label className="block mb-2 font-medium text-gray-700">Province</label>
               <select
                 name="province"
                 value={formData.province}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               >
                 <option value="">Select Province</option>
@@ -298,12 +308,12 @@ export const ProductListingForm = () => {
 
             {/* District */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">District</label>
+              <label className="block mb-2 font-medium text-gray-700">District</label>
               <select
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               >
                 <option value="">Select District</option>
@@ -317,55 +327,58 @@ export const ProductListingForm = () => {
 
             {/* City */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">City</label>
+              <label className="block mb-2 font-medium text-gray-700">City</label>
               <input
                 type="text"
                 name="city"
                 placeholder="Enter your city"
                 value={formData.city}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />
             </div>
 
             {/* Quantity */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Quantity (Kg)</label>
+              <label className="block mb-2 font-medium text-gray-700">Quantity (Kg)</label>
+
               <input
                 type="text"
                 name="quantity"
                 placeholder="Enter quantity in kilograms"
                 value={formData.quantity}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />
             </div>
 
             {/* Price */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Price (Per Kg)</label>
+
+              <label className="block mb-2 font-medium text-gray-700">Price (Per Kg)</label>
+
               <input
                 type="text"
                 name="price"
                 placeholder="Enter price per kilogram"
                 value={formData.price}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Description</label>
+              <label className="block mb-2 font-medium text-gray-700">Description</label>
               <textarea
                 name="description"
                 placeholder="Enter a detailed description"
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
                 rows={4}
               />
@@ -373,32 +386,32 @@ export const ProductListingForm = () => {
 
             {/* Expire Date */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Expire Date</label>
+              <label className="block mb-2 font-medium text-gray-700">Expire Date</label>
               <input
                 type="date"
                 name="expireDate"
                 value={formData.expireDate}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />
             </div>
 
             {/* Image Upload */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Upload Product Image (*Optianal)</label>
+              <label className="block mb-2 font-medium text-gray-700">Upload Product Image (*Optianal)</label>
               <input
                 type="file"
                 name="image"
                 onChange={handleChange}
-                className="w-full p-2 border rounded-lg cursor-pointer bg-gray-100 file:bg-green-500 file:text-white file:py-2 file:px-4 file:border-none file:rounded-lg hover:file:bg-green-600"
+                className="w-full p-2 bg-gray-100 border rounded-lg cursor-pointer file:bg-green-500 file:text-white file:py-2 file:px-4 file:border-none file:rounded-lg hover:file:bg-green-600"
               />
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all duration-200"
+              className="w-full p-3 text-white transition-all duration-200 bg-green-500 rounded-lg hover:bg-green-600"
             >
               Submit Listing
             </button>
