@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const buyerAddressSchema = new mongoose.Schema({
+  buyerId: {
+    type: String,
+    default: 119
+  },
   address: { 
     type: String, 
     required: true 
