@@ -57,7 +57,7 @@ export const getDriverById = async (req, res) => {
   }
 };
 
-// new controller function
+// new controller functio
 export const updateDriverDeliveryCount = async (req, res) => {
   try {
     const { id } = req.params;

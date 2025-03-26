@@ -19,7 +19,7 @@ const PayHistory = () => {
           throw new Error('Invalid data format received from API');
         }
 
-        // Names to exclude 
+         
         const excludedNames = [
           'yuwani perera',
           'pasan perera',

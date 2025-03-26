@@ -32,7 +32,7 @@ export const handleWebhook = async (req, res) => {
         payAmount: session.amount_total / 100,
       });
 
-      // Update driver's total salary
+      // Update driver's total salar
       await Driver.findByIdAndUpdate(
         session.metadata.driverId,
         { $inc: { totalSalary: session.amount_total / 100 } },
