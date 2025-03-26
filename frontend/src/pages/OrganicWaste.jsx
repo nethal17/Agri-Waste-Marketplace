@@ -15,8 +15,6 @@ const organicWastes = [
 export const  OrganicWaste = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  
-
   const filteredWaste = organicWastes.filter((waste) =>
     waste.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
