@@ -51,6 +51,30 @@ export const verifyEmail = async (req, res) => {
 export const registerUser = async (req, res) => {
     const { name, email, phone, password, role } = req.body;
 
+    
+    if (!name || !email || !phone || !password || !role) {
+        return res.status(400).json({ msg: "Please fill in all fields." });
+    }
+
+    const validateEmail = (email) => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+    if (!validateEmail(email)) {
+        return res.status(400).json({ msg: "Invalid email format." });
+    }
+
+    if (password.length < 8) {
+        return res.status(400).json({ msg: "Password must be at least 8 characters long." });
+    }
+
+    const validatePhone = (phone) => /^0\d{9}$/.test(phone);
+    if (!validatePhone(phone)) {
+        return res.status(400).json({ msg: "Invalid phone number format." });
+    }
+
+    const validRoles = ["farmer", "buyer", "truck_driver"];
+    if (!validRoles.includes(role)) {
+        return res.status(400).json({ msg: "Invalid role provided." });
+    }
+
     try {
         let user = await User.findOne({ email });
         if (user) return res.status(400).json({ msg: "User already exists" });
@@ -60,15 +84,26 @@ export const registerUser = async (req, res) => {
 
         const verificationToken = crypto.randomBytes(32).toString("hex");
 
-        user = new User({ name, email, phone, password: hashedPassword, role, verificationToken });
+        user = new User({
+            name,
+            email,
+            phone,
+            password: hashedPassword,
+            role,
+            verificationToken
+        });
+
         await user.save();
 
         const transporter = nodemailer.createTransport({
             service: "Gmail",
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
         });
 
-        const verificationURL = `http://localhost:3000/api/auth/verify-email/${verificationToken}`; 
+        const verificationURL = `http://localhost:3000/api/auth/verify-email/${verificationToken}`;
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USER,
@@ -78,7 +113,10 @@ export const registerUser = async (req, res) => {
 
         await transporter.sendMail(mailOptions);
 
-        res.status(201).json({ msg: "User registered successfully. Please check your email to verify your account." });
+        res.status(201).json({
+            msg: "User registered successfully. Please check your email to verify your account."
+        });
+
     } catch (err) {
         console.log(err);
         res.status(500).json({ msg: "Server Error" });
@@ -127,7 +165,6 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ msg: "Server Error" });
     }
 };
-
 
 export const logoutUser = (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
@@ -213,7 +250,7 @@ export const resetPassword = async (req, res) => {
     try {
         const user = await User.findOne({
             resetPasswordToken: token,
-            resetPasswordExpire: { $gt: Date.now() } // Check if token is still valid
+            resetPasswordExpire: { $gt: Date.now() } 
         });
 
         if (!user) {

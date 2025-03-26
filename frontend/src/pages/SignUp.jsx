@@ -57,7 +57,6 @@ export const SignUp = () => {
       return;
     }
 
-    // Proceed with API call if validations pass
     axios
       .post("http://localhost:3000/api/auth/register", user)
       .then((res) => {

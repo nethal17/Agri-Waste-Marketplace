@@ -13,9 +13,9 @@ router.post("/logout", logoutUser);
 router.get("/profile", authMiddleware, (req, res) => {
     res.json({ msg: "Access granted", user: req.user });
 });
-router.post("/forgot-password", forgotPassword);  // Request password reset
-router.post("/reset-password/:token", resetPassword);  // Reset password
-router.get("/verify-email/:token", verifyEmail);  // Verify email
+router.post("/forgot-password", forgotPassword);  
+router.post("/reset-password/:token", resetPassword); 
+router.get("/verify-email/:token", verifyEmail); 
 router.get("/getAllUsers", getUsers);
 router.get("/searchUser/:id", getUserById);
 router.put("/updateUser/:id", updateUserDetails);
