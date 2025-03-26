@@ -22,7 +22,13 @@ export const InventoryManagerDashboard = () => {
       const token = localStorage.getItem('token');
       if (!token) {
         toast.error('No token found, please login again.');
-        return;
+        navigate("/login");
+      }
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      const userRole = userData.role;
+      if (userRole !== "admin") {
+        toast.error("Only Admin can list agri-waste");
+        navigate("/");
       }
 
       const response = await axios.get('http://localhost:3000/api/product-listing/admin/listings', {
@@ -124,7 +130,7 @@ export const InventoryManagerDashboard = () => {
                   <td className="py-4 px-6 text-sm text-gray-800 font-medium">{listing.farmerId?.name || 'Unknown Farmer'}</td>
                   <td className="py-4 px-6 text-sm text-gray-700">{listing.wasteItem}</td>
                   <td className="py-4 px-6 text-sm text-gray-700 max-w-xs truncate">{listing.description}</td>
-                  <td className="py-4 px-6 text-sm text-gray-700">${listing.price}</td>
+                  <td className="py-4 px-6 text-sm text-gray-700">Rs.{listing.price}</td>
                   <td className="py-4 px-6 text-sm text-gray-700">{listing.quantity}</td>
                   <td className="py-4 px-6 text-sm">
                     <div className="flex items-center space-x-3">
@@ -196,8 +202,8 @@ export const InventoryManagerDashboard = () => {
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-500">Price</p>
-                    <p className="font-medium mt-1">${selectedProduct.price} per KG</p>
+                    <p className="text-sm text-gray-500">Price (Per Kg)</p>
+                    <p className="font-medium mt-1">Rs.{selectedProduct.price}</p>
                   </div>
 
                   <div>

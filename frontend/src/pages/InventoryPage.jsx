@@ -3,8 +3,10 @@ import { FiBell } from "react-icons/fi";
 import { Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import { Navbar } from "../components/Navbar";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
-// Define the 12 waste types and their possible waste items
+
 const WASTE_TYPES = {
   'Crop Residues': ['Wheat straw', 'Rice husk', 'Corn stalks', 'Lentil husks', 'Chickpea stalks', 'Pea pods','Mustard stalks', 'Sunflower husks', 'Groundnut shells'],
   'Fruit & Vegetable Waste': ['Banana peels', 'Orange pulp', 'Mango peels', 'Tomato skins', 'Potato peels', 'Carrot tops','Rotten tomatoes', 'Overripe bananas'],
@@ -33,6 +35,23 @@ const getWasteType = (wasteItem) => {
 };
 
 export const InventoryPage = () => {
+
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    toast.error("Please login to view this page");
+    navigate("/login");
+  }
+
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const userRole = userData.role;
+
+  if (userRole !== "admin") {
+    toast.error("Only Admin can view this page");
+    navigate("/");
+  }
+
   const [marketplaceListings, setMarketplaceListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
