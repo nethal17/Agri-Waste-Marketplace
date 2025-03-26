@@ -109,6 +109,12 @@ export const Cart = () => {
     );
   }
 
+  if (user.role !== "buyer") {
+    toast.error("Only buyers can view cart");
+    navigate("/");
+    
+  }
+
   return (
     <>
     <Navbar />
