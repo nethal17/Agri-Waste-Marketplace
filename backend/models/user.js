@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ["farmer", "buyer", "admin", "organic_seller", "truck_driver"], default: "farmer" },
+    role: { type: String, enum: ["farmer", "buyer", "admin", "truck_driver"], default: "buyer" },
     profilePic: { type: String, default: "https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg" },
     resetPasswordToken: { type: String },
     resetPasswordExpire: { type: Date },

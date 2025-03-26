@@ -121,7 +121,7 @@ export const Profile = () => {
 
         {/* Right Section */}
         <div className="flex flex-col p-6 rounded-lg bg-white shadow-lg w-full h-full min-h-[500px] shadow-gray-400">
-          <h1 className="text-3xl font-bold">My Profile</h1>
+          <h1 className="text-3xl font-bold text-center">My Profile</h1>
           <div className="place-items-center">
           <h3 className="text-2xl font-bold text-green-600">{user.role}</h3>
           <div className="mt-10">
