@@ -1,5 +1,4 @@
 #dependencies
 backend/node_modules
 forntend/node_modules
-backend/.env
-forntend/.env
+.env
