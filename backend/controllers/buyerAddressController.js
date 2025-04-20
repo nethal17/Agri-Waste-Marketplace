@@ -23,6 +23,7 @@ export const getBuyerAddresses = async (req, res) => {
   }
 };
 
+// Get address by buyer ID  
 export const getAddressByBuyerId = async (req, res) => {
   try {
     const { buyerId } = req.params;

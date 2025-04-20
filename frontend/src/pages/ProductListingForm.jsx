@@ -4,7 +4,6 @@ import { Navbar } from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 
 export const ProductListingForm = () => {
-
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -12,7 +11,12 @@ export const ProductListingForm = () => {
     toast.error("Please login to list agri-waste");
     navigate("/login");
   }
-  
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const userRole = userData.role;
+  if (userRole !== "farmer") {
+    toast.error("Only farmers can list agri-waste");
+    navigate("/");
+  }
   const [formData, setFormData] = useState({
     wasteCategory: "",
     wasteType: "",
@@ -52,7 +56,7 @@ export const ProductListingForm = () => {
     verifyToken();
   }, []);
 
-  // Fetch Provinces (if needed)
+  // Fetch Provinces 
   useEffect(() => {
     const provinces = [
       "Nothern Province",
@@ -68,7 +72,7 @@ export const ProductListingForm = () => {
     setProvinces(provinces);
   }, []);
 
-  // Fetch Waste Types based on Waste Category
+  // Fetch Waste Types 
   useEffect(() => {
     if (formData.wasteCategory) {
       fetch(`http://localhost:3000/api/product-listing/waste-types/${formData.wasteCategory}`)
@@ -78,7 +82,7 @@ export const ProductListingForm = () => {
     }
   }, [formData.wasteCategory]);
 
-  // Fetch Waste Items based on Waste Type
+  // Fetch Waste Items 
   useEffect(() => {
     if (formData.wasteType) {
       fetch(`http://localhost:3000/api/product-listing/waste-items/${formData.wasteType}`)
@@ -106,14 +110,14 @@ export const ProductListingForm = () => {
     }));
   };
 
-  const convertToBase64 = (file) => {
+  /*const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
-  };
+  };*/
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -124,23 +128,33 @@ export const ProductListingForm = () => {
         return;
     }
 
-    // Verify the farmerId format before sending
-    if (!/^[0-9a-fA-F]{24}$/.test(userData._id)) {
-        toast.error("Invalid user ID format. Please log in again.");
-        return;
-    }
-
-    // Validate inputs
+    // Price Validate
     const price = parseFloat(formData.price);
-    const quantity = parseInt(formData.quantity, 10);
-
-    if (isNaN(price) || price <= 0) {
-      toast.error("Price must be a positive number.");
+    if (isNaN(price)) {
+      toast.error("Price must be a valid number");
+      return;
+    }
+    if (price <= 0) {
+      toast.error("Price must be greater than 0");
       return;
     }
 
-    if (isNaN(quantity) || quantity <= 0) {
-      toast.error("Quantity must be a positive number.");
+    // Quantity Validate
+    const quantity = parseInt(formData.quantity, 10);
+    if (isNaN(quantity)) {
+      toast.error("Quantity must be a valid number");
+      return;
+    }
+    if (quantity <= 0) {
+      toast.error("Quantity must be greater than 0");
+      return;
+    }
+
+    // Validate expire date 
+    const today = new Date();
+    const expireDate = new Date(formData.expireDate);
+    if (expireDate <= today) {
+      toast.error("Expire date must be in the future");
       return;
     }
 
@@ -208,213 +222,246 @@ export const ProductListingForm = () => {
     }
   };
 
-
   return (
     <>
       <Navbar />
-      <div className="flex items-center justify-center min-h-screen px-4 bg-gray-50">
-        <div className="w-full max-w-2xl p-8 bg-white rounded-lg shadow-lg">
-          <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">Add New Product Listing</h2>
+      <div className="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-green-50 to-gray-50">
+        <div className="w-full max-w-3xl p-8 bg-white rounded-2xl shadow-xl">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-gray-800">Add New Product Listing</h2>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Form fields remain the same as in your original code */}
             
-            {/* Waste Category (Radio Buttons) */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">Waste Category</label>
-              <div className="flex space-x-4">
-                <label className="flex items-center space-x-2">
+            {/* Waste Category */}
+            <div className="p-6 bg-gray-50 rounded-xl">
+              <label className="block mb-3 text-lg font-semibold text-gray-700">Waste Category</label>
+              <div className="flex space-x-6">
+                <label className="flex items-center space-x-3">
                   <input
                     type="radio"
                     name="wasteCategory"
                     value="Organic Waste"
                     checked={formData.wasteCategory === "Organic Waste"}
                     onChange={handleChange}
-                    className="w-5 h-5 text-green-500 form-radio"
+                    className="w-6 h-6 text-green-600 border-2 border-gray-300 focus:ring-green-500"
                     required
                   />
                   <span className="text-gray-700">Organic Waste</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="flex items-center space-x-3">
                   <input
                     type="radio"
                     name="wasteCategory"
                     value="Inorganic Waste"
                     checked={formData.wasteCategory === "Inorganic Waste"}
                     onChange={handleChange}
-                    className="w-5 h-5 text-green-500 form-radio"
+                    className="w-6 h-6 text-green-600 border-2 border-gray-300 focus:ring-green-500"
                     required
                   />
-                  <span className="text-gray-700">Inorganic Waste</span>
+                  <span className="text-gray-700">Non-Organic Waste</span>
                 </label>
               </div>
             </div>
 
             {/* Waste Type */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">Waste Type</label>
-              <select
-                name="wasteType"
-                value={formData.wasteType}
-                onChange={handleChange}
-                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              >
-                <option value="">Select Waste Type</option>
-                {wasteTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-50 p-6 rounded-xl">
+                <label className="block mb-3 text-lg font-semibold text-gray-700">Waste Type</label>
+                <select
+                  name="wasteType"
+                  value={formData.wasteType}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Select Waste Type</option>
+                  {wasteTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Waste Item */}
+              <div className="bg-gray-50 p-6 rounded-xl">
+                <label className="block mb-3 text-lg font-semibold text-gray-700">Waste Item</label>
+                <select
+                  name="wasteItem"
+                  value={formData.wasteItem}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Select Waste Item</option>
+                  {wasteItems.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            {/* Waste Item */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">Waste Item</label>
-              <select
-                name="wasteItem"
-                value={formData.wasteItem}
-                onChange={handleChange}
-                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              >
-                <option value="">Select Waste Item</option>
-                {wasteItems.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
+            {/* Location Section */}
+            <div className="bg-gray-50 p-6 rounded-xl">
+              <h3 className="mb-4 text-xl font-semibold text-gray-800">Location Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Province */}
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">Province</label>
+                  <select
+                    name="province"
+                    value={formData.province}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="">Select Province</option>
+                    {provinces.map((province) => (
+                      <option key={province} value={province}>
+                        {province}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* District */}
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">District</label>
+                  <select
+                    name="district"
+                    value={formData.district}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="">Select District</option>
+                    {districts.map((district) => (
+                      <option key={district} value={district}>
+                        {district}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* City */}
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    placeholder="Enter your city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Province */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">Province</label>
-              <select
-                name="province"
-                value={formData.province}
-                onChange={handleChange}
-                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              >
-                <option value="">Select Province</option>
-                {provinces.map((province) => (
-                  <option key={province} value={province}>
-                    {province}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Quantity & Price */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-50 p-6 rounded-xl">
+                <label className="block mb-3 text-lg font-semibold text-gray-700">Quantity (Kg)</label>
+                <input
+                  type="text"
+                  name="quantity"
+                  placeholder="Enter quantity in kilograms"
+                  value={formData.quantity}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                />
+              </div>
 
-            {/* District */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">District</label>
-              <select
-                name="district"
-                value={formData.district}
-                onChange={handleChange}
-                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              >
-                <option value="">Select District</option>
-                {districts.map((district) => (
-                  <option key={district} value={district}>
-                    {district}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* City */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">City</label>
-              <input
-                type="text"
-                name="city"
-                placeholder="Enter your city"
-                value={formData.city}
-                onChange={handleChange}
-                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              />
-            </div>
-
-            {/* Quantity */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">Quantity (Kg)</label>
-
-              <input
-                type="text"
-                name="quantity"
-                placeholder="Enter quantity in kilograms"
-                value={formData.quantity}
-                onChange={handleChange}
-                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              />
-            </div>
-
-            {/* Price */}
-            <div>
-
-              <label className="block mb-2 font-medium text-gray-700">Price (Per Kg)</label>
-
-              <input
-                type="text"
-                name="price"
-                placeholder="Enter price per kilogram"
-                value={formData.price}
-                onChange={handleChange}
-                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              />
+              <div className="bg-gray-50 p-6 rounded-xl">
+                <label className="block mb-3 text-lg font-semibold text-gray-700">Price (Per Kg)</label>
+                <input
+                  type="text"
+                  name="price"
+                  placeholder="Enter price per kilogram"
+                  value={formData.price}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                />
+              </div>
             </div>
 
             {/* Description */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">Description</label>
+            <div className="bg-gray-50 p-6 rounded-xl">
+              <label className="block mb-3 text-lg font-semibold text-gray-700">Description</label>
               <textarea
                 name="description"
-                placeholder="Enter a detailed description"
+                placeholder="Enter a detailed description about your waste product..."
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-4 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
-                rows={4}
+                rows={5}
               />
             </div>
 
-            {/* Expire Date */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">Expire Date</label>
-              <input
-                type="date"
-                name="expireDate"
-                value={formData.expireDate}
-                onChange={handleChange}
-                className="w-full p-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              />
-            </div>
+            {/* Expire Date & Image Upload */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-50 p-6 rounded-xl">
+                <label className="block mb-3 text-lg font-semibold text-gray-700">Expire Date</label>
+                <input
+                  type="date"
+                  name="expireDate"
+                  value={formData.expireDate}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                />
+              </div>
 
-            {/* Image Upload */}
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">Upload Product Image (*Optianal)</label>
-              <input
-                type="file"
-                name="image"
-                onChange={handleChange}
-                className="w-full p-2 bg-gray-100 border rounded-lg cursor-pointer file:bg-green-500 file:text-white file:py-2 file:px-4 file:border-none file:rounded-lg hover:file:bg-green-600"
-              />
+              <div className="bg-gray-50 p-6 rounded-xl">
+                <label className="block mb-3 text-lg font-semibold text-gray-700">Product Image (Optional)</label>
+                <div className="flex items-center justify-center w-full">
+                  <label className="flex flex-col w-full h-32 border-2 border-dashed border-gray-300 hover:border-green-500 hover:bg-gray-100 rounded-lg cursor-pointer transition-all duration-200">
+                    <div className="flex flex-col items-center justify-center pt-7">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-8 h-8 text-gray-400 group-hover:text-gray-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                      <p className="pt-1 text-sm tracking-wider text-gray-400 group-hover:text-gray-600">
+                        {formData.image ? formData.image.name : 'Attach a photo'}
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      name="image"
+                      onChange={handleChange}
+                      className="opacity-0"
+                      accept="image/*"
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
 
             {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full p-3 text-white transition-all duration-200 bg-green-500 rounded-lg hover:bg-green-600"
-            >
-              Submit Listing
-            </button>
+            <div className="pt-4">
+              <button
+                type="submit"
+                className="w-full py-4 text-lg font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                Submit Listing
+              </button>
+            </div>
           </form>
         </div>
       </div>

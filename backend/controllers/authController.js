@@ -6,12 +6,10 @@ import nodemailer from "nodemailer";
 
 export const blacklistedTokens = new Set();
 
-// Function to generate a random 6-digit code
 export const generateVerificationCode = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Function to send the verification code via email
 export const sendVerificationCode = async (email, code) => {
     const transporter = nodemailer.createTransport({
         service: "Gmail",
@@ -28,7 +26,6 @@ export const sendVerificationCode = async (email, code) => {
     await transporter.sendMail(mailOptions);
 };
 
-// verify email function
 export const verifyEmail = async (req, res) => {
     const { token } = req.params;
 
@@ -51,9 +48,32 @@ export const verifyEmail = async (req, res) => {
     }
 };
 
-// register user into system
 export const registerUser = async (req, res) => {
     const { name, email, phone, password, role } = req.body;
+
+    
+    if (!name || !email || !phone || !password || !role) {
+        return res.status(400).json({ msg: "Please fill in all fields." });
+    }
+
+    const validateEmail = (email) => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+    if (!validateEmail(email)) {
+        return res.status(400).json({ msg: "Invalid email format." });
+    }
+
+    if (password.length < 8) {
+        return res.status(400).json({ msg: "Password must be at least 8 characters long." });
+    }
+
+    const validatePhone = (phone) => /^0\d{9}$/.test(phone);
+    if (!validatePhone(phone)) {
+        return res.status(400).json({ msg: "Invalid phone number format." });
+    }
+
+    const validRoles = ["farmer", "buyer", "truck_driver"];
+    if (!validRoles.includes(role)) {
+        return res.status(400).json({ msg: "Invalid role provided." });
+    }
 
     try {
         let user = await User.findOne({ email });
@@ -64,15 +84,26 @@ export const registerUser = async (req, res) => {
 
         const verificationToken = crypto.randomBytes(32).toString("hex");
 
-        user = new User({ name, email, phone, password: hashedPassword, role, verificationToken });
+        user = new User({
+            name,
+            email,
+            phone,
+            password: hashedPassword,
+            role,
+            verificationToken
+        });
+
         await user.save();
 
         const transporter = nodemailer.createTransport({
             service: "Gmail",
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
         });
 
-        const verificationURL = `http://localhost:3000/api/auth/verify-email/${verificationToken}`; 
+        const verificationURL = `http://localhost:3000/api/auth/verify-email/${verificationToken}`;
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USER,
@@ -82,14 +113,16 @@ export const registerUser = async (req, res) => {
 
         await transporter.sendMail(mailOptions);
 
-        res.status(201).json({ msg: "User registered successfully. Please check your email to verify your account." });
+        res.status(201).json({
+            msg: "User registered successfully. Please check your email to verify your account."
+        });
+
     } catch (err) {
         console.log(err);
         res.status(500).json({ msg: "Server Error" });
     }
 };
 
-// user login into system
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
@@ -133,7 +166,6 @@ export const loginUser = async (req, res) => {
     }
 };
 
-// user logout from system
 export const logoutUser = (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
 
@@ -173,7 +205,6 @@ export const logoutUser = (req, res) => {
     }
 };
 
-// forgot password function
 export const forgotPassword = async (req, res) => {
     const { email } = req.body;
 
@@ -212,7 +243,6 @@ export const forgotPassword = async (req, res) => {
     }
 };
 
-// reset password function
 export const resetPassword = async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
@@ -220,7 +250,7 @@ export const resetPassword = async (req, res) => {
     try {
         const user = await User.findOne({
             resetPasswordToken: token,
-            resetPasswordExpire: { $gt: Date.now() } // Check if token is still valid
+            resetPasswordExpire: { $gt: Date.now() } 
         });
 
         if (!user) {
@@ -242,7 +272,6 @@ export const resetPassword = async (req, res) => {
     }
 };
 
-// verify two step code function
 export const verifyTwoStepCode = async (req, res) => {
     const { userId, code } = req.body;
 
@@ -277,7 +306,6 @@ export const verifyTwoStepCode = async (req, res) => {
     }
 };
 
-// get all users
 export const getUsers = async (req, res) => {
     try {
         const users = await User.find({});
@@ -289,7 +317,6 @@ export const getUsers = async (req, res) => {
     }
 };
 
-// get user by id
 export const getUserById = async (req, res) => {
     const { id } = req.params;
 
@@ -303,7 +330,6 @@ export const getUserById = async (req, res) => {
     }
 };
 
-// update user details
 export const updateUserDetails = async (req, res) => {
     const { id } = req.params;
 
@@ -335,7 +361,7 @@ export const updateUserDetails = async (req, res) => {
     }
 };
 
-// delete user
+
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
 

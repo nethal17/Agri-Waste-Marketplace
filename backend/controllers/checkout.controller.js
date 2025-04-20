@@ -19,6 +19,7 @@ export const addCheckoutDetails = async (req, res) => {
       totalPrice: cart.totalPrice + 1000, // Default delivery cost
     });
 
+    // Save checkout
     await checkout.save();
     res.status(201).json({ message: "Checkout details saved", checkout });
 

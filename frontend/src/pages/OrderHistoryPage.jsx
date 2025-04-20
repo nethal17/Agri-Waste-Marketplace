@@ -92,7 +92,7 @@ export const OrderHistoryPage = () => {
                 <tr key={order._id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4">{order.productId?.wasteItem || 'Product not found'}</td>
                   <td className="px-6 py-4">{order.quantity}</td>
-                  <td className="px-6 py-4">${order.totalPrice.toFixed(2)}</td>
+                  <td className="px-6 py-4">Rs.{order.totalPrice.toFixed(2)}</td>
                   <td className="px-6 py-4">{new Date(order.orderDate).toLocaleDateString()}</td>
                   <td className="px-6 py-4">
                     <button
@@ -115,7 +115,7 @@ export const OrderHistoryPage = () => {
               <div className="space-y-3">
                 <p><span className="font-semibold">Product:</span> {selectedOrder.productId?.wasteItem || 'Product not found'}</p>
                 <p><span className="font-semibold">Quantity:</span> {selectedOrder.quantity}</p>
-                <p><span className="font-semibold">Total Price:</span> ${selectedOrder.totalPrice.toFixed(2)}</p>
+                <p><span className="font-semibold">Total Price:</span> Rs.{selectedOrder.totalPrice.toFixed(2)}</p>
                 <p><span className="font-semibold">Order Date:</span> {new Date(selectedOrder.orderDate).toLocaleDateString()}</p>
               </div>
               <div className="mt-6 flex justify-end space-x-4">

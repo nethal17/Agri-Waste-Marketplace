@@ -7,7 +7,6 @@ const photoRouter = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Configure Cloudinary
 cloudinary.v2.config({
   cloud_name: "dm8vchgk9",
   api_key: "643534999793746",
@@ -36,7 +35,7 @@ photoRouter.post("/upload-profile-pic/:userId", upload.single("profilePic"), asy
         uploadStream.end(file.buffer);
       });
   
-      console.log("Cloudinary Upload Success:", result); // ✅ Check the Cloudinary response
+      console.log("Cloudinary Upload Success:", result);
   
       // Update user profile picture URL in database
       const user = await User.findByIdAndUpdate(userId, { profilePic: result.secure_url }, { new: true });

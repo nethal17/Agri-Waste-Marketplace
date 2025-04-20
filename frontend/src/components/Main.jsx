@@ -11,7 +11,7 @@ export const Main = () => {
           </h1>
           
           <p className="mt-4 text-zinc-900">
-            Discover the breathtaking landscapes, rich culture, and hidden gems of Sri Lanka. Let your adventure begin!
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt tempora recusandae aliquid libero natus, placeat ratione qui, expedita, pariatur maxime in.
           </p>
           <button className="px-4 py-3 mt-4 text-white transition rounded-lg bg-zinc-900 hover:bg-white hover:border hover:border-zinc-900 hover:text-zinc-900 hover:font-bold">
             Get started
