@@ -131,6 +131,13 @@ const PayHistory = () => {
         >
           Back to Driver List
         </button>
+        <button
+  onClick={() => navigate('/final-summary')}
+  className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+>
+  View Total Payments
+</button>
+
       </div>
     </div>
     </>
