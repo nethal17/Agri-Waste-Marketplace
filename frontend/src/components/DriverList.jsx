@@ -1,33 +1,139 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Table, Button, Modal, Form, message } from 'antd';
+import { EditOutlined, DeleteOutlined, DollarOutlined } from '@ant-design/icons';
 import { Navbar } from "../components/Navbar";
+import { useNavigate } from 'react-router-dom';
 
 const DriverList = () => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editingDriver, setEditingDriver] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
   const navigate = useNavigate();
 
   useEffect(() => {
-    setLoading(true);
-    axios.get('http://localhost:3000/api/drivers')
-      .then(response => {
-        setDrivers(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching drivers:', error);
-        setLoading(false);
-      });
+    fetchDrivers();
   }, []);
+
+  const fetchDrivers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:3000/api/auth/getAllUsers');
+      // Filter only truck drivers
+      const truckDrivers = response.data.data.filter(user => user.role === 'truck_driver');
+      setDrivers(truckDrivers);
+    } catch (error) {
+      console.error('Error fetching drivers:', error);
+      message.error('Failed to fetch drivers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (record) => {
+    setEditingDriver(record);
+    form.setFieldsValue({
+      name: record.name,
+      email: record.email,
+      phone: record.phone
+    });
+    setIsModalVisible(true);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/auth/userDelete/${id}`);
+      message.success('Driver deleted successfully');
+      fetchDrivers();
+    } catch (error) {
+      console.error('Error deleting driver:', error);
+      message.error('Failed to delete driver');
+    }
+  };
 
   const handleCalculatePayment = (driverId) => {
     navigate(`/driver/${driverId}/payment`);
   };
 
-  const handleViewPayHistory = () => {
-    navigate('/pay-history');
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      await axios.put(`http://localhost:3000/api/auth/updateUser/${editingDriver._id}`, values);
+      message.success('Driver updated successfully');
+      setIsModalVisible(false);
+      fetchDrivers();
+    } catch (error) {
+      console.error('Error updating driver:', error);
+      message.error('Failed to update driver');
+    }
   };
+
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Phone',
+      dataIndex: 'phone',
+      key: 'phone',
+    },
+    {
+      title: 'Profile Picture',
+      dataIndex: 'profilePic',
+      key: 'profilePic',
+      render: (profilePic) => (
+        profilePic ? (
+          <img src={profilePic} alt="Profile" style={{ width: 50, height: 50, borderRadius: '50%' }} />
+        ) : (
+          <div style={{ width: 50, height: 50, borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            No Image
+          </div>
+        )
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <span>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+            style={{ marginRight: 8 }}
+          >
+            Edit
+          </Button>
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record._id)}
+            style={{ marginRight: 8 }}
+          >
+            Delete
+          </Button>
+          <Button
+            type="primary"
+            icon={<DollarOutlined />}
+            onClick={() => handleCalculatePayment(record._id)}
+            style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+          >
+            Calculate Payment
+          </Button>
+        </span>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -37,78 +143,49 @@ const DriverList = () => {
       
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-green-50">
-              <tr>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Name
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Age
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Deliveries
-                </th>
-                <th scope="col" className="px-6 py-4 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {drivers.length > 0 ? (
-                drivers.map((driver) => (
-                  <tr key={driver._id} className="hover:bg-green-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <img 
-                            className="h-10 w-10 rounded-full object-cover" 
-                            src={driver.profilePic || 'https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg'} 
-                            alt={driver.name}
-                          />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{driver.name}</div>
-                          <div className="text-sm text-gray-500">ID: {driver._id.substring(0, 8)}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{driver.age}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{driver.deliveryCount || 0}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <button
-                        onClick={() => handleCalculatePayment(driver._id)}
-                        className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                      >
-                        Calculate Salary
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
-                    {loading ? 'Loading drivers...' : 'No drivers found'}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <Table
+            columns={columns}
+            dataSource={drivers}
+            loading={loading}
+            rowKey="_id"
+            pagination={{ pageSize: 10 }}
+          />
         </div>
       </div>
 
-      <div className="mt-6 flex justify-end">
-        <button
-          onClick={handleViewPayHistory}
-          className="px-6 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-        >
-          View Pay History
-        </button>
-      </div>
+      <Modal
+        title="Edit Driver"
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: 'Please input the name!' }]}
+          >
+            <input />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: 'Please input the email!' },
+              { type: 'email', message: 'Please enter a valid email!' }
+            ]}
+          >
+            <input />
+          </Form.Item>
+          <Form.Item
+            name="phone"
+            label="Phone"
+            rules={[{ required: true, message: 'Please input the phone number!' }]}
+          >
+            <input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
     </>
   );

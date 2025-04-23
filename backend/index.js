@@ -17,6 +17,7 @@ import stripeRoutes from './routes/stripe.routes.js'
 import webhookRoutes from './routes/webhook.routes.js';
 import stripePaymentsRoutes from './routes/stripePayments.routes.js';
 import driverPaymentsRoutes from './routes/driverPayments.routes.js';
+import driverPaymentRoutes from './routes/driverPayment.routes.js';
 
 import deliveryReqRoutes from"./routes/deliveryReqRoutes.js";
 
@@ -52,6 +53,7 @@ app.use('/api', stripeRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api', stripePaymentsRoutes);
 app.use('/api', driverPaymentsRoutes);
+app.use('/api', driverPaymentRoutes);
 
 
 //Ricky
