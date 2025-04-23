@@ -165,69 +165,111 @@ export const InventoryManagerDashboard = () => {
           </table>
         </div>
 
-        {/* Preview Modal - Simple Vertical List */}
+        {/* Preview Modal - Enhanced Design */}
         {showPreviewModal && selectedProduct && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <div className="flex justify-between items-start mb-6">
-                  <h3 className="text-2xl font-bold text-gray-800">Listing Details</h3>
+                <div className="flex justify-between items-center border-b pb-4 mb-6">
+                  <h3 className="text-2xl font-bold text-gray-800">Product Listing Details</h3>
                   <button 
                     onClick={() => setShowPreviewModal(false)} 
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
                   >
-                    
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
                 
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Farmer Name</p>
-                    <p className="font-medium mt-1">{selectedProduct.farmerId?.name || 'Unknown Farmer'}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column - Product Image */}
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h4 className="text-lg font-semibold text-gray-700 mb-4">Product Image</h4>
+                      {selectedProduct.image ? (
+                        <div className="relative aspect-square rounded-lg overflow-hidden">
+                          <img 
+                            src={selectedProduct.image} 
+                            alt={selectedProduct.wasteItem}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="aspect-square rounded-lg bg-gray-200 flex items-center justify-center">
+                          <p className="text-gray-500">No image available</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div>
-                    <p className="text-sm text-gray-500">Waste Item</p>
-                    <p className="font-medium mt-1">{selectedProduct.wasteItem}</p>
-                  </div>
+                  {/* Right Column - Product Details */}
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h4 className="text-lg font-semibold text-gray-700 mb-4">Product Information</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Farmer Name</p>
+                          <p className="font-medium mt-1">{selectedProduct.farmerId?.name || 'Unknown Farmer'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Waste Item</p>
+                          <p className="font-medium mt-1">{selectedProduct.wasteItem}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Waste Type</p>
+                          <p className="font-medium mt-1">{selectedProduct.wasteType || 'Not specified'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Category</p>
+                          <p className="font-medium mt-1">{selectedProduct.wasteCategory || 'Not specified'}</p>
+                        </div>
+                      </div>
+                    </div>
 
-                  <div>
-                    <p className="text-sm text-gray-500">Waste Type</p>
-                    <p className="font-medium mt-1">{selectedProduct.wasteType || 'Not specified'}</p>
-                  </div>
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h4 className="text-lg font-semibold text-gray-700 mb-4">Pricing & Quantity</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Price (Per Kg)</p>
+                          <p className="font-medium mt-1 text-green-600">Rs.{selectedProduct.price}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Quantity Available</p>
+                          <p className="font-medium mt-1 text-blue-600">{selectedProduct.quantity} KG</p>
+                        </div>
+                      </div>
+                    </div>
 
-                  <div>
-                    <p className="text-sm text-gray-500">Description</p>
-                    <p className="font-medium mt-1">{selectedProduct.description}</p>
-                  </div>
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h4 className="text-lg font-semibold text-gray-700 mb-4">Location & Expiry</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Location</p>
+                          <p className="font-medium mt-1">
+                            {selectedProduct.city}, {selectedProduct.district}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Expiry Date</p>
+                          <p className="font-medium mt-1">
+                            {selectedProduct.expireDate ? new Date(selectedProduct.expireDate).toLocaleDateString() : 'Not specified'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-                  <div>
-                    <p className="text-sm text-gray-500">Price (Per Kg)</p>
-                    <p className="font-medium mt-1">Rs.{selectedProduct.price}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-500">Quantity Available</p>
-                    <p className="font-medium mt-1">{selectedProduct.quantity} KG</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-500">Expiry Date</p>
-                    <p className="font-medium mt-1">
-                      {selectedProduct.expireDate ? new Date(selectedProduct.expireDate).toLocaleDateString() : 'Not specified'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-500">District</p>
-                    <p className="font-medium mt-1">{selectedProduct.district || 'Not specified'}</p>
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h4 className="text-lg font-semibold text-gray-700 mb-4">Description</h4>
+                      <p className="text-gray-700">{selectedProduct.description}</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-8 flex justify-end">
+                <div className="mt-8 flex justify-end space-x-4">
                   <button
                     onClick={() => setShowPreviewModal(false)}
-                    className="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+                    className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
                   >
                     Close
                   </button>

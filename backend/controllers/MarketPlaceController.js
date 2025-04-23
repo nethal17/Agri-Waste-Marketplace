@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Marketplace from '../models/Marketplace.js';
+import ProductListing from '../models/ProductListing.js';
 
 export const getFarmerListings = async (req, res) => {
     try {
@@ -111,5 +112,191 @@ export const getAllListings = async (req, res) => {
     res.status(200).json(listings);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const getWasteByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+
+    // Validate category
+    if (!category) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Category is required.' 
+      });
+    }
+
+    // Define waste types for each category
+    const wasteTypes = {
+      'Organic Waste': ['Crop Residues', 'Fruit & Vegetable Waste', 'Plantation Waste', 'Nut & Seed Waste', 'Livestock & Dairy Waste', 'Forestry Waste'],
+      'Inorganic Waste': ['Chemical Waste', 'Plastic Waste', 'Metal Waste', 'Fabric & Textile Waste', 'Glass & Ceramic Waste', 'Rubber Waste']
+    };
+
+    // Get the waste types for the requested category
+    const categoryWasteTypes = wasteTypes[category] || [];
+
+    // Find all products where wasteItem matches any of the category's waste types
+    const products = await Marketplace.find({
+      wasteItem: { $in: categoryWasteTypes }
+    })
+    .populate('farmerId', 'name email phone')
+    .select('-__v'); // Exclude version key
+
+    if (products.length === 0) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'No products found in this category.' 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: products
+    });
+
+  } catch (error) {
+    console.error('Error fetching products by category:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while fetching products by category',
+      error: error.message 
+    });
+  }
+};
+
+export const getWasteDetailsByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+
+    // Validate category
+    if (!category) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Category is required.' 
+      });
+    }
+
+    // Find all product listings in the specified category
+    const products = await ProductListing.find({ 
+      wasteCategory: category,
+      status: 'Approved' // Only get approved listings
+    })
+    .populate('farmerId', 'name email phone')
+    .select('-__v'); // Exclude version key
+
+    if (products.length === 0) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'No waste details found in this category.' 
+      });
+    }
+
+    // Transform the data to include waste type details
+    const wasteDetails = products.map(product => ({
+      _id: product._id,
+      wasteCategory: product.wasteCategory,
+      wasteType: product.wasteType,
+      wasteItem: product.wasteItem,
+      description: product.description,
+      location: {
+        province: product.province,
+        district: product.district,
+        city: product.city
+      },
+      quantity: product.quantity,
+      price: product.price,
+      expireDate: product.expireDate,
+      image: product.image,
+      farmer: {
+        name: product.farmerId?.name,
+        email: product.farmerId?.email,
+        phone: product.farmerId?.phone
+      }
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: wasteDetails
+    });
+
+  } catch (error) {
+    console.error('Error fetching waste details by category:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while fetching waste details by category',
+      error: error.message 
+    });
+  }
+};
+
+export const getWasteDetailsByType = async (req, res) => {
+  try {
+    const { wasteType } = req.params;
+
+    // Validate waste type
+    if (!wasteType) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Waste type is required.' 
+      });
+    }
+
+    // Create a case-insensitive regex for the waste type
+    const wasteTypeRegex = new RegExp(wasteType.replace(/\s+/g, '\\s*'), 'i');
+
+    // Find all product listings with the specified waste type
+    const products = await ProductListing.find({ 
+      $or: [
+        { wasteType: wasteTypeRegex },
+        { wasteItem: wasteTypeRegex }
+      ],
+      status: 'Approved' // Only get approved listings
+    })
+    .populate('farmerId', 'name email phone')
+    .select('-__v'); // Exclude version key
+
+    if (products.length === 0) {
+      return res.status(404).json({ 
+        success: false,
+        message: `No waste details found for ${wasteType}.` 
+      });
+    }
+
+    // Transform the data to include waste details
+    const wasteDetails = products.map(product => ({
+      _id: product._id,
+      wasteCategory: product.wasteCategory,
+      wasteType: product.wasteType,
+      wasteItem: product.wasteItem,
+      description: product.description,
+      location: {
+        province: product.province,
+        district: product.district,
+        city: product.city
+      },
+      quantity: product.quantity,
+      price: product.price,
+      expireDate: product.expireDate,
+      image: product.image,
+      farmer: {
+        name: product.farmerId?.name,
+        email: product.farmerId?.email,
+        phone: product.farmerId?.phone
+      }
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: wasteDetails
+    });
+
+  } catch (error) {
+    console.error('Error fetching waste details by type:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while fetching waste details by type',
+      error: error.message 
+    });
   }
 };
