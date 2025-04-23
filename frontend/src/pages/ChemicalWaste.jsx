@@ -1,78 +1,156 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { Navbar } from "../components/Navbar";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { toast } from "react-hot-toast";
-import { FaShoppingCart } from "react-icons/fa";
-import { Link } from "react-router-dom";
 
 export const ChemicalWaste = () => {
-  const { waste_type } = useParams(); // Extract waste type from URL params
-  const [wasteData, setWasteData] = useState([]);
+  const { wasteType } = useParams();
+  const navigate = useNavigate();
+  const [wasteDetails, setWasteDetails] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-
-    const fetchWasteData = async () => {
+    const fetchWasteDetails = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/agri-waste/waste/${encodeURIComponent(waste_type)}`
-        );
-        setWasteData(response.data);
-      } catch (error) {
-        console.error("Error fetching crop residues:", error);
+        setLoading(true);
+        setError(null);
+        
+        if (!wasteType) {
+          navigate('/non-organic');
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:3000/api/marketplace/waste-type/${encodeURIComponent(wasteType)}`);
+        
+        if (!response.data.success) {
+          throw new Error(response.data.message || 'No waste details found');
+        }
+        
+        setWasteDetails(response.data.data);
+      } catch (err) {
+        console.error('Error fetching waste details:', err);
+        if (err.response?.status === 404) {
+          setError(`No products available for ${wasteType}. Please check back later.`);
+        } else {
+          setError(`Failed to fetch waste details: ${err.message}`);
+        }
+        setWasteDetails([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchWasteData();
-  }, [waste_type]);
+    fetchWasteDetails();
+  }, [wasteType, navigate]);
 
-  const handleAddToCart = (waste) => {
-    const cartItems = JSON.parse(localStorage.getItem("cart")) || []; // Get existing cart
-    cartItems.push(waste); // Add new item
-    localStorage.setItem("cart", JSON.stringify(cartItems)); // Save updated cart
-    alert(`${waste.description} added to cart!`); // Show confirmation message
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  if (loading) return <p>Loading...</p>;
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-8">
+            <Link to="/non-organic" className="inline-flex items-center text-green-600 hover:text-green-700">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Categories
+            </Link>
+            <h1 className="text-3xl font-bold text-gray-900 mt-4 capitalize">{wasteType}</h1>
+          </div>
+          <div className="text-center py-12">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={() => navigate('/non-organic')}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+            >
+              Return to Categories
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
- return (
-       <>
-         <Navbar />
-          <Link to="/cart">
-                <div className="justify-center justify place-items-end mt-[35px] px-[50px]">
-                <FaShoppingCart size={35} className="text-green-600 cursor-pointer"/>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Link to="/non-organic" className="inline-flex items-center text-green-600 hover:text-green-700">
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Categories
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900 mt-4 capitalize">{wasteType}</h1>
+        </div>
+
+        {wasteDetails.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">No {wasteType} products available at the moment.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {wasteDetails.map((waste) => (
+              <div key={waste._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div className="h-48 bg-gray-200">
+                  {waste.image ? (
+                    <img
+                      src={waste.image}
+                      alt={waste.wasteItem}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-500">
+                      No image available
+                    </div>
+                  )}
                 </div>
-                </Link>
-
-         <div className="container mx-auto p-4">
-           <h1 className="text-2xl font-bold text-center" >Waste Materials</h1>
-           <div className="grid grid-cols-1 gap-4 mt-4">
-             {wasteData.length > 0 ? (
-               wasteData.map((waste) => (
-                 <div key={waste._id} className="border p-4 rounded shadow flex justify-between items-center">
-                   <div>
-                     <h2 className="text-xl font-semibold">{waste.description}</h2>
-                     <p>District: {waste.district}</p>
-                     <p>Quantity: {waste.quantity}</p>
-                     <p>Price: {waste.price}</p>
-                     <p>Expire Date: {new Date(waste.expire_date).toLocaleDateString()}</p>
-                   </div>
-                   <button 
-                     className="bg-green-600 text-white px-4 py-2 rounded"
-                     onClick={() => handleAddToCart(waste)} // Call function on click
-                   >
-                     Add To Cart
-                   </button>
-                 </div>
-               ))
-             ) : (
-               <p>No Chemical Waste found.</p>
-             )}
-           </div>
-         </div>
-       </>
-     );
-   };
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{waste.wasteItem}</h3>
+                  <p className="text-gray-600 mb-2">{waste.description}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-green-600 font-semibold">Rs. {waste.price}</span>
+                    <span className="text-gray-500">{waste.quantity} kg</span>
+                  </div>
+                  <div className="mt-2 text-sm text-gray-500">
+                    <p>Location: {waste.location.city}, {waste.location.district}</p>
+                    <p>Expires: {new Date(waste.expireDate).toLocaleDateString()}</p>
+                  </div>
+                  <div className="mt-4">
+                    <button
+                      onClick={() => {
+                        const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+                        cartItems.push(waste);
+                        localStorage.setItem("cart", JSON.stringify(cartItems));
+                        toast.success(`${waste.wasteItem} added to cart!`);
+                      }}
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
