@@ -37,6 +37,7 @@ import { AddOrderPage } from './pages/AddOrderPage';
 import { AddReviewPage } from './pages/AddReviewPage';
 import { InventoryManagerDashboard } from './pages/InventoryManagerDashboard';
 import { InventoryPage } from './pages/InventoryPage';
+import InventoryManagement from './pages/InventoryManagement';
 import { OrderHistoryPage } from './pages/OrderHistoryPage';
 import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
 import { ProductListingForm } from './pages/ProductListingForm';
@@ -86,6 +87,7 @@ function App() {
       <Route path="/add-order" element={<AddOrderPage />} />
       <Route path="/add-review" element={<AddReviewPage />} />
       <Route path="/inventory-dashboard" element={<InventoryManagerDashboard />}/>
+      <Route path="/inventory-management" element={<InventoryManagement />} />
       <Route path="/inventory" element={<InventoryPage />} />
       <Route path="/order-history" element={<OrderHistoryPage />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
