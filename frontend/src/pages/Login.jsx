@@ -3,45 +3,46 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { Toaster, toast } from "react-hot-toast";
+import { TwoStepVerification } from "../components/TwoStepVerification";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
-  
-    if (!email || !password) {
-      toast.error("Please enter both email and password.");
-      setLoading(false);
-      return;
-    }
-  
     try {
+      setLoading(true);
       const response = await axios.post("http://localhost:3000/api/auth/login", {
         email,
         password,
       });
-  
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-  
-      toast.success("Login successful!");
-      navigate("/profile");
-  
+
+      if (response.data.requiresVerification) {
+        setUserEmail(email);
+        setShowVerification(true);
+        toast.success('Verification code sent to your email');
+      } else {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        toast.success("Login successful!");
+        navigate("/profile");
+      }
     } catch (error) {
       console.error("Login error:", error);
-      const errorMessage = error.response?.data?.message || "Login failed! Check your credentials.";
-      toast.error(errorMessage);
-      
+      toast.error(error.response?.data?.msg || "Login failed");
     } finally {
       setLoading(false);
     }
   };
-  
+
+  if (showVerification) {
+    return <TwoStepVerification email={userEmail} />;
+  }
 
   return (
     <div>

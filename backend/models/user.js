@@ -13,7 +13,14 @@ const UserSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false }, 
     verificationToken: { type: String }, 
     twoStepVerificationCode: { type: String }, 
-    twoStepVerificationExpire: { type: Date } 
+    twoStepVerificationExpire: { type: Date },
+    twoFactorEnabled: { type: Boolean, default: false },
+    loginHistory: [{
+        timestamp: { type: Date, default: Date.now },
+        ipAddress: String,
+        deviceInfo: String,
+        status: { type: String, enum: ["success", "failed"], required: true }
+    }]
 
 }, { timestamps: true });
 
