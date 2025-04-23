@@ -12,7 +12,7 @@ router.get('/payments', getAllPayments);
 // Add new Stripe route with a distinct name
 router.post('/stripe/checkout', async (req, res) => {
   try {
-    const { userId, cartId, amount, currency } = req.body;
+    const { userId, cartId, amount, currency, success_url, cancel_url, customerEmail } = req.body;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -27,11 +27,12 @@ router.post('/stripe/checkout', async (req, res) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/cart`,
+      success_url: success_url || `${req.headers.origin}/success`,
+      cancel_url: cancel_url || `${req.headers.origin}/checkout`,
       metadata: {
         userId,
-        cartId
+        cartId,
+        customerEmail
       }
     });
 
