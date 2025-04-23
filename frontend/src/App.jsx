@@ -34,13 +34,12 @@ import { ChemicalWaste } from './pages/ChemicalWaste';
 import { Cart } from './pages/Cart';
 import { Checkout } from './pages/Checkout';
 import { BuyerAddressForm } from './pages/BuyerAddressForm';
-
+import Success from './pages/Success';
 
 import DriverList from './components/DriverList';
 import DriverForm from './components/DriverForm';
 import PaymentDetails from './components/PaymentDetails';
 import StripePayment from './components/StripePayment';
-import Success from './components/Success';
 import PayHistory from './components/PayHistory';
 import HighPayments from './components/HighPayments';
 import Final from './components/Final';

@@ -16,7 +16,9 @@ export const getStripePayments = async (req, res) => {
       id: session.id,
       driverName: session.metadata.driverName || 'Unknown', 
       payAmount: session.amount_total / 100, 
-      paymentDate: new Date(session.created * 1000).toLocaleDateString(), 
+      paymentDate: new Date(session.created * 1000).toLocaleDateString(),
+      customerEmail: session.metadata.customerEmail || null,
+      metadata: session.metadata
     }));
 
     res.status(200).json(payments);

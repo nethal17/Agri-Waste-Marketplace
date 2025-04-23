@@ -95,7 +95,10 @@ export const Checkout = () => {
           userId: user._id,
           cartId: cart._id || 'temp-cart',
           amount: Math.round(cart.totalPrice * 100), // Convert to cents
-          currency: "LKR"
+          currency: "LKR",
+          success_url: `${window.location.origin}/success`,
+          cancel_url: `${window.location.origin}/checkout`,
+          customerEmail: user.email // Add user email to the request
         },
         {
           headers: {

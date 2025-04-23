@@ -9,14 +9,22 @@ const PaymentDetails = () => {
   const [driver, setDriver] = useState(null);
   const [completedDeliveries, setCompletedDeliveries] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:3000/api/drivers/${id}`)
-      .then(response => {
+    const fetchDriverData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${id}`);
         setDriver(response.data);
+        // Set a default value for completed deliveries if not available
         setCompletedDeliveries(response.data.deliveryCount || 0);
-      })
-      .catch(error => console.error(error));
+      } catch (error) {
+        console.error('Error fetching driver data:', error);
+        setError('Failed to load driver information');
+      }
+    };
+
+    fetchDriverData();
   }, [id]);
 
   const basicSalary = 20000.00;
@@ -26,34 +34,33 @@ const PaymentDetails = () => {
 
   const handlePay = async () => {
     setIsProcessing(true);
+    setError(null);
+    
     try {
-      const paymentData = {
-        driverId: id,
-        driverName: driver.name,
-        payAmount: totalSalary,
-      };
-
-      const response = await axios.post('http://localhost:3000/api/payments', paymentData);
-      console.log('Payment inserted:', response.data);
-
-      await axios.put(`http://localhost:3000/api/drivers/${id}/salary`, {
-        totalSalary: driver.totalSalary + totalSalary
-      });
-
-      await axios.put(`http://localhost:3000/api/drivers/${id}/delivery-count`, {
-        deliveryCount: 0
-      });
-
-      const stripeResponse = await axios.post('http://localhost:3000/api/create-checkout-session', {
+      console.log('Sending payment request with:', {
         totalSalary,
         driverId: id,
-        driverName: driver.name,
+        driverName: driver.name
       });
-
-      window.location.href = stripeResponse.data.url;
+      
+      // Use the new driver payment endpoint
+      const response = await axios.post('http://localhost:3000/api/driver-payment', {
+        totalSalary,
+        driverId: id,
+        driverName: driver.name
+      });
+      
+      console.log('Payment response:', response.data);
+      
+      if (response.data.success && response.data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = response.data.url;
+      } else {
+        throw new Error('Invalid response from payment server');
+      }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to process payment. Please try again.');
+      console.error('Payment error:', error);
+      setError(error.response?.data?.message || 'Failed to process payment. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -99,41 +106,45 @@ const PaymentDetails = () => {
               <div>
                 <h3 className="text-lg font-medium text-gray-900">{driver.name}</h3>
                 <p className="text-sm text-gray-500">Driver ID: {id.substring(0, 8)}</p>
-                <p className="text-sm text-gray-500">Age: {driver.age}</p>
+                <p className="text-sm text-gray-500">Email: {driver.email}</p>
+                <p className="text-sm text-gray-500">Phone: {driver.phone}</p>
               </div>
             </div>
           </div>
 
-          {/* Salary Breakdown */}
-          <div className="px-6 py-5">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Salary Breakdown</h3>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
-                <span className="text-gray-700">Basic Salary:</span>
+          {/* Salary Details */}
+          <div className="px-6 py-5 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Salary Details</h3>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Basic Salary:</span>
                 <span className="font-medium">Rs. {basicSalary.toFixed(2)}</span>
               </div>
-              
-              <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
-                <span className="text-gray-700">Completed Deliveries:</span>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Completed Deliveries:</span>
                 <span className="font-medium">{completedDeliveries}</span>
               </div>
-              
-              {bonusDeliveries > 0 && (
-                <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
-                  <span className="text-gray-700">Bonus Deliveries (above 15):</span>
-                  <span className="font-medium">
-                    {bonusDeliveries} × Rs. {deliveryBonus.toFixed(2)} = Rs. {(bonusDeliveries * deliveryBonus).toFixed(2)}
-                  </span>
-                </div>
-              )}
-              
-              <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg border-t-2 border-green-200 mt-6">
-                <span className="text-gray-700 font-semibold">Total Salary:</span>
-                <span className="text-xl font-bold text-green-600">Rs. {totalSalary.toFixed(2)}</span>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Bonus Deliveries:</span>
+                <span className="font-medium">{bonusDeliveries}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Delivery Bonus:</span>
+                <span className="font-medium">Rs. {(bonusDeliveries * deliveryBonus).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-gray-200">
+                <span className="text-lg font-semibold text-gray-900">Total Salary:</span>
+                <span className="text-lg font-bold text-green-600">Rs. {totalSalary.toFixed(2)}</span>
               </div>
             </div>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="px-6 py-4 bg-red-50 border-b border-red-200">
+              <p className="text-red-600">{error}</p>
+            </div>
+          )}
 
           {/* Payment Button */}
           <div className="px-6 py-4 bg-gray-50 text-right">
@@ -157,7 +168,7 @@ const PaymentDetails = () => {
 
         <div className="mt-6 text-center">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/driver')}
             className="text-green-600 hover:text-green-800 font-medium"
           >
             ← Back to driver list
