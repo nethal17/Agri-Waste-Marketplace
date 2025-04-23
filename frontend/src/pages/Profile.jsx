@@ -3,6 +3,11 @@ import { Navbar } from "../components/Navbar";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import { 
+  FaUser, FaEnvelope, FaPhone, FaCalendarAlt, FaEdit, FaTruck, 
+  FaShoppingCart, FaUserShield, FaBell, FaLanguage, FaPalette, 
+  FaLock, FaHistory, FaChartLine, FaTrophy, FaShieldAlt, FaClock 
+} from "react-icons/fa";
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -12,6 +17,12 @@ export const Profile = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [stats, setStats] = useState({
+    listings: 0,
+    orders: 0,
+    pickups: 0,
+    rating: 0
+  });
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -70,116 +81,335 @@ export const Profile = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+      </div>
+    );
   }
 
   if (!user) {
-    return <div>No user data found.</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-700">No user data found</h2>
+          <p className="mt-2 text-gray-500">Please try logging in again</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <>
       <Navbar />
-      <br/><br/><br/><br/>
-      <div className="grid gap-12 p-4 lg:grid-cols-2 md:px-24 sm:py-8">
-        {/* Left Section */}
-        <div className="flex flex-col justify-center items-center p-6 rounded-lg bg-white shadow-lg w-full h-full min-h-[500px] shadow-gray-400">
-          <img
-            className="object-cover w-48 h-48 border-4 border-green-600 rounded-full shadow-md"
-            src={imagePreview || user.profilePic || "https://via.placeholder.com/150"}
-            alt="Profile"
-          />
-          <div className="pt-4 text-center">
-            <h1 className="text-xl font-bold">Upload a profile photo</h1>
-            <input
-              type="file"
-              onChange={handleImageChange}
-              className="w-full p-2 mt-2 bg-gray-100 border rounded-lg cursor-pointer file:bg-green-600 file:text-white file:py-2 file:px-4 file:border-none file:rounded-lg hover:file:bg-green-700"
-            />
-            <button
-              onClick={handleUpload}
-              className="w-full py-2 mt-4 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
-              disabled={uploading}
-            >
-              {uploading ? "Uploading..." : "Upload"}
-            </button>
-          </div>
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Profile Card - Left Side */}
+            <div className="lg:col-span-1 space-y-8">
+              {/* Profile Info Card */}
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div className="p-6">
+                  <div className="flex flex-col items-center">
+                    <div className="relative">
+                      <img
+                        className="w-32 h-32 rounded-full border-4 border-green-500 object-cover"
+                        src={imagePreview || user.profilePic || "https://via.placeholder.com/150"}
+                        alt="Profile"
+                      />
+                      <label className="absolute bottom-0 right-0 bg-green-500 text-white p-2 rounded-full cursor-pointer hover:bg-green-600 transition-colors">
+                        <input
+                          type="file"
+                          onChange={handleImageChange}
+                          className="hidden"
+                          accept="image/*"
+                        />
+                        <FaEdit />
+                      </label>
+                    </div>
+                    <h2 className="mt-4 text-2xl font-bold text-gray-800">{user.name}</h2>
+                    <span className="mt-1 px-3 py-1 text-sm font-semibold text-green-600 bg-green-100 rounded-full">
+                      {user.role}
+                    </span>
+                  </div>
 
-          {/* 2FA Toggle Button */}
-          <div className="flex items-center gap-3 mt-6">
-            <span className="text-lg font-bold">2-Factor Authentication</span>
-            <button
-              onClick={toggle2FA}
-              className={`w-12 h-6 flex items-center bg-gray-300 rounded-full p-1 duration-300 ${is2FAEnabled ? "bg-green-600" : "bg-gray-400"}`}
-            >
-              <span
-                className={`w-5 h-5 bg-white rounded-full shadow-md transform duration-300 ${is2FAEnabled ? "translate-x-6" : "translate-x-0"}`}
-              ></span>
-            </button>
-          </div>
-        </div>
+                  <div className="mt-6 space-y-4">
+                    <div className="flex items-center text-gray-600">
+                      <FaEnvelope className="w-5 h-5 mr-3" />
+                      <span>{user.email}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <FaPhone className="w-5 h-5 mr-3" />
+                      <span>{user.phone}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <FaCalendarAlt className="w-5 h-5 mr-3" />
+                      <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
 
-        {/* Right Section */}
-        <div className="flex flex-col p-6 rounded-lg bg-white shadow-lg w-full h-full min-h-[500px] shadow-gray-400">
-          <h1 className="text-3xl font-bold text-center">My Profile</h1>
-          <div className="place-items-center">
-          <h3 className="text-2xl font-bold text-green-600">{user.role}</h3>
-          <div className="mt-10">
-            <p className="text-lg font-bold">Name: <span className="px-5 font-light">{user.name}</span></p>
-            <p className="mt-2 text-lg font-bold">Email: <span className="px-5 font-light">{user.email}</span></p>
-            <p className="mt-2 text-lg font-bold">Mobile: <span className="px-5 font-light">{user.phone}</span></p>
-            <p className="mt-2 text-lg font-bold">Created at: <span className="px-5 font-light">{new Date(user.createdAt).toLocaleDateString()}</span></p>
-            <p className="mt-2 text-lg font-bold">Updated at: <span className="px-5 font-light">{new Date(user.updatedAt).toLocaleDateString()}</span></p>
-          </div>
-          </div>
-          <br/>
-          <div className="flex justify-center gap-10 mt-12">
-            
-            <button 
-            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
-            onClick={() => navigate("/profile/update-details")} >
-              Update Details
-            </button>
-            
-            {user.role === "admin" && (
-            <>
-            <button 
-            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
-            onClick={() => navigate("/admin-dashboard")} >
-              Admin Dashboard
-            </button>
-            </>
-            )}
+                  <div className="mt-6">
+                    <button
+                      onClick={handleUpload}
+                      disabled={uploading}
+                      className="w-full py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+                    >
+                      {uploading ? "Uploading..." : "Save Profile Picture"}
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-            {user.role === "farmer" && (
-            <>
-            <button 
-            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
-            onClick={() => navigate("/farmer-listings")} >
-              My Listings
-            </button>
-            </>
-            )}
+              {/* Statistics Card */}
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Profile Statistics</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {user.role === "farmer" && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="flex items-center">
+                        <FaShoppingCart className="w-6 h-6 text-green-500 mr-2" />
+                        <span className="text-2xl font-bold text-gray-800">{stats.listings}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">Active Listings</p>
+                    </div>
+                  )}
+                  {user.role === "buyer" && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="flex items-center">
+                        <FaShoppingCart className="w-6 h-6 text-green-500 mr-2" />
+                        <span className="text-2xl font-bold text-gray-800">{stats.orders}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">Total Orders</p>
+                    </div>
+                  )}
+                  {user.role === "driver" && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="flex items-center">
+                        <FaTruck className="w-6 h-6 text-green-500 mr-2" />
+                        <span className="text-2xl font-bold text-gray-800">{stats.pickups}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">Completed Pickups</p>
+                    </div>
+                  )}
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="flex items-center">
+                      <FaChartLine className="w-6 h-6 text-green-500 mr-2" />
+                      <span className="text-2xl font-bold text-gray-800">{stats.rating}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">Rating</p>
+                  </div>
+                </div>
+              </div>
 
-            {user.role === "buyer" && (
-            <>
-            <button 
-            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
-            onClick={() => navigate("/order-history")} >
-              My Orders
-            </button>
-            </>
-            )}
+              {/* Achievements Card */}
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Achievements</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center p-3 bg-yellow-50 rounded-lg">
+                    <FaTrophy className="w-5 h-5 text-yellow-500 mr-3" />
+                    <div>
+                      <p className="font-medium text-gray-800">Verified Seller</p>
+                      <p className="text-sm text-gray-600">Completed 10 successful transactions</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center p-3 bg-green-50 rounded-lg">
+                    <FaShieldAlt className="w-5 h-5 text-green-500 mr-3" />
+                    <div>
+                      <p className="font-medium text-gray-800">Trusted Member</p>
+                      <p className="text-sm text-gray-600">Member for over 1 year</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            {user.role === "driver" && (
-            <>
-            <button 
-            className="w-full px-4 py-2 text-lg text-white bg-green-600 rounded-lg hover:bg-green-700"
-            onClick={() => navigate("")} >
-              My Pickups
-            </button>
-            </>
-            )}
+            {/* Main Content - Right Side */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Account Settings Card */}
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800">Account Settings</h2>
+                  <button
+                    onClick={() => navigate("/profile/update-details")}
+                    className="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    <FaEdit className="mr-2" />
+                    Edit Profile
+                  </button>
+                </div>
+
+                {/* 2FA Section */}
+                <div className="mb-8">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FaUserShield className="w-6 h-6 text-green-500 mr-3" />
+                      <div>
+                        <h3 className="font-semibold text-gray-800">Two-Factor Authentication</h3>
+                        <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={toggle2FA}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        is2FAEnabled ? "bg-green-500" : "bg-gray-300"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          is2FAEnabled ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Role-Specific Actions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {user.role === "admin" && (
+                    <button
+                      onClick={() => navigate("/admin-dashboard")}
+                      className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <FaUserShield className="w-6 h-6 text-green-500 mr-3" />
+                      <span className="font-medium">Admin Dashboard</span>
+                    </button>
+                  )}
+
+                  {user.role === "farmer" && (
+                    <button
+                      onClick={() => navigate("/farmer-listings")}
+                      className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <FaShoppingCart className="w-6 h-6 text-green-500 mr-3" />
+                      <span className="font-medium">My Listings</span>
+                    </button>
+                  )}
+
+                  {user.role === "buyer" && (
+                    <button
+                      onClick={() => navigate("/order-history")}
+                      className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <FaShoppingCart className="w-6 h-6 text-green-500 mr-3" />
+                      <span className="font-medium">My Orders</span>
+                    </button>
+                  )}
+
+                  {user.role === "driver" && (
+                    <button
+                      onClick={() => navigate("")}
+                      className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <FaTruck className="w-6 h-6 text-green-500 mr-3" />
+                      <span className="font-medium">My Pickups</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Preferences Card 
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Preferences</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FaBell className="w-5 h-5 text-green-500 mr-3" />
+                      <div>
+                        <h4 className="font-medium text-gray-800">Notifications</h4>
+                        <p className="text-sm text-gray-600">Manage your notification preferences</p>
+                      </div>
+                    </div>
+                    <button className="text-green-500 hover:text-green-600">Manage</button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FaLanguage className="w-5 h-5 text-green-500 mr-3" />
+                      <div>
+                        <h4 className="font-medium text-gray-800">Language</h4>
+                        <p className="text-sm text-gray-600">Select your preferred language</p>
+                      </div>
+                    </div>
+                    <button className="text-green-500 hover:text-green-600">Change</button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FaPalette className="w-5 h-5 text-green-500 mr-3" />
+                      <div>
+                        <h4 className="font-medium text-gray-800">Theme</h4>
+                        <p className="text-sm text-gray-600">Choose your preferred theme</p>
+                      </div>
+                    </div>
+                    <button className="text-green-500 hover:text-green-600">Change</button>
+                  </div>
+                </div>
+              </div> */}
+
+              {/* Security Card */}
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Security</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FaLock className="w-5 h-5 text-green-500 mr-3" />
+                      <div>
+                        <h4 className="font-medium text-gray-800">Change Password</h4>
+                        <p className="text-sm text-gray-600">Update your account password</p>
+                      </div>
+                    </div>
+                    <button 
+                    className="text-green-500 hover:text-green-600"
+                    onClick={() => navigate("/forgot-password")}>
+                      Change
+                      </button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FaHistory className="w-5 h-5 text-green-500 mr-3" />
+                      <div>
+                        <h4 className="font-medium text-gray-800">Login History</h4>
+                        <p className="text-sm text-gray-600">View your recent login activity</p>
+                      </div>
+                    </div>
+                    <button className="text-green-500 hover:text-green-600">View</button>
+                  </div>
+                  <div className="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <FaUserShield className="w-5 h-5 text-green-500 mr-3" />
+                    <div>
+                      <p className="font-medium text-gray-800">Security settings updated</p>
+                      <p className="text-sm text-gray-600">3 days ago</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Activity Timeline Card 
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <FaClock className="w-5 h-5 text-green-500 mr-3" />
+                    <div>
+                      <p className="font-medium text-gray-800">New listing created</p>
+                      <p className="text-sm text-gray-600">2 hours ago</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <FaShoppingCart className="w-5 h-5 text-green-500 mr-3" />
+                    <div>
+                      <p className="font-medium text-gray-800">Order completed</p>
+                      <p className="text-sm text-gray-600">1 day ago</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <FaUserShield className="w-5 h-5 text-green-500 mr-3" />
+                    <div>
+                      <p className="font-medium text-gray-800">Security settings updated</p>
+                      <p className="text-sm text-gray-600">3 days ago</p>
+                    </div>
+                  </div>
+                </div>
+              </div> */}
+            </div>
           </div>
         </div>
       </div>
