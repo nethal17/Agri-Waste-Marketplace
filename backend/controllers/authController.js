@@ -128,40 +128,94 @@ export const loginUser = async (req, res) => {
 
     try {
         const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ msg: "Invalid Credentials" });
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ msg: "Invalid Credentials" });
-
-        if (!user.isVerified) {
-            return res.status(400).json({ msg: "Please verify your email before logging in." });
+        if (!user) {
+            // Track failed login attempt
+            const failedUser = await User.findOne({ email });
+            if (failedUser) {
+                failedUser.loginHistory.push({
+                    ipAddress: req.ip,
+                    deviceInfo: req.headers['user-agent'],
+                    status: "failed"
+                });
+                await failedUser.save();
+            }
+            return res.status(400).json({ msg: "Invalid credentials" });
         }
 
-        const token = jwt.sign(
-            { id: user._id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        );
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            // Track failed login attempt
+            user.loginHistory.push({
+                ipAddress: req.ip,
+                deviceInfo: req.headers['user-agent'],
+                status: "failed"
+            });
+            await user.save();
+            return res.status(400).json({ msg: "Invalid credentials" });
+        }
 
-        const refreshToken = jwt.sign(
-            { id: user._id },
-            process.env.REFRESH_TOKEN_SECRET,
-            { expiresIn: "7d" }
-        );
+        if (!user.isVerified) {
+            return res.status(400).json({ msg: "Please verify your email first" });
+        }
 
-        user.refreshToken = refreshToken;
+        // If 2FA is enabled, generate and send verification code
+        if (user.twoFactorEnabled) {
+            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            user.twoStepVerificationCode = verificationCode;
+            user.twoStepVerificationExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+            await user.save();
+
+            // Send verification code via email
+            const transporter = nodemailer.createTransport({
+                service: "Gmail",
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
+
+            const mailOptions = {
+                to: user.email,
+                from: process.env.EMAIL_USER,
+                subject: "Two-Step Verification Code",
+                text: `Your verification code is: ${verificationCode}. This code will expire in 10 minutes.`
+            };
+
+            await transporter.sendMail(mailOptions);
+
+            return res.json({ 
+                requiresVerification: true,
+                msg: "Verification code sent to your email"
+            });
+        }
+
+        // Track successful login
+        user.loginHistory.push({
+            ipAddress: req.ip,
+            deviceInfo: req.headers['user-agent'],
+            status: "success"
+        });
         await user.save();
 
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+        
+        // Send complete user data in response
+        res.json({ 
+            token, 
+            user: { 
+                _id: user._id,
+                name: user.name, 
+                email: user.email, 
+                phone: user.phone,
+                role: user.role,
+                profilePic: user.profilePic,
+                isVerified: user.isVerified,
+                twoFactorEnabled: user.twoFactorEnabled,
+                createdAt: user.createdAt
+            } 
         });
-
-        return res.status(200).json({token, user});
-
     } catch (err) {
-        console.log(err);
+        console.error(err);
         res.status(500).json({ msg: "Server Error" });
     }
 };
@@ -295,8 +349,22 @@ export const verifyTwoStepCode = async (req, res) => {
                 process.env.JWT_SECRET,
                 { expiresIn: "1d" }
             );
-            res.json({ msg: "Logged Successfully", userId: user._id });
-            res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+
+            // Return a single response with all necessary data
+            res.json({ 
+                token, 
+                user: { 
+                    _id: user._id,
+                    name: user.name, 
+                    email: user.email, 
+                    phone: user.phone,
+                    role: user.role,
+                    profilePic: user.profilePic,
+                    isVerified: user.isVerified,
+                    twoFactorEnabled: user.twoFactorEnabled,
+                    createdAt: user.createdAt
+                } 
+            });
         } else {
             res.status(400).json({ msg: "Invalid or expired verification code" });
         }
@@ -378,4 +446,52 @@ export const deleteUser = async (req, res) => {
         console.log(err);
         res.status(500).json({ message: err.message });
     }
+};
+
+export const getLoginHistory = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('loginHistory');
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        // Sort login history by timestamp in descending order (most recent first)
+        const sortedHistory = user.loginHistory.sort((a, b) => b.timestamp - a.timestamp);
+        
+        res.json({ loginHistory: sortedHistory });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: "Server Error" });
+    }
+};
+
+export const toggleTwoFactorAuth = async (req, res) => {
+  try {
+    const { enable } = req.body;
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // Record the 2FA toggle in login history
+    user.loginHistory.push({
+      ipAddress: req.ip,
+      deviceInfo: req.headers['user-agent'],
+      status: "success",
+      action: `Two-factor authentication ${enable ? 'enabled' : 'disabled'}`
+    });
+
+    user.twoFactorEnabled = enable;
+    await user.save();
+
+    res.json({ 
+      msg: `Two-factor authentication ${enable ? 'enabled' : 'disabled'} successfully`,
+      twoFactorEnabled: user.twoFactorEnabled 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server Error" });
+  }
 };

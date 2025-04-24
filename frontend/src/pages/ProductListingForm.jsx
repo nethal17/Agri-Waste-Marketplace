@@ -110,14 +110,14 @@ export const ProductListingForm = () => {
     }));
   };
 
-  /*const convertToBase64 = (file) => {
+  const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
-  };*/
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -167,7 +167,21 @@ export const ProductListingForm = () => {
     try {
       let photo = "";
       if (formData.image) {
-        photo = await convertToBase64(formData.image);
+        // Convert image to base64
+        const base64Image = await convertToBase64(formData.image);
+        
+        // Upload to Cloudinary
+        const uploadData = new FormData();
+        uploadData.append("file", base64Image);
+        uploadData.append("upload_preset", "agri_waste");
+
+        const cloudinaryResponse = await fetch("https://api.cloudinary.com/v1_1/dm8vchgk9/image/upload", {
+          method: "POST",
+          body: uploadData,
+        });
+
+        const cloudinaryData = await cloudinaryResponse.json();
+        photo = cloudinaryData.secure_url;
       }
 
       const payload = {
@@ -198,7 +212,7 @@ export const ProductListingForm = () => {
       if (!response.ok) {
         console.error("Backend error response:", responseData);
         throw new Error(responseData.message || responseData.error?.message || "Submission failed");
-    }
+      }
 
       toast.success(responseData.message || "Product listing submitted! Status: Pending");
       
