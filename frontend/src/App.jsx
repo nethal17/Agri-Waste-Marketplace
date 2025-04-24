@@ -55,7 +55,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<SignUp />} />
       <Route path="/profile" element={<Profile />} />
-      <Route path="/profile/update-details" element={<UpdateDetails />} />
+      <Route path="/profile/update-details" element={< UpdateDetails />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
       <Route path="/all-users" element={<DisplayAllUsers />} />
       <Route path="/all-buyers" element={<DisplayAllBuyers />} />
