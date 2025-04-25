@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import { loadStripe } from "@stripe/stripe-js";
 
 export const Checkout = () => {
-  const [cart, setCart] = useState(null); 
+  const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [address, setAddress] = useState(null);
@@ -24,7 +24,12 @@ export const Checkout = () => {
         }
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         setUser(userData);
-        await fetchCart(userData._id);
+        
+        // Load cart items from localStorage
+        const items = JSON.parse(localStorage.getItem("cart")) || [];
+        setCartItems(items);
+        
+        await fetchAddress(userData._id);
       } catch (error) {
         toast.error("Failed to load user data");
         console.error("User data error:", error);
@@ -48,40 +53,20 @@ export const Checkout = () => {
     initializeStripe();
   }, []);
 
-  const fetchCart = async (userId) => {
+  const fetchAddress = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
-      setCart(response.data);
+      const response = await axios.get(`http://localhost:3000/api/address/get-address/${userId}`);
+      setAddress(response.data);
     } catch (error) {
-      if (error.response?.status === 404) {
-        setCart({ items: [], totalPrice: 0 });
-      } else {
-        toast.error("Failed to load cart items");
-        console.error("Cart fetch error:", error);
+      if (error.response?.status !== 404) {
+        toast.error("Failed to load address");
+        console.error("Address fetch error:", error);
       }
     }
   };
 
-  const fetchAddress = async (userId) => {
-      try {
-        const response = await axios.get(`http://localhost:3000/api/address/get-address/${userId}`);
-        setAddress(response.data);
-      } catch (error) {
-        if (error.response?.status !== 404) {
-          toast.error("Failed to load address");
-          console.error("Address fetch error:", error);
-        }
-      }
-  };
-
-  useEffect(() => {
-      if (user && user._id) {
-        fetchAddress(user._id);
-      }
-  }, [user]);
-  
   const handlePayment = async () => {
-    if (!user || !cart || cart.items.length === 0 || !stripe) {
+    if (!user || cartItems.length === 0 || !stripe) {
       toast.error("Cannot process payment");
       return;
     }
@@ -89,16 +74,29 @@ export const Checkout = () => {
     setIsProcessingPayment(true);
     
     try {
+      // Format cart items for Stripe
+      const line_items = cartItems.map(item => ({
+        price_data: {
+          currency: 'lkr',
+          product_data: {
+            name: item.wasteItem,
+            description: item.description || '',
+          },
+          unit_amount: Math.round(item.price * 100), // Convert to cents
+        },
+        quantity: item.cartQuantity || 1,
+      }));
+
       const response = await axios.post(
         "http://localhost:3000/api/stripe/checkout",
         {
           userId: user._id,
-          cartId: cart._id || 'temp-cart',
-          amount: Math.round(cart.totalPrice * 100), // Convert to cents
+          cartId: 'temp-cart',
+          line_items: line_items,
           currency: "LKR",
           success_url: `${window.location.origin}/success`,
           cancel_url: `${window.location.origin}/checkout`,
-          customerEmail: user.email // Add user email to the request
+          customerEmail: user.email
         },
         {
           headers: {
@@ -116,19 +114,24 @@ export const Checkout = () => {
       }
     } catch (error) {
       console.error("Payment error:", error);
-      toast.error(error.message || "Payment failed");
+      toast.error(error.response?.data?.error || "Payment failed");
     } finally {
       setIsProcessingPayment(false);
     }
   };
-  
-  
+
+  const calculateTotal = () => {
+    return cartItems.reduce((total, item) => {
+      const quantity = item.cartQuantity || 1;
+      return total + (item.price * quantity);
+    }, 0);
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  if (!cart || cart.items.length === 0) {
+  if (cartItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="mb-5 text-2xl font-bold text-red-600">Your cart is empty</h1>
@@ -168,17 +171,17 @@ export const Checkout = () => {
             <tr className="font-bold text-left text-md">
               <th className="p-2">Name</th>
               <th className="p-2">Price</th>
-              <th className="p-2">Delivery Price</th>
+              <th className="p-2">Quantity</th>
               <th className="p-2">Subtotal</th>
             </tr>
           </thead>
           <tbody>
-            {cart.items.map((item, index) => (
+            {cartItems.map((item, index) => (
               <tr key={index} className="border-t">
-                <td className="p-2">{item.description}</td>
+                <td className="p-2">{item.wasteItem}</td>
                 <td className="p-2">Rs. {item.price.toFixed(2)}</td>
-                <td className="p-2">Rs. {item.deliveryCost.toFixed(2)}</td>
-                <td className="p-2">Rs. {(item.price * item.quantity + item.deliveryCost).toFixed(2)}</td>
+                <td className="p-2">{item.cartQuantity || 1}</td>
+                <td className="p-2">Rs. {(item.price * (item.cartQuantity || 1)).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
@@ -188,7 +191,7 @@ export const Checkout = () => {
       {/* Total Price Section */}
       <div className="w-3/4 p-4 mt-5 text-right rounded-lg shadow-sm bg-green-100">
         <h2 className="text-lg font-bold">
-          Total Price: Rs. {cart.totalPrice.toFixed(2)}
+          Total Price: Rs. {calculateTotal().toFixed(2)}
         </h2>
       </div>
 
