@@ -24,11 +24,7 @@ export const Checkout = () => {
         }
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         setUser(userData);
-        
-        // Load cart items from localStorage
-        const items = JSON.parse(localStorage.getItem("cart")) || [];
-        setCartItems(items);
-        
+        await fetchCartItems(userData._id);
         await fetchAddress(userData._id);
       } catch (error) {
         toast.error("Failed to load user data");
@@ -53,6 +49,26 @@ export const Checkout = () => {
     initializeStripe();
   }, []);
 
+  const fetchCartItems = async (userId) => {
+        try {
+          
+          if (!userId) {
+            toast.error('Please login to view your cart');
+            navigate('/login');
+            return;
+          }
+          const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
+          if (response.data) {
+            setCartItems(response.data.items);
+          }
+        } catch (error) {
+          console.error('Error fetching cart items:', error);
+          toast.error('Failed to load cart items');
+        } finally {
+          setLoading(false);
+        }
+      };
+
   const fetchAddress = async (userId) => {
     try {
       const response = await axios.get(`http://localhost:3000/api/address/get-address/${userId}`);
@@ -74,17 +90,28 @@ export const Checkout = () => {
     setIsProcessingPayment(true);
     
     try {
+      // First, insert cart items into order history
+      for (const item of cartItems) {
+        const orderData = {
+          userId: user._id,
+          productName: item.description,
+          quantity: item.quantity || 1,
+          totalPrice: item.price * (item.quantity || 1)
+        };
+
+        await axios.post("http://localhost:3000/api/order-history/add", orderData);
+      }
+
       // Format cart items for Stripe
       const line_items = cartItems.map(item => ({
         price_data: {
           currency: 'lkr',
           product_data: {
-            name: item.wasteItem,
-            description: item.description || '',
+            name: item.description || ''
           },
           unit_amount: Math.round(item.price * 100), // Convert to cents
         },
-        quantity: item.cartQuantity || 1,
+        quantity: item.quantity || 1,
       }));
 
       const response = await axios.post(
@@ -122,8 +149,7 @@ export const Checkout = () => {
 
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => {
-      const quantity = item.cartQuantity || 1;
-      return total + (item.price * quantity);
+      return total + ((item.price* item.quantity) + item.deliveryCost);
     }, 0);
   };
 
@@ -173,15 +199,17 @@ export const Checkout = () => {
               <th className="p-2">Price</th>
               <th className="p-2">Quantity</th>
               <th className="p-2">Subtotal</th>
+              <th className="p-2">Delivery Cost</th>
             </tr>
           </thead>
           <tbody>
             {cartItems.map((item, index) => (
               <tr key={index} className="border-t">
-                <td className="p-2">{item.wasteItem}</td>
+                <td className="p-2">{item.description}</td>
                 <td className="p-2">Rs. {item.price.toFixed(2)}</td>
-                <td className="p-2">{item.cartQuantity || 1}</td>
-                <td className="p-2">Rs. {(item.price * (item.cartQuantity || 1)).toFixed(2)}</td>
+                <td className="p-2">{item.quantity || 1}</td>
+                <td className="p-2">Rs. {(item.price * (item.quantity || 1)).toFixed(2)}</td>
+                <td className="p-2">Rs. {item.deliveryCost.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
