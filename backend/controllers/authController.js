@@ -402,18 +402,12 @@ export const updateUserDetails = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const { name, email, phone, password } = req.body;
+        const { name, email, phone } = req.body;
         if (!name || !email || !phone) {
             return res.status(400).json({ message: "Name, email, and phone are required" });
         }
 
         let updatedData = { name, email, phone };
-
-        if (password) {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-            updatedData.password = hashedPassword;
-        }
 
         const result = await User.findByIdAndUpdate(id, updatedData, { new: true });
 
@@ -429,61 +423,56 @@ export const updateUserDetails = async (req, res) => {
     }
 };
 
-export const changePassword = async (req, res) => {
-
-    const { userId } = req.params;
-
+export const updateSecurityTimestamp = async (req, res) => {
+    const { id } = req.params;
     try {
-        const { currentPassword, newPassword, confirmNewPassword } = req.body;
-
-        if (!currentPassword || !newPassword || !confirmNewPassword) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-
-        if (newPassword !== confirmNewPassword) {
-            return res.status(400).json({ message: "New password and confirmation do not match" });
-        }
-
-        if (newPassword.length < 8) {
-            return res.status(400).json({ message: "Password must be at least 8 characters long" });
-        }
-
-        // Find the user and verify current password
-        const user = await User.findById(userId);
+        const user = await User.findByIdAndUpdate(
+            id,
+            { lastSecurityUpdate: new Date() },
+            { new: true }
+        );
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-
-        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-        if (!isPasswordValid) {
-            return res.status(400).json({ message: "Current password is incorrect" });
-        }
-
-        // Hash and update the new password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        const result = await User.findByIdAndUpdate(
-            userId,
-            { password: hashedPassword },
-            { new: true }
-        );
-
-        if (!result) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        res.status(200).json({ 
-            success: true,
-            message: "Password updated successfully"
-        });
-
+        res.status(200).json({ message: "Security timestamp updated", lastSecurityUpdate: user.lastSecurityUpdate });
     } catch (err) {
-        console.error("Error updating password:", err);
+        console.error("Error updating security timestamp:", err);
         res.status(500).json({ message: "Internal server error" });
     }
 };
 
+export const changePassword = async (req, res) => {
+    const { id } = req.params;
+    const { currentPassword, newPassword, confirmNewPassword } = req.body;
+
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Current password is incorrect" });
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            return res.status(400).json({ message: "New passwords do not match" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword;
+        user.lastSecurityUpdate = new Date();
+        await user.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (err) {
+        console.error("Error changing password:", err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
 
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
@@ -539,6 +528,7 @@ export const toggleTwoFactorAuth = async (req, res) => {
     });
 
     user.twoFactorEnabled = enable;
+    user.lastSecurityUpdate = new Date();
     await user.save();
 
     res.json({ 

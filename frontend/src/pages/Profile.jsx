@@ -5,14 +5,18 @@ import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   FaUser, FaEnvelope, FaPhone, FaCalendarAlt, FaEdit, FaTruck, 
-  FaShoppingCart, FaUserShield, FaBell, FaLanguage, FaPalette, 
-  FaLock, FaHistory, FaChartLine, FaTrophy, FaShieldAlt, FaClock,
+  FaShoppingCart, FaUserShield, FaLock, FaHistory, FaChartLine, 
   FaCheckCircle, FaTimesCircle, FaTimes
 } from "react-icons/fa";
+import { BiSolidDashboard } from "react-icons/bi";
 
 export const Profile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
+  const [listings, setListings] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -28,61 +32,181 @@ export const Profile = () => {
   });
   const [showLoginHistoryModal, setShowLoginHistoryModal] = useState(false);
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
+  const [showUpdateDetailsModal, setShowUpdateDetailsModal] = useState(false);
+  const [updateDetails, setUpdateDetails] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+  const [isUpdatingDetails, setIsUpdatingDetails] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [lastSecurityUpdate, setLastSecurityUpdate] = useState(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          toast.error("No token found, please login again.");
-          navigate("/login");
-          return;
-        }
-
-        const userData = JSON.parse(localStorage.getItem("user"));
-        if (!userData || !userData._id) {
-          toast.error("User data not found, please login again.");
-          navigate("/login");
-          return;
-        }
-
-        const userId = userData._id;
-        const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        setLoading(true);
         
-        if (response.data) {
-          setUser(response.data);
-          // Set the 2FA status based on the user's actual status
-          setIs2FAEnabled(response.data.twoFactorEnabled);
-          
-          // Fetch login history
-          try {
-            const historyResponse = await axios.get("http://localhost:3000/api/auth/login-history", {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-            setLoginHistory(historyResponse.data.loginHistory || []);
-          } catch (historyError) {
-            console.error("Error fetching login history:", historyError);
-            toast.error("Failed to fetch login history");
-          }
+        // Always fetch basic user data for all roles
+        await fetchUserData();
+
+      axios
+      .get(`http://localhost:3000/api/auth/getAllUsers`)
+      .then((response) => {
+        setAllUsers(response.data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+        toast.error("Failed to fetch users");
+      })
+      .finally(() => setLoading(false));
+  
+        // Role-specific data fetching
+        if (user?.role === "admin") {
+          await Promise.all([
+            fetchAllProducts()
+          ]);
+        } else if (user?.role === "farmer") {
+          await Promise.all([
+            fetchListings(),
+            fetchReviews()
+          ]);
+        } else if (user?.role === "buyer") {
+          // Add buyer-specific fetches here if needed
+        } else if (user?.role === "truck_driver") {
+          // Add truck driver-specific fetches here if needed
         }
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-        toast.error("Failed to fetch user data. Please try again.");
-        navigate("/login");
+  
+      } catch (error) {
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
+    
+    fetchData();
+  }, [navigate, user?.role]);
+  
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("No token found, please login again.");
+        navigate("/login");
+        return;
+      }
 
-    fetchUserData();
-  }, [navigate]);
+      const userData = JSON.parse(localStorage.getItem("user"));
+      if (!userData || !userData._id) {
+        toast.error("User data not found, please login again.");
+        navigate("/login");
+        return;
+      }
+
+      const userId = userData._id;
+      const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data) {
+        setUser(response.data);
+        setIs2FAEnabled(response.data.twoFactorEnabled);
+        setLastSecurityUpdate(response.data.lastSecurityUpdate);
+        
+        // Fetch login history
+        try {
+          const historyResponse = await axios.get("http://localhost:3000/api/auth/login-history", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setLoginHistory(historyResponse.data.loginHistory || []);
+        } catch (historyError) {
+          console.error("Error fetching login history:", historyError);
+          toast.error("Failed to fetch login history");
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      toast.error("Failed to fetch user data. Please try again.");
+      navigate("/login");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const fetchListings = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      
+      if (!token || !userData?._id) {
+        setListings([]);
+        toast.error("Please login to view your listings");
+        return;
+      }
+      
+      const response = await axios.get(
+        `http://localhost:3000/api/marketplace/farmer-listings/${userData._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setListings(response.data);
+    } catch (error) {
+      if (user.role === "farmer") {
+        console.error('Error fetching listings:', error);
+        toast.error("Failed to fetch your listings");
+        setListings([]); 
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllProducts = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/api/marketplace/listings");
+      setAllProducts(response.data);
+      
+    } catch (error) {
+     
+      console.error('Error fetching all products:', error);
+      toast.error("Failed to fetch all products");
+      setAllProducts([]); 
+      
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      
+      if (!token || !userData?._id) {
+        setReviews([]);
+        toast.error("Please login to view reviews");
+        return;
+      }
+
+      const response = await axios.get(
+        `http://localhost:3000/api/reviews/farmer-reviews/${userData._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setReviews(response.data);
+    } catch (error) {
+      if (user.role === "farmer") {
+        console.error('Error fetching reviews:', error);
+        toast.error("Failed to fetch reviews");
+        setReviews([]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -126,6 +250,13 @@ export const Profile = () => {
       setIs2FAEnabled(!is2FAEnabled);
       toast.success(response.data.msg);
 
+      // Fetch updated user data to get new security timestamp
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const updatedUserResponse = await axios.get(`http://localhost:3000/api/auth/searchUser/${userData._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setLastSecurityUpdate(updatedUserResponse.data.lastSecurityUpdate);
+
       // Refresh login history after toggling 2FA
       try {
         const historyResponse = await axios.get("http://localhost:3000/api/auth/login-history", {
@@ -164,6 +295,19 @@ export const Profile = () => {
     return ip;
   };
 
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+    return `${Math.floor(diffInSeconds / 31536000)} years ago`;
+  };
+
   const handlePasswordChange = async () => {
     if (newPassword !== confirmPassword) {
       setPasswordError("New passwords do not match");
@@ -191,13 +335,19 @@ export const Profile = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.success) {
+      if (response.data.message === "Password changed successfully") {
         toast.success("Password changed successfully");
         setShowPasswordChangeModal(false);
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
         setPasswordError("");
+        
+        // Fetch updated user data to get new security timestamp
+        const updatedUserResponse = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setLastSecurityUpdate(updatedUserResponse.data.lastSecurityUpdate);
       }
     } catch (error) {
       console.error("Error changing password:", error);
@@ -205,6 +355,52 @@ export const Profile = () => {
       toast.error(error.response?.data?.message || "Failed to change password");
     } finally {
       setIsChangingPassword(false);
+    }
+  };
+
+  const handleUpdateDetails = async (e) => {
+    e.preventDefault();
+    
+    if (!updateDetails.name || !updateDetails.email || !updateDetails.phone) {
+      toast.error("All fields are required.");
+      return;
+    }
+
+    const validatePhone = (phone) => /^[0-9]{10}$/.test(phone);
+    const validateEmail = (email) => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+
+    if (!validateEmail(updateDetails.email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    if (!validatePhone(updateDetails.phone)) {
+      toast.error("Please enter a valid phone number.");
+      return;
+    }
+
+    try {
+      setIsUpdatingDetails(true);
+      const token = localStorage.getItem("token");
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const userId = userData._id;
+
+      const response = await axios.put(
+        `http://localhost:3000/api/auth/updateUser/${userId}`,
+        updateDetails,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data) {
+        setUser(response.data);
+        toast.success("Profile updated successfully!");
+        setShowUpdateDetailsModal(false);
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
+    } finally {
+      setIsUpdatingDetails(false);
     }
   };
 
@@ -226,6 +422,8 @@ export const Profile = () => {
       </div>
     );
   }
+
+  console.log("Total Users: ", allUsers.length);
 
   return (
     <>
@@ -292,11 +490,12 @@ export const Profile = () => {
               <div className="p-6 bg-white shadow-lg rounded-xl">
                 <h3 className="mb-4 text-lg font-semibold text-gray-800">Profile Statistics</h3>
                 <div className="grid grid-cols-2 gap-4">
+                  
                   {user.role === "farmer" && (
                     <div className="p-4 rounded-lg bg-green-50">
                       <div className="flex items-center">
                         <FaShoppingCart className="w-6 h-6 mr-2 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-800">{stats.listings}</span>
+                        <span className="text-2xl font-bold text-gray-800">{listings.length}</span>
                       </div>
                       <p className="mt-1 text-sm text-gray-600">Active Listings</p>
                     </div>
@@ -310,7 +509,7 @@ export const Profile = () => {
                       <p className="mt-1 text-sm text-gray-600">Total Orders</p>
                     </div>
                   )}
-                  {user.role === "driver" && (
+                  {user.role === "truck_driver" && (
                     <div className="p-4 rounded-lg bg-green-50">
                       <div className="flex items-center">
                         <FaTruck className="w-6 h-6 mr-2 text-green-500" />
@@ -319,17 +518,37 @@ export const Profile = () => {
                       <p className="mt-1 text-sm text-gray-600">Completed Pickups</p>
                     </div>
                   )}
+                  {(user.role === "farmer")  && (
                   <div className="p-4 rounded-lg bg-green-50">
                     <div className="flex items-center">
                       <FaChartLine className="w-6 h-6 mr-2 text-green-500" />
-                      <span className="text-2xl font-bold text-gray-800">{stats.rating}</span>
+                      <span className="text-2xl font-bold text-gray-800">{reviews.length}</span>
                     </div>
                     <p className="mt-1 text-sm text-gray-600">Rating</p>
                   </div>
+                  )}
+                  {(user.role === "admin")  && (
+                  <>
+                  <div className="p-4 rounded-lg bg-green-50">
+                    <div className="flex items-center">
+                      <FaUser className="w-6 h-6 mr-2 text-green-500" />
+                      <span className="text-2xl font-bold text-gray-800">{allUsers.length}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-600">Total Users</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-green-50">
+                    <div className="flex items-center">
+                      <FaShoppingCart className="w-6 h-6 mr-2 text-green-500" />
+                      <span className="text-2xl font-bold text-gray-800">{allProducts.length}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-600">Total Listings</p>
+                  </div>
+                  </>
+                  )}
                 </div>
               </div>
 
-              {/* Achievements Card */}
+              {/* Achievements Card 
               <div className="p-6 bg-white shadow-lg rounded-xl">
                 <h3 className="mb-4 text-lg font-semibold text-gray-800">Achievements</h3>
                 <div className="space-y-3">
@@ -348,7 +567,7 @@ export const Profile = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Main Content - Right Side */}
@@ -358,7 +577,14 @@ export const Profile = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-800">Account Settings</h2>
                   <button
-                    onClick={() => navigate("/profile/update-details")}
+                    onClick={() => {
+                      setUpdateDetails({
+                        name: user.name,
+                        email: user.email,
+                        phone: user.phone,
+                      });
+                      setShowUpdateDetailsModal(true);
+                    }}
                     className="flex items-center px-4 py-2 text-white transition-colors bg-green-500 rounded-lg hover:bg-green-600"
                   >
                     <FaEdit className="mr-2" />
@@ -398,7 +624,7 @@ export const Profile = () => {
                       onClick={() => navigate("/admin-dashboard")}
                       className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
                     >
-                      <FaUserShield className="w-6 h-6 mr-3 text-green-500" />
+                      <BiSolidDashboard className="w-6 h-6 mr-3 text-green-500" />
                       <span className="font-medium">Admin Dashboard</span>
                     </button>
                   )}
@@ -423,7 +649,7 @@ export const Profile = () => {
                     </button>
                   )}
 
-                  {user.role === "driver" && (
+                  {user.role === "truck_driver" && (
                     <button
                       onClick={() => navigate("")}
                       className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
@@ -434,43 +660,6 @@ export const Profile = () => {
                   )}
                 </div>
               </div>
-
-              {/* Preferences Card 
-              <div className="p-6 bg-white shadow-lg rounded-xl">
-                <h3 className="mb-4 text-lg font-semibold text-gray-800">Preferences</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-                    <div className="flex items-center">
-                      <FaBell className="w-5 h-5 mr-3 text-green-500" />
-                      <div>
-                        <h4 className="font-medium text-gray-800">Notifications</h4>
-                        <p className="text-sm text-gray-600">Manage your notification preferences</p>
-                      </div>
-                    </div>
-                    <button className="text-green-500 hover:text-green-600">Manage</button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-                    <div className="flex items-center">
-                      <FaLanguage className="w-5 h-5 mr-3 text-green-500" />
-                      <div>
-                        <h4 className="font-medium text-gray-800">Language</h4>
-                        <p className="text-sm text-gray-600">Select your preferred language</p>
-                      </div>
-                    </div>
-                    <button className="text-green-500 hover:text-green-600">Change</button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-                    <div className="flex items-center">
-                      <FaPalette className="w-5 h-5 mr-3 text-green-500" />
-                      <div>
-                        <h4 className="font-medium text-gray-800">Theme</h4>
-                        <p className="text-sm text-gray-600">Choose your preferred theme</p>
-                      </div>
-                    </div>
-                    <button className="text-green-500 hover:text-green-600">Change</button>
-                  </div>
-                </div>
-              </div> */}
 
               {/* Security Card */}
               <div className="p-6 bg-white shadow-lg rounded-xl">
@@ -513,39 +702,13 @@ export const Profile = () => {
                     <FaUserShield className="w-5 h-5 mr-3 text-green-500" />
                     <div>
                       <p className="font-medium text-gray-800">Security settings updated</p>
-                      <p className="text-sm text-gray-600">3 days ago</p>
+                      <p className="text-sm text-gray-600">
+                        {lastSecurityUpdate ? formatTimeAgo(lastSecurityUpdate) : 'No recent updates'}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* Activity Timeline Card 
-              <div className="p-6 bg-white shadow-lg rounded-xl">
-                <h3 className="mb-4 text-lg font-semibold text-gray-800">Recent Activity</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center p-4 rounded-lg bg-gray-50">
-                    <FaClock className="w-5 h-5 mr-3 text-green-500" />
-                    <div>
-                      <p className="font-medium text-gray-800">New listing created</p>
-                      <p className="text-sm text-gray-600">2 hours ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-4 rounded-lg bg-gray-50">
-                    <FaShoppingCart className="w-5 h-5 mr-3 text-green-500" />
-                    <div>
-                      <p className="font-medium text-gray-800">Order completed</p>
-                      <p className="text-sm text-gray-600">1 day ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-4 rounded-lg bg-gray-50">
-                    <FaUserShield className="w-5 h-5 mr-3 text-green-500" />
-                    <div>
-                      <p className="font-medium text-gray-800">Security settings updated</p>
-                      <p className="text-sm text-gray-600">3 days ago</p>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
             </div>
           </div>
         </div>
@@ -698,6 +861,86 @@ export const Profile = () => {
                   {isChangingPassword ? "Changing..." : "Change Password"}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Details Modal */}
+      {showUpdateDetailsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md bg-white rounded-lg shadow-xl">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-800">Update Profile Details</h3>
+                <button 
+                  onClick={() => setShowUpdateDetailsModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <FaTimes className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleUpdateDetails}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={updateDetails.name}
+                      onChange={(e) => setUpdateDetails({ ...updateDetails, name: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={updateDetails.email}
+                      onChange={(e) => setUpdateDetails({ ...updateDetails, email: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Enter your email"
+                      readOnly
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={updateDetails.phone}
+                      onChange={(e) => setUpdateDetails({ ...updateDetails, phone: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end mt-6 space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowUpdateDetailsModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUpdatingDetails}
+                    className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                  >
+                    {isUpdatingDetails ? "Updating..." : "Update"}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

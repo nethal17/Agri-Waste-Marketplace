@@ -20,7 +20,8 @@ const UserSchema = new mongoose.Schema({
         ipAddress: String,
         deviceInfo: String,
         status: { type: String, enum: ["success", "failed"], required: true }
-    }]
+    }],
+    lastSecurityUpdate: { type: Date, default: null }
 
 }, { timestamps: true });
 
