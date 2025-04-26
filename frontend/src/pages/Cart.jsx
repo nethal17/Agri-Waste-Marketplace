@@ -2,58 +2,125 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { Navbar } from "../components/Navbar";
+import axios from "axios";
 
 export const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = userData._id;
+
   useEffect(() => {
-    // Load cart items from localStorage
-    const loadCartItems = () => {
-      const items = JSON.parse(localStorage.getItem("cart")) || [];
-      setCartItems(items);
+    const fetchCartItems = async () => {
+
+      try {
+        
+        if (!userId) {
+          toast.error('Please login to view your cart');
+          navigate('/login');
+          return;
+        }
+        const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
+        if (response.data) {
+          setCartItems(response.data.items);
+        }
+      } catch (error) {
+        console.error('Error fetching cart items:', error);
+        toast.error('Failed to load cart items');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    loadCartItems();
-    // Listen for storage changes from other tabs/windows
-    window.addEventListener('storage', loadCartItems);
-    
-    return () => {
-      window.removeEventListener('storage', loadCartItems);
-    };
-  }, []);
+    fetchCartItems();
+  }, [navigate]);
 
   // Function to update item quantity
-  const updateQuantity = (productId, change) => {
-    const updatedItems = cartItems.map(item => {
-      if (item._id === productId) {
-        const newQuantity = (item.cartQuantity || 1) + change;
-        if (newQuantity < 1) return null;
-        return { ...item, cartQuantity: newQuantity };
+  const updateQuantity = async (wasteId, change) => {
+    try {
+      
+      if (!userId) {
+        toast.error('Please login to update cart');
+        navigate('/login');
+        return;
       }
-      return item;
-    }).filter(Boolean);
 
-    setCartItems(updatedItems);
-    localStorage.setItem("cart", JSON.stringify(updatedItems));
-    toast.success("Cart updated successfully");
+      const item = cartItems.find(item => item.wasteId === wasteId);
+      if (!item) return;
+
+      const newQuantity = item.quantity + change;
+      if (newQuantity < 1) {
+        await removeItem(wasteId);
+        return;
+      }
+
+      const response = await axios.put('http://localhost:3000/api/cart/update', {
+        userId,
+        wasteId,
+        quantity: newQuantity
+      });
+
+      if (response.data) {
+        setCartItems(prevItems => 
+          prevItems.map(item => 
+            item.wasteId === wasteId 
+              ? { ...item, quantity: newQuantity }
+              : item
+          )
+        );
+        toast.success("Cart updated successfully");
+      }
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      toast.error('Failed to update cart');
+    }
   };
 
   // Function to remove item from cart
-  const removeItem = (productId) => {
-    const updatedItems = cartItems.filter(item => item._id !== productId);
-    setCartItems(updatedItems);
-    localStorage.setItem("cart", JSON.stringify(updatedItems));
-    toast.success("Item removed from cart");
+  const removeItem = async (wasteId) => {
+    try {
+      
+      if (!userId) {
+        toast.error('Please login to remove items');
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.delete('http://localhost:3000/api/cart/remove', {
+        data: { userId, wasteId }
+      });
+
+      if (response.data) {
+        setCartItems(prevItems => prevItems.filter(item => item.wasteId !== wasteId));
+        toast.success("Item removed from cart");
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+      toast.error('Failed to remove item');
+    }
   };
 
   // Calculate total price
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => {
-      const quantity = item.cartQuantity || 1;
-      return total + (item.price * quantity);
+      return total + ((item.price* item.quantity) + item.deliveryCost);
     }, 0);
   };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -72,12 +139,13 @@ export const Cart = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Cost</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {cartItems.map((item) => (
-                      <tr key={item._id}>
+                      <tr key={item.wasteId}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="h-20 w-20 flex-shrink-0">
@@ -102,16 +170,16 @@ export const Cart = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center space-x-2">
                             <button
-                              onClick={() => updateQuantity(item._id, -1)}
+                              onClick={() => updateQuantity(item.wasteId, -1)}
                               className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                             >
                               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                               </svg>
                             </button>
-                            <span className="text-gray-700">{item.cartQuantity || 1}</span>
+                            <span className="text-gray-700">{item.quantity}</span>
                             <button
-                              onClick={() => updateQuantity(item._id, 1)}
+                              onClick={() => updateQuantity(item.wasteId, 1)}
                               className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                             >
                               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,12 +193,15 @@ export const Cart = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            Rs. {((item.cartQuantity || 1) * item.price).toFixed(2)}
+                            Rs. {(item.quantity * item.price).toFixed(2)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">Rs. {item.deliveryCost.toFixed(2)}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <button
-                            onClick={() => removeItem(item._id)}
+                            onClick={() => removeItem(item.wasteId)}
                             className="text-red-600 hover:text-red-900 transition-colors"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,15 +228,15 @@ export const Cart = () => {
                   <div className="text-right">
                     <p className="text-lg text-gray-500">Total</p>
                     <p className="text-2xl font-bold text-gray-900">Rs. {calculateTotal().toFixed(2)}</p>
-                    <button onClick={() => {
-                      navigate('/checkout'); // Corrected path to a single slash
-                      toast.success("Proceeding to checkout...");
+                    <button 
+                      onClick={() => {
+                        navigate('/buyer-address-form');
+                        toast.success("Proceeding to checkout...");
                       }}
                       className="mt-4 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                     >
-                    Proceed to Checkout
-                    </button> 
-
+                      Proceed to Checkout
+                    </button>
                   </div>
                 </div>
               </div>
