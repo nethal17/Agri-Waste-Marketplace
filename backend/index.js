@@ -29,6 +29,7 @@ import buyerAddressRoutes from "./routes/buyerAddressRoutes.js";
 import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
 
 
+
 dotenv.config();
 
 const app = express();
@@ -63,7 +64,6 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/product-listing', ProductListingRoutes);
 app.use('/api/marketplace', MarketplaceRoutes);
-
 
 //Naduli
 app.use("/api/agri-waste", agriWasteRoutes);

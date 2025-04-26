@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { FiPackage, FiCheck, FiTrash2, FiEye } from 'react-icons/fi';
+import { FiPackage, FiCheck, FiTrash2, FiEye, FiCalendar, FiAlertTriangle, FiClock } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 export const InventoryManagerDashboard = () => {
+  const navigate = useNavigate();
   const [listings, setListings] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [deleteReason, setDeleteReason] = useState('');
@@ -17,18 +19,47 @@ export const InventoryManagerDashboard = () => {
     fetchListings();
   }, []);
 
+  // Format date for display
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Calculate days remaining until expiry
+  const getDaysRemaining = (expireDate) => {
+    const today = new Date();
+    const expiry = new Date(expireDate);
+    const diffTime = expiry - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // Get expiry status (expired, soon, ok)
+  const getExpiryStatus = (expireDate) => {
+    const daysRemaining = getDaysRemaining(expireDate);
+    if (daysRemaining < 0) return 'expired';
+    if (daysRemaining <= 7) return 'soon';
+    return 'ok';
+  };
+
   const fetchListings = async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         toast.error('No token found, please login again.');
         navigate("/login");
+        return;
       }
+
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const userRole = userData.role;
       if (userRole !== "admin") {
         toast.error("Only Admin can list agri-waste");
         navigate("/");
+        return;
       }
 
       const response = await axios.get('http://localhost:3000/api/product-listing/admin/listings', {
@@ -37,7 +68,17 @@ export const InventoryManagerDashboard = () => {
         },
       });
 
-      setListings(response.data);
+      // Process listings with expiry information and sort by nearest expiry first
+      const processedListings = response.data
+        .map(listing => ({
+          ...listing,
+          daysUntilExpiry: getDaysRemaining(listing.expireDate),
+          expiryStatus: getExpiryStatus(listing.expireDate),
+          formattedExpiry: formatDate(listing.expireDate)
+        }))
+        .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+
+      setListings(processedListings);
       
     } catch (error) {
       console.error('Error fetching listings:', error);
@@ -107,6 +148,33 @@ export const InventoryManagerDashboard = () => {
     setShowPreviewModal(true);
   };
 
+  // Get status color based on expiry
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'expired': return 'bg-red-100 text-red-800';
+      case 'soon': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-green-100 text-green-800';
+    }
+  };
+
+  // Get status icon based on expiry
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'expired': return <FiAlertTriangle className="w-4 h-4 mr-1" />;
+      case 'soon': return <FiClock className="w-4 h-4 mr-1" />;
+      default: return <FiCheck className="w-4 h-4 mr-1" />;
+    }
+  };
+
+  // Get status text based on expiry
+  const getStatusText = (days) => {
+    if (days < 0) return 'Expired';
+    if (days === 0) return 'Expires Today';
+    if (days === 1) return '1 Day Left';
+    if (days <= 7) return `${days} Days Left`;
+    return 'OK';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white p-8">
       <div className="max-w-7xl mx-auto">
@@ -122,7 +190,7 @@ export const InventoryManagerDashboard = () => {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <h3 className="text-gray-600 text-sm font-medium">Total Pending</h3>
@@ -132,7 +200,42 @@ export const InventoryManagerDashboard = () => {
             </div>
             <p className="text-2xl font-bold text-gray-800 mt-2">{pendingListings.length}</p>
           </div>
-          {/* Add more stat cards as needed */}
+          
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-gray-600 text-sm font-medium">Expired</h3>
+              <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                Urgent
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-gray-800 mt-2">
+              {pendingListings.filter(l => l.expiryStatus === 'expired').length}
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-gray-600 text-sm font-medium">Expiring Soon</h3>
+              <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                Warning
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-gray-800 mt-2">
+              {pendingListings.filter(l => l.expiryStatus === 'soon').length}
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-gray-600 text-sm font-medium">OK</h3>
+              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                Good
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-gray-800 mt-2">
+              {pendingListings.filter(l => l.expiryStatus === 'ok').length}
+            </p>
+          </div>
         </div>
 
         {/* Listings Table */}
@@ -146,69 +249,95 @@ export const InventoryManagerDashboard = () => {
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {pendingListings.map((listing) => (
-                  <tr key={listing._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                          <span className="text-sm font-medium text-green-800">
-                            {(listing.farmerId?.name || 'Unknown')[0]}
+                {pendingListings.map((listing) => {
+                  const statusColor = getStatusColor(listing.expiryStatus);
+                  const statusIcon = getStatusIcon(listing.expiryStatus);
+                  const statusText = getStatusText(listing.daysUntilExpiry);
+                  
+                  return (
+                    <tr 
+                      key={listing._id} 
+                      className={`hover:bg-gray-50 transition-colors ${
+                        listing.expiryStatus === 'expired' ? 'bg-red-50' : 
+                        listing.expiryStatus === 'soon' ? 'bg-yellow-50' : ''
+                      }`}
+                    >
+                      
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                            <span className="text-sm font-medium text-green-800">
+                              {(listing.farmerId?.name || 'Unknown')[0]}
+                            </span>
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-gray-900">{listing.farmerId?.name || 'Unknown Farmer'}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{listing.wasteItem}</td>
+                      <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{listing.description}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">Rs.{listing.price}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <span className="text-xs font-medium">
+                            {listing.quantity} units
                           </span>
                         </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900">{listing.farmerId?.name || 'Unknown Farmer'}</p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <FiCalendar className="w-4 h-4 text-gray-400 mr-2" />
+                          <span className={`text-sm font-medium ${
+                            listing.expiryStatus === 'expired' ? 'text-red-600' : 
+                            listing.expiryStatus === 'soon' ? 'text-yellow-600' : 'text-gray-600'
+                          }`}>
+                            {listing.formattedExpiry}
+                            {statusIcon}
+                            {statusText}
+                          </span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{listing.wasteItem}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{listing.description}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">Rs.{listing.price}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {listing.quantity} units
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button 
-                          onClick={() => handlePreview(listing)}
-                          className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors"
-                        >
-                          <FiEye className="w-4 h-4 mr-1.5" />
-                          Preview
-                        </button>
-                        <button 
-                          onClick={() => handleApprove(listing._id)}
-                          disabled={approving}
-                          className="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 text-sm font-medium rounded-lg hover:bg-green-100 transition-colors"
-                        >
-                          <FiCheck className="w-4 h-4 mr-1.5" />
-                          Approve
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setProductToDelete(listing._id);
-                            setShowDeleteModal(true);
-                          }}
-                          disabled={deleting}
-                          className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors"
-                        >
-                          <FiTrash2 className="w-4 h-4 mr-1.5" />
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <button 
+                            onClick={() => handlePreview(listing)}
+                            className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors"
+                          >
+                            <FiEye className="w-4 h-4 mr-1.5" />
+                          </button>
+                          <button 
+                            onClick={() => handleApprove(listing._id)}
+                            disabled={approving}
+                            className="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 text-sm font-medium rounded-lg hover:bg-green-100 transition-colors"
+                          >
+                            <FiCheck className="w-4 h-4 mr-1.5" />
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setProductToDelete(listing._id);
+                              setShowDeleteModal(true);
+                            }}
+                            disabled={deleting}
+                            className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors"
+                          >
+                            <FiTrash2 className="w-4 h-4 mr-1.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
                 {pendingListings.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center">
+                    <td colSpan="8" className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center">
                         <FiPackage className="w-12 h-12 text-gray-400 mb-4" />
                         <p className="text-gray-500 text-sm">No pending listings to review</p>
@@ -221,7 +350,7 @@ export const InventoryManagerDashboard = () => {
           </div>
         </div>
 
-        {/* Preview Modal */}
+        {/* Preview Modal with Expiry Information */}
         {showPreviewModal && selectedProduct && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
@@ -292,9 +421,39 @@ export const InventoryManagerDashboard = () => {
                           <p className="text-lg font-medium text-blue-600">{selectedProduct.quantity} units</p>
                         </div>
                         <div className="bg-white p-3 rounded-lg border border-gray-100">
-                          <p className="text-sm text-gray-500">Status</p>
-                          <p className="text-lg font-medium text-orange-600">Pending</p>
+                          <p className="text-sm text-gray-500">Expiry Status</p>
+                          <div className="flex items-center">
+                            {getStatusIcon(selectedProduct.expiryStatus)}
+                            <p className={`text-lg font-medium ${
+                              selectedProduct.expiryStatus === 'expired' ? 'text-red-600' : 
+                              selectedProduct.expiryStatus === 'soon' ? 'text-yellow-600' : 'text-green-600'
+                            }`}>
+                              {getStatusText(selectedProduct.daysUntilExpiry)}
+                            </p>
+                          </div>
                         </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Expiry Date</label>
+                      <div className="mt-2 bg-white p-3 rounded-lg border border-gray-100">
+                        <div className="flex items-center">
+                          <FiCalendar className="w-5 h-5 text-gray-400 mr-2" />
+                          <p className="text-lg font-medium text-gray-900">
+                            {selectedProduct.formattedExpiry}
+                          </p>
+                        </div>
+                        {selectedProduct.expiryStatus === 'expired' && (
+                          <p className="text-sm text-red-600 mt-2">
+                            This product has expired and should not be approved
+                          </p>
+                        )}
+                        {selectedProduct.expiryStatus === 'soon' && (
+                          <p className="text-sm text-yellow-600 mt-2">
+                            Expires in {selectedProduct.daysUntilExpiry} days
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -331,8 +490,10 @@ export const InventoryManagerDashboard = () => {
                     setShowPreviewModal(false);
                     handleApprove(selectedProduct._id);
                   }}
-                  disabled={approving}
-                  className="px-6 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center"
+                  disabled={approving || selectedProduct.expiryStatus === 'expired'}
+                  className={`px-6 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center ${
+                    selectedProduct.expiryStatus === 'expired' ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   <FiCheck className="w-5 h-5 mr-2" />
                   {approving ? 'Approving...' : 'Approve Listing'}
