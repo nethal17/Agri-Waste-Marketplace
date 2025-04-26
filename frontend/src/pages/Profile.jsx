@@ -27,6 +27,12 @@ export const Profile = () => {
     rating: 0
   });
   const [showLoginHistoryModal, setShowLoginHistoryModal] = useState(false);
+  const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -156,6 +162,50 @@ export const Profile = () => {
       return "127.0.0.1";
     }
     return ip;
+  };
+
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New passwords do not match");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters long");
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+      const token = localStorage.getItem("token");
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const userId = userData._id;
+
+      const response = await axios.put(
+        `http://localhost:3000/api/auth/change-password/${userId}`,
+        {
+          currentPassword,
+          newPassword,
+          confirmNewPassword: confirmPassword
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        toast.success("Password changed successfully");
+        setShowPasswordChangeModal(false);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setPasswordError("");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setPasswordError(error.response?.data?.message || "Failed to change password");
+      toast.error(error.response?.data?.message || "Failed to change password");
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   if (loading) {
@@ -342,7 +392,7 @@ export const Profile = () => {
                 </div>
 
                 {/* Role-Specific Actions */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
                   {user.role === "admin" && (
                     <button
                       onClick={() => navigate("/admin-dashboard")}
@@ -436,7 +486,7 @@ export const Profile = () => {
                     </div>
                     <button 
                       className="text-green-500 hover:text-green-600"
-                      onClick={() => navigate("/forgot-password")}>
+                      onClick={() => setShowPasswordChangeModal(true)}>
                       Change
                     </button>
                   </div>
@@ -459,8 +509,8 @@ export const Profile = () => {
                   </div>
 
                   {/* Security Settings Update Section */}
-                  <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-                    <FaUserShield className="w-5 h-5 text-green-500 mr-3" />
+                  <div className="flex items-center p-4 rounded-lg bg-gray-50">
+                    <FaUserShield className="w-5 h-5 mr-3 text-green-500" />
                     <div>
                       <p className="font-medium text-gray-800">Security settings updated</p>
                       <p className="text-sm text-gray-600">3 days ago</p>
@@ -554,6 +604,98 @@ export const Profile = () => {
                   className="px-4 py-2 text-gray-800 bg-gray-200 rounded-lg hover:bg-gray-300"
                 >
                   Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Password Change Modal */}
+      {showPasswordChangeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md bg-white rounded-lg shadow-xl">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-800">Change Password</h3>
+                <button 
+                  onClick={() => {
+                    setShowPasswordChangeModal(false);
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setPasswordError("");
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <FaTimes className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter current password"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter new password"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+                
+                {passwordError && (
+                  <div className="text-sm text-red-500">{passwordError}</div>
+                )}
+              </div>
+
+              <div className="flex justify-end mt-6 space-x-3">
+                <button
+                  onClick={() => {
+                    setShowPasswordChangeModal(false);
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setPasswordError("");
+                  }}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordChange}
+                  disabled={isChangingPassword}
+                  className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                >
+                  {isChangingPassword ? "Changing..." : "Change Password"}
                 </button>
               </div>
             </div>

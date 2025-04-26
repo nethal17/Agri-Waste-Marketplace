@@ -1,7 +1,7 @@
 import express from "express";
 import { registerUser, loginUser, logoutUser, verifyEmail, verifyTwoStepCode, getLoginHistory, toggleTwoFactorAuth } from "../controllers/authController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { forgotPassword, resetPassword } from "../controllers/authController.js";
+import { forgotPassword, resetPassword, changePassword} from "../controllers/authController.js";
 import { getUsers, getUserById, updateUserDetails, deleteUser } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -10,10 +10,8 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/verify-two-step-code", verifyTwoStepCode);
 router.post("/logout", logoutUser);
-router.get("/profile", authMiddleware, (req, res) => {
-    res.json({ msg: "Access granted", user: req.user });
-});
-router.post("/forgot-password", forgotPassword);  
+router.post("/forgot-password", forgotPassword);
+router.put("/change-password/:userId", changePassword);  
 router.post("/reset-password/:token", resetPassword); 
 router.get("/verify-email/:token", verifyEmail); 
 router.get("/getAllUsers", getUsers);

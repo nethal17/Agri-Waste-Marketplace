@@ -429,6 +429,61 @@ export const updateUserDetails = async (req, res) => {
     }
 };
 
+export const changePassword = async (req, res) => {
+
+    const { userId } = req.params;
+
+    try {
+        const { currentPassword, newPassword, confirmNewPassword } = req.body;
+
+        if (!currentPassword || !newPassword || !confirmNewPassword) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            return res.status(400).json({ message: "New password and confirmation do not match" });
+        }
+
+        if (newPassword.length < 8) {
+            return res.status(400).json({ message: "Password must be at least 8 characters long" });
+        }
+
+        // Find the user and verify current password
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: "Current password is incorrect" });
+        }
+
+        // Hash and update the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        const result = await User.findByIdAndUpdate(
+            userId,
+            { password: hashedPassword },
+            { new: true }
+        );
+
+        if (!result) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({ 
+            success: true,
+            message: "Password updated successfully"
+        });
+
+    } catch (err) {
+        console.error("Error updating password:", err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
