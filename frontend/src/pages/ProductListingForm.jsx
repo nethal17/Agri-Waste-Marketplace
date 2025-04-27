@@ -198,6 +198,7 @@ export const ProductListingForm = () => {
         photo
       };
 
+      // First create the product listing
       const response = await fetch("http://localhost:3000/api/product-listing/create", {
         method: "POST",
         headers: {
@@ -214,22 +215,35 @@ export const ProductListingForm = () => {
         throw new Error(responseData.message || responseData.error?.message || "Submission failed");
       }
 
-      toast.success(responseData.message || "Product listing submitted! Status: Pending");
-      
-      // Reset form
-      setFormData({
-        wasteCategory: "",
-        wasteType: "",
-        wasteItem: "",
-        province: "",
-        district: "",
-        city: "",
-        quantity: "",
-        price: "",
-        description: "",
-        expireDate: "",
-        image: null,
+      // After successful product listing, create Stripe checkout session
+      const stripeResponse = await fetch("http://localhost:3000/api/stripe/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userData._id,
+          amount: 100000, // Rs. 1000.00 in cents (minimum required by Stripe)
+          currency: "LKR",
+          success_url: "http://localhost:5173/success",
+          cancel_url: "http://localhost:5173/product-listing",
+          customerEmail: userData.email
+        }),
       });
+
+      const stripeData = await stripeResponse.json();
+      
+      if (!stripeResponse.ok) {
+        throw new Error(stripeData.error || "Failed to create payment session");
+      }
+
+      if (!stripeData.url) {
+        throw new Error("No payment URL received from server");
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = stripeData.url;
+      
     } catch (error) {
       console.error("Submission error:", error);
       toast.error(error.message || "Submission failed. Please try again.");

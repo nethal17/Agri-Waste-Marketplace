@@ -36,7 +36,7 @@ router.post('/stripe/checkout', async (req, res) => {
       }
     });
 
-    res.json({ id: session.id });
+    res.json({ url: session.url });
   } catch (err) {
     console.error('Stripe error:', err);
     res.status(500).json({ error: err.message });

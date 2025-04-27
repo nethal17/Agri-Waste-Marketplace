@@ -32,6 +32,9 @@ import StripePayment from './components/StripePayment';
 import PayHistory from './components/PayHistory';
 import HighPayments from './components/HighPayments';
 import Final from './components/Final';
+import FarmerList from './components/FarmerList';
+import FarmerPayment from './components/FarmerPayment';
+import FarmerPaymentNew from './components/FarmerPaymentNew';
 
 import { AddOrderPage } from './pages/AddOrderPage';
 import { AddReviewPage } from './pages/AddReviewPage';
@@ -76,6 +79,8 @@ function App() {
       <Route path="/buyer-address-form" element={<BuyerAddressForm />} />
 
       <Route path="/driver" element={<DriverList />} />
+      <Route path="/farmer-list" element={<FarmerList />} />
+      <Route path="/farmer/:id/payment" element={<FarmerPaymentNew />} />
       <Route path="/create" element={<DriverForm />} />
       <Route path="/driver/:id/payment" element={<PaymentDetails />} />
       <Route path="/payment" element={<StripePayment />} /> 
