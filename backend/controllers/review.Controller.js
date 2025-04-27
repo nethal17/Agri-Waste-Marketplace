@@ -1,23 +1,44 @@
 import Review from '../models/Review.js';
-import Inventory from '../models/Inventory.js';
+import OrderHistory from '../models/orderHistory.model.js';
 import mongoose from 'mongoose';
 
 // Add a review (Buyer)
 export const addReview = async (req, res) => {
   try {
-    const { productId, buyerId, rating, review } = req.body;
+    const { productId, buyerId, orderId, rating, review } = req.body;
 
-    // Validate ObjectIds
-    if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(buyerId)) {
-      return res.status(400).json({ message: 'Invalid productId or buyerId.' });
+    if (!mongoose.Types.ObjectId.isValid(productId) || 
+        !mongoose.Types.ObjectId.isValid(buyerId) ||
+        !mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ message: 'Invalid IDs provided.' });
+    }
+
+    const order = await OrderHistory.findOne({
+      _id: orderId,
+      userId: buyerId,
+      orderStatus: 'toReview'
+    });
+
+    if (!order) {
+      return res.status(403).json({ 
+        message: 'You can only review products from valid orders.' 
+      });
+    }
+
+    const existingReview = await Review.findOne({ orderId });
+    if (existingReview) {
+      return res.status(400).json({ 
+        message: 'You have already reviewed this order.' 
+      });
     }
 
     const newReview = new Review({
       productId,
       buyerId,
+      orderId,
       rating,
       review,
-      image: req.file ? req.file.path : null, 
+      status: 'pending'
     });
 
     await newReview.save();
@@ -49,7 +70,7 @@ export const publishReview = async (req, res) => {
     await review.save();
 
     // Notify buyer and farmer (optional)
-    /*const buyerNotification = new Notification({
+    const buyerNotification = new Notification({
       userId: review.buyerId,
       message: 'Your review has been published.',
     });
@@ -59,13 +80,13 @@ export const publishReview = async (req, res) => {
       userId: review.farmerId,
       message: 'You have a new review for your product.',
     });
-    await farmerNotification.save();*/
+    await farmerNotification.save();
 
     // Send email notifications (optional)
-    /*const buyer = await User.findById(review.buyerId);
+    const buyer = await User.findById(review.buyerId);
     const farmer = await User.findById(review.farmerId);
     await sendNotificationEmail(buyer.email, 'Your review has been published.');
-    await sendNotificationEmail(farmer.email, 'You have a new review for your product.');*/
+    await sendNotificationEmail(farmer.email, 'You have a new review for your product.');
 
     res.status(200).json({ message: 'Review published successfully.' });
   } catch (error) {

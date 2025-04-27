@@ -94,6 +94,7 @@ export const Checkout = () => {
       for (const item of cartItems) {
         const orderData = {
           userId: user._id,
+          productId: item.wasteId,
           productName: item.description,
           quantity: item.quantity || 1,
           totalPrice: item.price * (item.quantity || 1)

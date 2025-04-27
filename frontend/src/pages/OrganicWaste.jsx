@@ -125,7 +125,7 @@ const CategoryProducts = () => {
       const cartItem = {
         userId,
         wasteId: product._id,
-        description: product.description,
+        description: product.wasteItem,
         price: product.price,
         quantity: 1,
         deliveryCost: 300 // You can modify this based on your requirements

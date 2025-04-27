@@ -1,6 +1,6 @@
-import OrderHistory from "../models/orderHistory.model.js"; // make sure model is correct
+import OrderHistory from "../models/orderHistory.model.js"; 
 
-// 🆕 Add Order History
+//Add Order History
 export const addOrderHistory = async (req, res) => {
   try {
     const newOrder = new OrderHistory(req.body);
@@ -24,7 +24,7 @@ export const getOrderHistory = async (req, res) => {
   }
 };
 
-// ❌ Cancel Order (Delete)
+//Cancel Order (Delete)
 export const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.orderId;
@@ -33,5 +33,33 @@ export const cancelOrder = async (req, res) => {
   } catch (error) {
     console.error("Error cancelling order:", error);
     res.status(500).json({ message: "Failed to cancel order" });
+  }
+};
+
+
+
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { orderStatus } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ message: 'Invalid order ID.' });
+    }
+
+    const order = await OrderHistory.findByIdAndUpdate(
+      orderId,
+      { orderStatus },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found.' });
+    }
+
+    res.status(200).json({ message: 'Order updated successfully.', order });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
