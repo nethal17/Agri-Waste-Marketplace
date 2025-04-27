@@ -92,18 +92,56 @@ const CategoryProducts = () => {
   }, [category]);
 
   useEffect(() => {
-    const updateCartCount = () => {
-      const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-      setCartItemsCount(cartItems.length);
+    const fetchCartCount = async () => {
+      try {
+        const userId = localStorage.getItem('userId'); // Assuming you store userId in localStorage after login
+        if (userId) {
+          const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
+          if (response.data) {
+            setCartItemsCount(response.data.items.length);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching cart count:', error);
+      }
     };
 
-    updateCartCount();
-    window.addEventListener('storage', updateCartCount);
-    
-    return () => {
-      window.removeEventListener('storage', updateCartCount);
-    };
+    fetchCartCount();
   }, []);
+
+  const handleAddToCart = async (product) => {
+
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const userId = userData._id;
+
+    try {
+      
+      if (!userId) {
+        toast.error('Please login to add items to cart');
+        navigate('/login');
+        return;
+      }
+
+      const cartItem = {
+        userId,
+        wasteId: product._id,
+        description: product.description,
+        price: product.price,
+        quantity: 1,
+        deliveryCost: 300 // You can modify this based on your requirements
+      };
+
+      const response = await axios.post('http://localhost:3000/api/cart/add', cartItem);
+      
+      if (response.data) {
+        setCartItemsCount(prevCount => prevCount + 1);
+        toast.success(`${product.wasteItem} added to cart!`);
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart');
+    }
+  };
 
   const wasteItems = wasteItemsByType[category] || [];
   
@@ -247,12 +285,7 @@ const CategoryProducts = () => {
                     </div>
                   </div>
                   <button
-                    onClick={() => {
-                      const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-                      cartItems.push(product);
-                      localStorage.setItem("cart", JSON.stringify(cartItems));
-                      toast.success(`${product.wasteItem} added to cart!`);
-                    }}
+                    onClick={() => handleAddToCart(product)}
                     className="w-full mt-6 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center justify-center space-x-2"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -276,17 +309,21 @@ export const OrganicWaste = () => {
   const [cartItemsCount, setCartItemsCount] = useState(0);
 
   useEffect(() => {
-    const updateCartCount = () => {
-      const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-      setCartItemsCount(cartItems.length);
+    const fetchCartCount = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        if (userId) {
+          const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
+          if (response.data) {
+            setCartItemsCount(response.data.items.length);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching cart count:', error);
+      }
     };
 
-    updateCartCount();
-    window.addEventListener('storage', updateCartCount);
-    
-    return () => {
-      window.removeEventListener('storage', updateCartCount);
-    };
+    fetchCartCount();
   }, []);
 
   const filteredWaste = organicWastes.filter((waste) =>

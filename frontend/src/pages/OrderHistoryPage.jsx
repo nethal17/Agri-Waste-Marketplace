@@ -1,139 +1,176 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-import { ClipLoader } from 'react-spinners';
-import { Navbar } from '../components/Navbar';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { format } from "date-fns";
 
-export const OrderHistoryPage = () => {
+export const OrderHistoryPage = ({ checkoutData }) => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  const userData = JSON.parse(localStorage.getItem('user') || '{}');
+  const userData = JSON.parse(localStorage.getItem("user"));
   const userId = userData._id;
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          toast.error('No token found, please login again.');
-          setError('Authentication error. Please login again.');
-          return;
-        }
-        const response = await axios.get(`http://localhost:3000/api/orders/userOrder/${userId}`);
-        setOrders(response.data);
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-        setError('Failed to fetch orders. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOrders();
-  }, [userId]);
+  }, userId, []);
 
-  const handlePreviewClick = (order) => {
-    setSelectedOrder(order);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedOrder(null);
-  };
-
-  const handleAddReview = () => {
-    if (selectedOrder) {
-      navigate('/add-review', {
-        state: { productId: selectedOrder.productId._id, buyerId: userId },
-      });
+  // Fetch Orders
+  const fetchOrders = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/order-history/user/${userId}`);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setOrders(data);
+      setFilteredOrders(data);
+    } catch (error) {
+      console.error("Failed to fetch order history", error);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <ClipLoader color="#3B82F6" size={40} />
-        <p className="ml-3 text-gray-600 text-lg">Loading orders...</p>
-      </div>
-    );
-  }
+  // Insert Order into History (when clicking Proceed to Payment)
+  const handleProceedToPayment = async () => {
+    try {
+      await axios.post("/api/order-history", {
+        userId: userId,
+        productName: checkoutData.productName,
+        quantity: checkoutData.quantity,
+        totalPrice: checkoutData.totalPrice,
+      });
+      alert("Order saved to history successfully!");
+      fetchOrders(); // Refresh after saving
+    } catch (error) {
+      console.error("Failed to save order history", error);
+      alert("Failed to save order history");
+    }
+  };
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-red-500 text-lg">{error}</p>
-      </div>
-    );
-  }
+  // Filter by Date Range
+  const handleFilter = () => {
+    if (!startDate || !endDate) {
+      setFilteredOrders(orders);
+      return;
+    }
+
+    const filtered = orders.filter(order => {
+      const orderDate = new Date(order.orderDate);
+      return orderDate >= new Date(startDate) && orderDate <= new Date(endDate);
+    });
+
+    setFilteredOrders(filtered);
+  };
+
+  // Cancel Order
+  const handleCancelOrder = async (orderId) => {
+    if (window.confirm("Are you sure you want to cancel this order?")) {
+      try {
+        await axios.delete(`http://localhost:3000/api/order-history/cancel/${orderId}`);
+        fetchOrders();
+      } catch (error) {
+        console.error("Failed to cancel order", error);
+      }
+    }
+  };
+
+  console.log("User ID:", userId);
 
   return (
-    <>
-      <Navbar />
-      <div className="container mx-auto p-8">
-        <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center">Order History</h2>
-        <div className="overflow-x-auto bg-white shadow-lg rounded-lg">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-blue-500 text-white">
+    <div className="p-6">
+      {/* Header */}
+      <h1 className="text-3xl font-bold mb-4">Order History</h1>
+
+      {/* Proceed to Payment Button */}
+      {/* 🛠 Only show if checkoutData exists */}
+      {checkoutData && (
+        <div className="mb-6">
+          <button
+            onClick={handleProceedToPayment}
+            className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700"
+          >
+            Proceed to Payment
+          </button>
+        </div>
+      )}
+
+      {/* Total Orders */}
+      <p className="mb-6 text-gray-600">
+        Total Orders: {Array.isArray(filteredOrders) ? filteredOrders.length : 0}
+      </p>
+
+      {/* Date Filter */}
+      <div className="flex gap-4 mb-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">From Date</label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">To Date</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+          />
+        </div>
+        <div className="flex items-end">
+          <button
+            onClick={handleFilter}
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+          >
+            Search
+          </button>
+        </div>
+      </div>
+
+      {/* Orders Table */}
+      <div className="overflow-x-auto shadow rounded-lg">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {Array.isArray(filteredOrders) && filteredOrders.length === 0 ? (
               <tr>
-                {['Product', 'Quantity', 'Total Price', 'Order Date', 'Actions'].map((header) => (
-                  <th key={header} className="px-6 py-4 font-medium uppercase">{header}</th>
-                ))}
+                <td colSpan="5" className="text-center py-8 text-gray-400">
+                  No orders found.
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {orders.map((order) => (
-                <tr key={order._id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4">{order.productId?.wasteItem || 'Product not found'}</td>
-                  <td className="px-6 py-4">{order.quantity}</td>
-                  <td className="px-6 py-4">Rs.{order.totalPrice.toFixed(2)}</td>
-                  <td className="px-6 py-4">{new Date(order.orderDate).toLocaleDateString()}</td>
-                  <td className="px-6 py-4">
+            ) : (
+              Array.isArray(filteredOrders) &&
+              filteredOrders.map((order) => (
+                <tr key={order._id}>
+                  <td className="px-6 py-4 whitespace-nowrap">{order.productName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{order.quantity}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">${order.totalPrice.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {format(new Date(order.orderDate), "dd MMM yyyy")}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">{order.orderStatus}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <button
-                      onClick={() => handlePreviewClick(order)}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                      onClick={() => handleCancelOrder(order._id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 text-sm"
                     >
-                      Preview
+                      Cancel Order
                     </button>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {isModalOpen && selectedOrder && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-8 rounded-lg shadow-xl w-96">
-              <h3 className="text-2xl font-bold mb-4">Order Details</h3>
-              <div className="space-y-3">
-                <p><span className="font-semibold">Product:</span> {selectedOrder.productId?.wasteItem || 'Product not found'}</p>
-                <p><span className="font-semibold">Quantity:</span> {selectedOrder.quantity}</p>
-                <p><span className="font-semibold">Total Price:</span> Rs.{selectedOrder.totalPrice.toFixed(2)}</p>
-                <p><span className="font-semibold">Order Date:</span> {new Date(selectedOrder.orderDate).toLocaleDateString()}</p>
-              </div>
-              <div className="mt-6 flex justify-end space-x-4">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
-                  Close
-                </button>
-                <button
-                  onClick={handleAddReview}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                  Add Review
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
-    </>
+    </div>
   );
 };

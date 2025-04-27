@@ -7,7 +7,6 @@ export const DisplayAllUsers = () => {
     <>
     <Navbar />
     <div className="flex h-fit">
-        <Sidebar />
         <div className="flex-grow overflow-auto">
         <AllUsers />
         </div>
