@@ -276,7 +276,7 @@ export const getWasteDetailsByType = async (req, res) => {
         city: product.city
       },
       quantity: product.quantity,
-      price: product.price,
+      price: product.price * 1.2,
       expireDate: product.expireDate,
       image: product.image,
       farmer: {
