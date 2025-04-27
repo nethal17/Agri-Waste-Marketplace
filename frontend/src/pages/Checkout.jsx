@@ -212,7 +212,7 @@ export const Checkout = () => {
       <h1 className="mb-5 text-2xl font-bold text-green-900">Check Out</h1>
 
       {/* Shipping Address Section */}
-      <div className="w-3/4 p-4 mb-5 rounded-lg shadow-sm bg-green-100">
+      <div className="w-3/4 p-4 mb-5 bg-green-100 rounded-lg shadow-sm">
         <h2 className="text-lg font-bold">Shipping Address</h2>
         {address ? (
           <>
@@ -227,7 +227,7 @@ export const Checkout = () => {
       </div>
 
       {/* Cart Items Table */}
-      <div className="w-3/4 p-4 rounded-lg shadow-sm bg-green-100">
+      <div className="w-3/4 p-4 bg-green-100 rounded-lg shadow-sm">
         <table className="w-full">
           <thead>
             <tr className="font-bold text-left text-md">
@@ -253,7 +253,7 @@ export const Checkout = () => {
       </div>
 
       {/* Total Price Section */}
-      <div className="w-3/4 p-4 mt-5 text-right rounded-lg shadow-sm bg-green-100">
+      <div className="w-3/4 p-4 mt-5 text-right bg-green-100 rounded-lg shadow-sm">
         <h2 className="text-lg font-bold">
           Total Price: Rs. {calculateTotal().toFixed(2)}
         </h2>

@@ -6,6 +6,7 @@ import { SignUp } from './pages/SignUp';
 import { Profile } from './pages/Profile';
 import { UpdateDetails } from './pages/UpdateDetails';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { AllUsers } from './components/AllUsers';
 import { DisplayAllUsers } from './pages/DisplayAllUsers';
 import { DisplayAllFarmers } from './pages/DisplayAllFarmers';
 import { DisplayAllBuyers } from './pages/DisplayAllBuyers';
@@ -64,6 +65,7 @@ function App() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/profile/update-details" element={< UpdateDetails />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
+      <Route path="/all" element={<AllUsers />} />
       <Route path="/all-users" element={<DisplayAllUsers />} />
       <Route path="/all-buyers" element={<DisplayAllBuyers />} />
       <Route path="/all-farmers" element={<DisplayAllFarmers />} />

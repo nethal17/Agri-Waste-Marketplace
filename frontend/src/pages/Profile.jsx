@@ -17,6 +17,7 @@ export const Profile = () => {
   const [listings, setListings] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -76,7 +77,9 @@ export const Profile = () => {
             fetchReviews()
           ]);
         } else if (user?.role === "buyer") {
-          // Add buyer-specific fetches here if needed
+          await Promise.all([
+            fetchOrders()
+          ]);
         } else if (user?.role === "truck_driver") {
           // Add truck driver-specific fetches here if needed
         }
@@ -205,6 +208,24 @@ export const Profile = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const userId = userData._id;
+
+    if (!userId) {
+      toast.error("Please login to view your orders");
+      return;
+    } 
+  
+    try {
+      const response = await axios.get(`http://localhost:3000/api/order-history/user/${userId}`);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setOrders(data);
+    } catch (error) {
+      console.error("Failed to fetch order history", error);
     }
   };
 
@@ -423,8 +444,6 @@ export const Profile = () => {
     );
   }
 
-  console.log("Total Users: ", allUsers.length);
-
   return (
     <>
       <Navbar />
@@ -504,7 +523,7 @@ export const Profile = () => {
                     <div className="p-4 rounded-lg bg-green-50">
                       <div className="flex items-center">
                         <FaShoppingCart className="w-6 h-6 mr-2 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-800">{stats.orders}</span>
+                        <span className="text-2xl font-bold text-gray-800">{orders.length}</span>
                       </div>
                       <p className="mt-1 text-sm text-gray-600">Total Orders</p>
                     </div>
