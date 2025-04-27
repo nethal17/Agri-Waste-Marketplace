@@ -540,3 +540,36 @@ export const toggleTwoFactorAuth = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
+export const exportUsers = async (req, res) => {
+    try {
+        const users = await User.find({}).select('name email phone role isVerified createdAt lastLogin');
+        
+        // Convert users to CSV format
+        const csvHeader = 'Name,Email,Phone,Role,Verification Status,Created At,Last Login\n';
+        const csvRows = users.map(user => {
+            return [
+                `"${user.name}"`,
+                `"${user.email}"`,
+                `"${user.phone}"`,
+                `"${user.role}"`,
+                `"${user.isVerified ? 'Verified' : 'Unverified'}"`,
+                `"${new Date(user.createdAt).toLocaleString()}"`,
+                `"${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}"`
+            ].join(',');
+        }).join('\n');
+
+        const csvContent = csvHeader + csvRows;
+
+        // Set response headers for CSV download
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=users.csv');
+        
+        // Send the CSV content
+        res.send(csvContent);
+
+    } catch (err) {
+        console.error('Error exporting users:', err);
+        res.status(500).json({ message: 'Error exporting users' });
+    }
+};

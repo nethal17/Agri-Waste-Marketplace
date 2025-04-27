@@ -30,16 +30,16 @@ const CartButton = ({ itemCount }) => {
       onClick={() => navigate('/cart')}
       className="relative group"
     >
-      <div className="p-3 bg-white rounded-full shadow-lg transform transition-transform group-hover:scale-110 group-hover:shadow-xl">
+      <div className="p-3 transition-transform transform bg-white rounded-full shadow-lg group-hover:scale-110 group-hover:shadow-xl">
         <div className="relative">
-          <svg className="w-6 h-6 text-gray-700 group-hover:text-green-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 text-gray-700 transition-colors group-hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           {itemCount > 0 && (
-            <div className="absolute -top-2 -right-2 transform transition-all group-hover:scale-110">
+            <div className="absolute transition-all transform -top-2 -right-2 group-hover:scale-110">
               <div className="relative">
-                <div className="absolute w-full h-full bg-green-500 rounded-full animate-ping opacity-75"></div>
-                <div className="relative bg-green-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                <div className="absolute w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"></div>
+                <div className="relative flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full">
                   {itemCount}
                 </div>
               </div>
@@ -47,7 +47,7 @@ const CartButton = ({ itemCount }) => {
           )}
         </div>
       </div>
-      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+      <div className="absolute px-2 py-1 text-sm text-white transition-opacity transform -translate-x-1/2 bg-gray-800 rounded opacity-0 -bottom-8 left-1/2 group-hover:opacity-100 whitespace-nowrap">
         View Cart
       </div>
     </button>
@@ -125,7 +125,7 @@ const CategoryProducts = () => {
       const cartItem = {
         userId,
         wasteId: product._id,
-        description: product.description,
+        description: product.wasteItem,
         price: product.price,
         quantity: 1,
         deliveryCost: 300 // You can modify this based on your requirements
@@ -153,9 +153,9 @@ const CategoryProducts = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="container px-4 py-8 mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="w-12 h-12 border-b-2 border-green-600 rounded-full animate-spin"></div>
           </div>
         </div>
       </div>
@@ -166,7 +166,7 @@ const CategoryProducts = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container px-4 py-8 mx-auto">
           <div className="text-center text-red-600">{error}</div>
         </div>
       </div>
@@ -176,10 +176,10 @@ const CategoryProducts = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container px-4 py-8 mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3">
-            <Link to="/organic-waste" className="inline-flex items-center text-green-600 hover:text-green-700 transition-colors">
+            <Link to="/organic-waste" className="inline-flex items-center text-green-600 transition-colors hover:text-green-700">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
@@ -222,62 +222,62 @@ const CategoryProducts = () => {
         )}
 
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl shadow-lg p-8">
-            <p className="text-gray-600 text-lg">
+          <div className="p-8 py-12 text-center bg-white shadow-lg rounded-xl">
+            <p className="text-lg text-gray-600">
               {selectedWasteItem === 'all'
                 ? 'No products available in this category.'
                 : `No products available for ${selectedWasteItem}.`}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredProducts.map((product) => (
-              <div key={product._id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full">
+              <div key={product._id} className="flex flex-col h-full overflow-hidden transition-all duration-300 transform bg-white shadow-lg rounded-xl hover:shadow-xl hover:-translate-y-1">
                 <div className="relative h-64 overflow-hidden bg-gray-100">
                   {product.image ? (
                     <img
                       src={product.image}
                       alt={product.wasteItem}
-                      className="w-full h-full object-contain"
+                      className="object-contain w-full h-full"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/images/no-image.png'; // Fallback image
                       }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <div className="flex items-center justify-center w-full h-full bg-gray-100">
                       <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                   )}
-                  <div className="absolute top-0 right-0 bg-green-600 text-white px-3 py-1 rounded-bl-lg">
+                  <div className="absolute top-0 right-0 px-3 py-1 text-white bg-green-600 rounded-bl-lg">
                     {product.quantity} kg
                   </div>
                 </div>
-                <div className="p-6 flex-grow flex flex-col">
+                <div className="flex flex-col flex-grow p-6">
                   <div className="flex-grow">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.wasteItem}</h3>
+                    <h3 className="mb-2 text-xl font-semibold text-gray-900">{product.wasteItem}</h3>
                     <p className="text-gray-600 mb-4 line-clamp-2 min-h-[3rem]">{product.description}</p>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-2xl font-bold text-green-600">Rs. {product.price}</span>
                     </div>
                     <div className="space-y-2 text-sm text-gray-500">
                       <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="flex-shrink-0 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span className="truncate">{product.farmer?.name || product.farmerId?.name || 'Unknown Farmer'}</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="flex-shrink-0 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <span className="truncate">{product.location?.city || product.city}, {product.location?.district || product.district}</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="flex-shrink-0 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span className="truncate">Expires: {new Date(product.expireDate).toLocaleDateString()}</span>
@@ -286,7 +286,7 @@ const CategoryProducts = () => {
                   </div>
                   <button
                     onClick={() => handleAddToCart(product)}
-                    className="w-full mt-6 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center justify-center space-x-2"
+                    className="flex items-center justify-center w-full px-4 py-3 mt-6 space-x-2 text-white transition-colors duration-300 bg-green-600 rounded-lg hover:bg-green-700"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -337,12 +337,12 @@ export const OrganicWaste = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
             <Link to="/organic-waste">
-              <button className="px-4 py-2 text-white bg-black rounded hover:bg-gray-800 transition-colors">
+              <button className="px-4 py-2 text-white transition-colors bg-black rounded hover:bg-gray-800">
                 Organic Waste
               </button>
             </Link>
             <Link to="/non-organic">
-              <button className="px-4 py-2 text-white bg-black rounded hover:bg-gray-800 transition-colors">
+              <button className="px-4 py-2 text-white transition-colors bg-black rounded hover:bg-gray-800">
                 Non-Organic Waste
               </button>
             </Link>
@@ -357,7 +357,7 @@ export const OrganicWaste = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <svg
-                className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
+                className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-3 top-1/2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -373,11 +373,11 @@ export const OrganicWaste = () => {
             <CartButton itemCount={cartItemsCount} />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredWaste.map((waste, index) => (
             <div 
               key={index} 
-              className="relative overflow-hidden rounded-lg shadow-lg cursor-pointer transform transition-transform hover:scale-105"
+              className="relative overflow-hidden transition-transform transform rounded-lg shadow-lg cursor-pointer hover:scale-105"
               onClick={() => navigate(`/organic/${waste.value}`)}
             >
               <img src={waste.image} alt={waste.name} className="object-cover w-full h-60" />
