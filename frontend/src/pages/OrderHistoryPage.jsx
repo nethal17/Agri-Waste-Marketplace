@@ -135,6 +135,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
@@ -155,6 +156,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     {format(new Date(order.orderDate), "dd MMM yyyy")}
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">{order.orderStatus}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => handleCancelOrder(order._id)}

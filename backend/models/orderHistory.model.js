@@ -27,6 +27,11 @@ const OrderHistorySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  orderStatus: {
+    type: String,
+    enum: ["toDeliver", "toReceive", "toReview"],
+    default: "toDeliver",
+  },
 });
 
 const OrderHistory = mongoose.model("OrderHistory", OrderHistorySchema);
