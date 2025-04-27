@@ -543,11 +543,18 @@ export const toggleTwoFactorAuth = async (req, res) => {
 
 export const exportUsers = async (req, res) => {
     try {
-        const users = await User.find({}).select('name email phone role isVerified createdAt lastLogin');
+        const users = await User.find({}).select('name email phone role isVerified createdAt loginHistory');
         
         // Convert users to CSV format
         const csvHeader = 'Name,Email,Phone,Role,Verification Status,Created At,Last Login\n';
         const csvRows = users.map(user => {
+            // Get the most recent login from loginHistory
+            const lastLogin = user.loginHistory && user.loginHistory.length > 0
+                ? user.loginHistory
+                    .filter(login => login.status === 'success')
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0]
+                : null;
+
             return [
                 `"${user.name}"`,
                 `"${user.email}"`,
@@ -555,7 +562,7 @@ export const exportUsers = async (req, res) => {
                 `"${user.role}"`,
                 `"${user.isVerified ? 'Verified' : 'Unverified'}"`,
                 `"${new Date(user.createdAt).toLocaleString()}"`,
-                `"${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}"`
+                `"${lastLogin ? new Date(lastLogin.timestamp).toLocaleString() : 'Never'}"`
             ].join(',');
         }).join('\n');
 
