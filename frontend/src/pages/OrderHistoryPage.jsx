@@ -3,6 +3,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import { FiShoppingBag, FiCalendar, FiFilter, FiX, FiCheck, FiTruck, FiStar } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
+import { Navbar } from "../components/Navbar";
 
 const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
   const [rating, setRating] = useState(0);
@@ -39,6 +40,7 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
   if (!isOpen) return null;
 
   return (
+
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
@@ -255,6 +257,8 @@ export const OrderHistoryPage = ({ checkoutData }) => {
   };
 
   return (
+    <>
+          <Navbar />
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -507,5 +511,6 @@ export const OrderHistoryPage = ({ checkoutData }) => {
         onSubmit={handleReviewSubmit}
       />
     </div>
+    </>
   );
 };

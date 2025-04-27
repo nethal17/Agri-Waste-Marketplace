@@ -1,14 +1,45 @@
 import BuyerAddress from "../models/buyerAddress.model.js";
 
-// Save a new buyer address
-export const createBuyerAddress = async (req, res) => {
+// Save or update a buyer address
+export const saveOrUpdateBuyerAddress = async (req, res) => {
   try {
-    const newAddress = new BuyerAddress(req.body);
-    await newAddress.save();
-    res.status(201).json({ message: "Buyer address saved successfully", data: newAddress });
+    const { buyerId, address, city, postalCode, phone, saveInfo } = req.body;
+
+    if (!buyerId) {
+      return res.status(400).json({ error: "Buyer ID is required" });
+    }
+
+    // Check if the buyer already has an address
+    const existingAddress = await BuyerAddress.findOne({ buyerId });
+
+    if (existingAddress) {
+      // If address exists, update it
+      existingAddress.address = address;
+      existingAddress.city = city;
+      existingAddress.postalCode = postalCode;
+      existingAddress.phone = phone;
+      existingAddress.saveInfo = saveInfo;
+      
+      await existingAddress.save();
+
+      return res.status(200).json({ message: "Buyer address updated successfully", data: existingAddress });
+    } else {
+      // If no address exists, create new
+      const newAddress = new BuyerAddress({
+        buyerId,
+        address,
+        city,
+        postalCode,
+        phone,
+        saveInfo,
+      });
+
+      await newAddress.save();
+      return res.status(201).json({ message: "Buyer address saved successfully", data: newAddress });
+    }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Failed to save buyer address" });
+    console.error("Error saving/updating buyer address:", error);
+    res.status(500).json({ error: "Failed to save or update buyer address" });
   }
 };
 
@@ -32,7 +63,6 @@ export const getAddressByBuyerId = async (req, res) => {
       return res.status(400).json({ error: "Buyer ID is required" });
     }
 
-    // Find address for the specific buyer
     const address = await BuyerAddress.findOne({ buyerId });
     
     if (!address) {
