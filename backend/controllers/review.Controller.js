@@ -5,10 +5,9 @@ import mongoose from 'mongoose';
 // Add a review (Buyer)
 export const addReview = async (req, res) => {
   try {
-    const { productId, buyerId, orderId, rating, review } = req.body;
+    const { buyerId, orderId, productName, rating, review } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(productId) || 
-        !mongoose.Types.ObjectId.isValid(buyerId) ||
+    if (!mongoose.Types.ObjectId.isValid(buyerId) ||
         !mongoose.Types.ObjectId.isValid(orderId)) {
       return res.status(400).json({ message: 'Invalid IDs provided.' });
     }
@@ -33,9 +32,9 @@ export const addReview = async (req, res) => {
     }
 
     const newReview = new Review({
-      productId,
       buyerId,
       orderId,
+      productName,
       rating,
       review,
       status: 'pending'
@@ -98,14 +97,18 @@ export const publishReview = async (req, res) => {
 export const getPendingReviews = async (req, res) => {
   try {
     const pendingReviews = await Review.find({ status: 'pending' })
-      .populate('buyerId', 'name email')
       .populate({
-        path: 'productId',
-        model: 'Marketplace',
-        select: 'wasteItem description farmerId' // Include farmerId if needed
+        path: 'buyerId',
+        select: 'name', // Only select the 'name' field from User
+        model: 'User' // Specify the model to populate from
       });
-    
+      
+    if (!pendingReviews || pendingReviews.length === 0) {
+      return res.status(404).json({ message: 'No pending reviews found.' });
+    }
+
     res.status(200).json(pendingReviews);
+  
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

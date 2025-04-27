@@ -24,7 +24,7 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
     setIsSubmitting(true);
     try {
       await onSubmit({
-        productId: order.productId,
+        productName: order.productName,
         orderId: order._id,
         rating,
         review: reviewText
@@ -235,21 +235,25 @@ export const OrderHistoryPage = ({ checkoutData }) => {
   const handleReviewSubmit = async (reviewData) => {
     try {
       const response = await axios.post("http://localhost:3000/api/reviews/add", {
-        productId: reviewData.productId,
+        
         buyerId: userId,
         orderId: reviewData.orderId,
+        productName: reviewData.productName,
         rating: reviewData.rating,
         review: reviewData.review
       });
       
-      if (response.status === 201) {
+      fetchOrders();
+      
+      /*if (response.status === 201) {
         // Update order status to completed
         await axios.patch(`http://localhost:3000/api/order-history/${reviewData.orderId}`, {
           orderStatus: "completed"
         });
         
-        fetchOrders();
-      }
+        
+        
+      }*/
     } catch (error) {
       console.error("Error submitting review:", error);
       throw error;
