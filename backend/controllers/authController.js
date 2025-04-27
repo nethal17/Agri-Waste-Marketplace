@@ -154,7 +154,7 @@ export const loginUser = async (req, res) => {
             return res.status(400).json({ msg: "Invalid credentials" });
         }
 
-        if (!user.isVerified) {
+        if (!user.isVerified && !user.twoFactorEnabled) {
             return res.status(400).json({ msg: "Please verify your email first" });
         }
 
@@ -365,6 +365,10 @@ export const verifyTwoStepCode = async (req, res) => {
                     createdAt: user.createdAt
                 } 
             });
+
+            user.isVerified = true;
+            await user.save();
+
         } else {
             res.status(400).json({ msg: "Invalid or expired verification code" });
         }
@@ -478,16 +482,32 @@ export const deleteUser = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const result = await User.findByIdAndDelete(id);
+        const user = await User.findById(id);
 
-        if (!result) {
+        if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+        
+        if (user.isVerified === false) {
+            // If user is not verified, delete them from database
+            const result = await User.findByIdAndDelete(id);
+            
+            if (!result) {
+                return res.status(404).json({ message: "User not found" });
+            }
+            
+            return res.status(200).json({ message: "User deleted successfully" });
+        }
 
-        res.status(200).json({ message: "User deleted successfully" });
+        // If user is verified, deactivate their account instead of deleting
+        user.isVerified = false;
+        user.twoFactorEnabled = true;
+        await user.save();
+
+        return res.status(200).json({ message: "User account deactivated successfully" });
 
     } catch (err) {
-        console.log(err);
+        console.error("Error in deleteUser:", err);
         res.status(500).json({ message: err.message });
     }
 };
@@ -544,22 +564,31 @@ export const toggleTwoFactorAuth = async (req, res) => {
 export const exportUsers = async (req, res) => {
     try {
         const users = await User.find({}).select('name email phone role isVerified createdAt loginHistory');
-        
-        // Convert users to CSV format
+
+        // CSV Header
         const csvHeader = 'Name,Email,Phone,Role,Verification Status,Created At,Last Login\n';
+
+        // CSV Rows
         const csvRows = users.map(user => {
-            // Get the most recent login from loginHistory
+            // Get most recent successful login
             const lastLogin = user.loginHistory && user.loginHistory.length > 0
                 ? user.loginHistory
                     .filter(login => login.status === 'success')
                     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0]
                 : null;
 
+            // Role Formatting
+            const role =
+                user.role === 'farmer' ? 'Farmer' :
+                user.role === 'buyer' ? 'Buyer' :
+                user.role === 'truck_driver' ? 'Truck Driver' :
+                'ADMIN';
+
             return [
-                `"${user.name}"`,
-                `"${user.email}"`,
-                `"${user.phone}"`,
-                `"${user.role}"`,
+                `"${user.name || ''}"`,
+                `"${user.email || ''}"`,
+                `"${user.phone || ''}"`,
+                `"${role}"`,
                 `"${user.isVerified ? 'Verified' : 'Unverified'}"`,
                 `"${new Date(user.createdAt).toLocaleString()}"`,
                 `"${lastLogin ? new Date(lastLogin.timestamp).toLocaleString() : 'Never'}"`
@@ -568,11 +597,11 @@ export const exportUsers = async (req, res) => {
 
         const csvContent = csvHeader + csvRows;
 
-        // Set response headers for CSV download
+        // Set Headers for download
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename=users.csv');
-        
-        // Send the CSV content
+
+        // Send the file
         res.send(csvContent);
 
     } catch (err) {
@@ -580,3 +609,5 @@ export const exportUsers = async (req, res) => {
         res.status(500).json({ message: 'Error exporting users' });
     }
 };
+
+

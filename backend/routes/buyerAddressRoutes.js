@@ -1,9 +1,11 @@
 import express from "express";
-import { createBuyerAddress, getBuyerAddresses, getAddressByBuyerId } from "../controllers/buyerAddressController.js";
+// ✨ Updated controller import
+import { saveOrUpdateBuyerAddress, getBuyerAddresses, getAddressByBuyerId } from "../controllers/buyerAddressController.js";
 
 const router = express.Router();
 
-router.post("/add", createBuyerAddress);
+// ✨ Updated this route to use saveOrUpdateBuyerAddress
+router.post("/add", saveOrUpdateBuyerAddress);
 router.get("/read", getBuyerAddresses);
 router.get("/get-address/:buyerId", getAddressByBuyerId);
 

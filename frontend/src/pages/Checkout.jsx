@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { loadStripe } from "@stripe/stripe-js";
+import { Navbar } from "../components/Navbar";
 
 export const Checkout = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -209,6 +210,10 @@ export const Checkout = () => {
   }
 
   return (
+
+    <>
+          <Navbar />
+          
     <div className="flex flex-col items-center min-h-screen py-10 bg-white">
       <h1 className="mb-5 text-2xl font-bold text-green-900">Check Out</h1>
 
@@ -271,6 +276,7 @@ export const Checkout = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 
