@@ -43,10 +43,7 @@ export const AllUsers = () => {
   const [filterRole, setFilterRole] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [showSidebar, setShowSidebar] = useState(true);
-  const [selectedUsers, setSelectedUsers] = useState([]);
   const [showActivityLog, setShowActivityLog] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [userActivityLogs, setUserActivityLogs] = useState([]);
 
   useEffect(() => {
@@ -97,33 +94,17 @@ export const AllUsers = () => {
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (sortBy === "name") return a.name.localeCompare(b.name);
     if (sortBy === "date") return new Date(b.createdAt) - new Date(a.createdAt);
+    if (sortBy === "lastLogin") {
+      const aLastLogin = a.loginHistory && a.loginHistory.length > 0 
+        ? new Date(a.loginHistory[a.loginHistory.length - 1].timestamp)
+        : new Date(0);
+      const bLastLogin = b.loginHistory && b.loginHistory.length > 0 
+        ? new Date(b.loginHistory[b.loginHistory.length - 1].timestamp)
+        : new Date(0);
+      return bLastLogin - aLastLogin;
+    }
     return 0;
   });
-
-  const handleBulkAction = async (action) => {
-    if (selectedUsers.length === 0) {
-      toast.error("Please select users to perform bulk action");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await axios.post(`http://localhost:3000/api/auth/bulkAction`, {
-        userIds: selectedUsers,
-        action: action
-      });
-      toast.success(`Successfully performed ${action} on selected users`);
-      setSelectedUsers([]);
-      // Refresh user list
-      const response = await axios.get(`http://localhost:3000/api/auth/getAllUsers`);
-      setAllUsers(response.data.data);
-    } catch (error) {
-      toast.error(`Failed to perform ${action} on users`);
-      console.error("Error performing bulk action:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleExportUsers = async () => {
     try {
@@ -133,7 +114,7 @@ export const AllUsers = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'users.csv');
+      link.setAttribute('download', 'User-Details.csv');
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -170,14 +151,6 @@ export const AllUsers = () => {
             <a href="/all-users" className="flex items-center p-2 text-gray-700 rounded-lg hover:bg-gray-100">
               <FaUsers className="w-5 h-5 mr-3" />
               <span>Users</span>
-            </a>
-            <a href="/user-management" className="flex items-center p-2 text-gray-700 rounded-lg hover:bg-gray-100">
-              <FaUserCog className="w-5 h-5 mr-3" />
-              <span>User Management</span>
-            </a>
-            <a href="/settings" className="flex items-center p-2 text-gray-700 rounded-lg hover:bg-gray-100">
-              <FaCog className="w-5 h-5 mr-3" />
-              <span>Settings</span>
             </a>
           </nav>
           <div className="p-4 border-t">
@@ -271,7 +244,6 @@ export const AllUsers = () => {
                     <option value="farmers">Farmers</option>
                     <option value="buyers">Buyers</option>
                     <option value="drivers">Drivers</option>
-                    <option value="admin">Admins</option>
                   </select>
                   <select
                     value={filterStatus}
@@ -281,8 +253,6 @@ export const AllUsers = () => {
                     <option value="all">All Status</option>
                     <option value="verified">Verified</option>
                     <option value="unverified">Unverified</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
                   </select>
                   <select
                     value={sortBy}
@@ -295,39 +265,12 @@ export const AllUsers = () => {
                   </select>
                 </div>
               </div>
-              
-              <div className="flex gap-4">
-                <DatePicker
-                  selected={startDate}
-                  onChange={date => setStartDate(date)}
-                  placeholderText="Start Date"
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <DatePicker
-                  selected={endDate}
-                  onChange={date => setEndDate(date)}
-                  placeholderText="End Date"
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
             </div>
           </div>
 
           {/* Bulk Actions */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex gap-2">
-              <button
-                onClick={() => handleBulkAction('activate')}
-                className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
-              >
-                Activate Selected
-              </button>
-              <button
-                onClick={() => handleBulkAction('deactivate')}
-                className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
-              >
-                Deactivate Selected
-              </button>
             </div>
             <button
               onClick={handleExportUsers}
@@ -344,20 +287,6 @@ export const AllUsers = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-                      <input
-                        type="checkbox"
-                        checked={selectedUsers.length === sortedUsers.length}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedUsers(sortedUsers.map(user => user._id));
-                          } else {
-                            setSelectedUsers([]);
-                          }
-                        }}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                    </th>
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">User</th>
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Role</th>
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
@@ -369,7 +298,7 @@ export const AllUsers = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan="7" className="px-6 py-4 text-center">
+                      <td colSpan="6" className="px-6 py-4 text-center">
                         <div className="flex justify-center">
                           <div className="w-8 h-8 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
                         </div>
@@ -378,20 +307,6 @@ export const AllUsers = () => {
                   ) : sortedUsers.length > 0 ? (
                     sortedUsers.map((user) => (
                       <tr key={user._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <input
-                            type="checkbox"
-                            checked={selectedUsers.includes(user._id)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedUsers([...selectedUsers, user._id]);
-                              } else {
-                                setSelectedUsers(selectedUsers.filter(id => id !== user._id));
-                              }
-                            }}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 w-10 h-10">
@@ -405,7 +320,7 @@ export const AllUsers = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">
-                            {user.role}
+                            {user.role === "farmer" ? "Farmer" : user.role === "buyer" ? "Buyer" : "Driver"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -446,7 +361,7 @@ export const AllUsers = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                      <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
                         No users found
                       </td>
                     </tr>
