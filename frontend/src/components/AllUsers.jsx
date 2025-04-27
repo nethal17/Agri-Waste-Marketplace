@@ -4,8 +4,11 @@ import { toast } from "react-hot-toast";
 import { 
   FaUsers, FaUserShield, FaUserCheck, FaUserTimes, 
   FaSearch, FaFilter, FaSort, FaChartBar,
-  FaHome, FaUserCog, FaCog, FaSignOutAlt
+  FaHome, FaUserCog, FaCog, FaSignOutAlt,
+  FaFileExport, FaFileImport, FaHistory, FaDownload
 } from "react-icons/fa";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const formatTimeAgo = (dateString) => {
   const date = new Date(dateString);
@@ -40,6 +43,11 @@ export const AllUsers = () => {
   const [filterRole, setFilterRole] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [showSidebar, setShowSidebar] = useState(true);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [showActivityLog, setShowActivityLog] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [userActivityLogs, setUserActivityLogs] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -92,10 +100,64 @@ export const AllUsers = () => {
     return 0;
   });
 
+  const handleBulkAction = async (action) => {
+    if (selectedUsers.length === 0) {
+      toast.error("Please select users to perform bulk action");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.post(`http://localhost:3000/api/auth/bulkAction`, {
+        userIds: selectedUsers,
+        action: action
+      });
+      toast.success(`Successfully performed ${action} on selected users`);
+      setSelectedUsers([]);
+      // Refresh user list
+      const response = await axios.get(`http://localhost:3000/api/auth/getAllUsers`);
+      setAllUsers(response.data.data);
+    } catch (error) {
+      toast.error(`Failed to perform ${action} on users`);
+      console.error("Error performing bulk action:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportUsers = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/auth/exportUsers`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'users.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast.error("Failed to export users");
+      console.error("Error exporting users:", error);
+    }
+  };
+
+  const handleUserActivityLog = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/auth/userActivity/${userId}`);
+      setUserActivityLogs(response.data.data);
+      setShowActivityLog(true);
+    } catch (error) {
+      toast.error("Failed to fetch user activity logs");
+      console.error("Error fetching user activity logs:", error);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className={`${showSidebar ? 'w-64' : 'w-0'} bg-white shadow-lg transition-all duration-300`}>
+      <div className={`${showSidebar ? 'w-64' : 'w-0 hidden'} fixed left-0 top-0 h-full bg-white shadow-lg transition-all duration-300`}>
         <div className="flex flex-col h-full">
           <div className="p-4 border-b">
             <h2 className="text-xl font-bold text-gray-800">Admin Dashboard</h2>
@@ -128,7 +190,7 @@ export const AllUsers = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className={`flex-1 overflow-auto transition-all duration-300 ${showSidebar ? 'ml-64' : 'ml-0'}`}>
         <div className="p-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -183,51 +245,97 @@ export const AllUsers = () => {
             </div>
           </div>
 
-          {/* Filters and Search */}
+          {/* Enhanced Filters and Search */}
           <div className="p-6 mb-8 bg-white shadow-sm rounded-xl">
-            <div className="flex flex-col gap-4 md:flex-row">
-              <div className="flex-1">
-                <div className="relative">
-                  <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-                  <input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 md:flex-row">
+                <div className="flex-1">
+                  <div className="relative">
+                    <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search users..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <select
+                    value={filterRole}
+                    onChange={(e) => setFilterRole(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">All Roles</option>
+                    <option value="farmers">Farmers</option>
+                    <option value="buyers">Buyers</option>
+                    <option value="drivers">Drivers</option>
+                    <option value="admin">Admins</option>
+                  </select>
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="verified">Verified</option>
+                    <option value="unverified">Unverified</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="name">Sort by Name</option>
+                    <option value="date">Sort by Date</option>
+                    <option value="lastLogin">Sort by Last Login</option>
+                  </select>
                 </div>
               </div>
+              
               <div className="flex gap-4">
-                <select
-                  value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value)}
+                <DatePicker
+                  selected={startDate}
+                  onChange={date => setStartDate(date)}
+                  placeholderText="Start Date"
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="all">All</option>
-                  <option value="farmers">Farmers</option>
-                  <option value="buyers">Buyers</option>
-                  <option value="drivers">Drivers</option>
-                </select>
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
+                />
+                <DatePicker
+                  selected={endDate}
+                  onChange={date => setEndDate(date)}
+                  placeholderText="End Date"
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="all">All Status</option>
-                  <option value="verified">Verified</option>
-                  <option value="unverified">Unverified</option>
-                </select>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="name">Sort by Name</option>
-                  <option value="date">Sort by Date</option>
-                </select>
+                />
               </div>
             </div>
+          </div>
+
+          {/* Bulk Actions */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleBulkAction('activate')}
+                className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                Activate Selected
+              </button>
+              <button
+                onClick={() => handleBulkAction('deactivate')}
+                className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
+              >
+                Deactivate Selected
+              </button>
+            </div>
+            <button
+              onClick={handleExportUsers}
+              className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+            >
+              <FaFileExport className="mr-2" />
+              Export Users
+            </button>
           </div>
 
           {/* Users Table */}
@@ -236,6 +344,20 @@ export const AllUsers = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.length === sortedUsers.length}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedUsers(sortedUsers.map(user => user._id));
+                          } else {
+                            setSelectedUsers([]);
+                          }
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                    </th>
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">User</th>
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Role</th>
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
@@ -247,7 +369,7 @@ export const AllUsers = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan="5" className="px-6 py-4 text-center">
+                      <td colSpan="7" className="px-6 py-4 text-center">
                         <div className="flex justify-center">
                           <div className="w-8 h-8 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
                         </div>
@@ -256,6 +378,20 @@ export const AllUsers = () => {
                   ) : sortedUsers.length > 0 ? (
                     sortedUsers.map((user) => (
                       <tr key={user._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <input
+                            type="checkbox"
+                            checked={selectedUsers.includes(user._id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedUsers([...selectedUsers, user._id]);
+                              } else {
+                                setSelectedUsers(selectedUsers.filter(id => id !== user._id));
+                              }
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 w-10 h-10">
@@ -288,21 +424,29 @@ export const AllUsers = () => {
                             : 'Never'}
                         </td>
                         <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                          <button
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setShowModal(true);
-                            }}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Deactivate
-                          </button>
+                          <div className="flex items-center justify-end space-x-2">
+                            <button
+                              onClick={() => handleUserActivityLog(user._id)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              <FaHistory className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setShowModal(true);
+                              }}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Deactivate
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                      <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
                         No users found
                       </td>
                     </tr>
@@ -313,6 +457,36 @@ export const AllUsers = () => {
           </div>
         </div>
       </div>
+
+      {/* Activity Log Modal */}
+      {showActivityLog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="p-6 bg-white shadow-xl rounded-xl w-3/4 max-h-[80vh] overflow-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">User Activity Log</h3>
+              <button
+                onClick={() => setShowActivityLog(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-4">
+              {userActivityLogs.map((log, index) => (
+                <div key={index} className="p-4 border rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{log.action}</span>
+                    <span className="text-sm text-gray-500">
+                      {new Date(log.timestamp).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-600">{log.details}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {showModal && selectedUser && (
