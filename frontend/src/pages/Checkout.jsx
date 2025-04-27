@@ -107,12 +107,27 @@ export const Checkout = () => {
         price_data: {
           currency: 'lkr',
           product_data: {
-            name: item.description || ''
+            name: item.description || 'Product'
           },
           unit_amount: Math.round(item.price * 100), // Convert to cents
         },
         quantity: item.quantity || 1,
       }));
+
+      // Add delivery cost as a separate line item
+      const totalDeliveryCost = cartItems.reduce((total, item) => total + (item.deliveryCost || 0), 0);
+      if (totalDeliveryCost > 0) {
+        line_items.push({
+          price_data: {
+            currency: 'lkr',
+            product_data: {
+              name: 'Delivery Cost'
+            },
+            unit_amount: Math.round(totalDeliveryCost * 100), // Convert to cents
+          },
+          quantity: 1,
+        });
+      }
 
       const response = await axios.post(
         "http://localhost:3000/api/stripe/checkout",
@@ -132,16 +147,37 @@ export const Checkout = () => {
         }
       );
 
+      console.log('Backend response:', response.data);
+
+      if (response.data.url) {
+        // If we get a URL directly, redirect to it
+        window.location.href = response.data.url;
+        return;
+      }
+
+      // If we get a session ID, use the Stripe redirect
+      const sessionId = response.data.id || response.data.sessionId || response.data.session?.id;
+      
+      if (!sessionId) {
+        console.error('Invalid response format:', response.data);
+        throw new Error('Invalid response format from server');
+      }
+
       const result = await stripe.redirectToCheckout({
-        sessionId: response.data.id
+        sessionId: sessionId
       });
 
       if (result.error) {
         throw result.error;
       }
     } catch (error) {
-      console.error("Payment error:", error);
-      toast.error(error.response?.data?.error || "Payment failed");
+      console.error("Payment error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        stack: error.stack
+      });
+      toast.error(error.response?.data?.error || `Payment failed: ${error.message}`);
     } finally {
       setIsProcessingPayment(false);
     }
