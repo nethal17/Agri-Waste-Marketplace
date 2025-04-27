@@ -7,6 +7,29 @@ import {
   FaHome, FaUserCog, FaCog, FaSignOutAlt
 } from "react-icons/fa";
 
+const formatTimeAgo = (dateString) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+  
+  let interval = Math.floor(seconds / 31536000);
+  if (interval > 1) return `${interval} years ago`;
+  
+  interval = Math.floor(seconds / 2592000);
+  if (interval > 1) return `${interval} months ago`;
+  
+  interval = Math.floor(seconds / 86400);
+  if (interval > 1) return `${interval} days ago`;
+  
+  interval = Math.floor(seconds / 3600);
+  if (interval > 1) return `${interval} hours ago`;
+  
+  interval = Math.floor(seconds / 60);
+  if (interval > 1) return `${interval} minutes ago`;
+  
+  return 'just now';
+};
+
 export const AllUsers = () => {
   const [allUsers, setAllUsers] = useState([]); 
   const [loading, setLoading] = useState(false);
@@ -14,6 +37,7 @@ export const AllUsers = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterRole, setFilterRole] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [showSidebar, setShowSidebar] = useState(true);
 
@@ -55,7 +79,11 @@ export const AllUsers = () => {
     const matchesStatus = filterStatus === "all" || 
                          (filterStatus === "verified" && user.isVerified) ||
                          (filterStatus === "unverified" && !user.isVerified);
-    return matchesSearch && matchesStatus;
+    const matchesRole = filterRole === "all" ||
+                          (filterRole === "farmers" && user.role === "farmer") ||
+                          (filterRole === "buyers" && user.role === "buyer") ||
+                          (filterRole === "drivers" && user.role === "truck_driver");     
+    return matchesSearch && matchesStatus && matchesRole;
   });
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
@@ -103,7 +131,7 @@ export const AllUsers = () => {
       <div className="flex-1 overflow-auto">
         <div className="p-8">
           {/* Header */}
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
               <p className="text-gray-600">Manage and monitor all system users</p>
@@ -119,8 +147,8 @@ export const AllUsers = () => {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm">
+          <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
+            <div className="p-6 bg-white shadow-sm rounded-xl">
               <div className="flex items-center">
                 <div className="p-3 bg-blue-100 rounded-lg">
                   <FaUsers className="w-6 h-6 text-blue-600" />
@@ -131,7 +159,7 @@ export const AllUsers = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div className="p-6 bg-white shadow-sm rounded-xl">
               <div className="flex items-center">
                 <div className="p-3 bg-green-100 rounded-lg">
                   <FaUserCheck className="w-6 h-6 text-green-600" />
@@ -142,7 +170,7 @@ export const AllUsers = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div className="p-6 bg-white shadow-sm rounded-xl">
               <div className="flex items-center">
                 <div className="p-3 bg-red-100 rounded-lg">
                   <FaUserTimes className="w-6 h-6 text-red-600" />
@@ -156,21 +184,31 @@ export const AllUsers = () => {
           </div>
 
           {/* Filters and Search */}
-          <div className="bg-white p-6 rounded-xl shadow-sm mb-8">
-            <div className="flex flex-col md:flex-row gap-4">
+          <div className="p-6 mb-8 bg-white shadow-sm rounded-xl">
+            <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex-1">
                 <div className="relative">
-                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
                   <input
                     type="text"
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
               <div className="flex gap-4">
+                <select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">All</option>
+                  <option value="farmers">Farmers</option>
+                  <option value="buyers">Buyers</option>
+                  <option value="drivers">Drivers</option>
+                </select>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
@@ -193,16 +231,17 @@ export const AllUsers = () => {
           </div>
 
           {/* Users Table */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-hidden bg-white shadow-sm rounded-xl">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">User</th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Role</th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Created</th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Last Logged In</th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -210,7 +249,7 @@ export const AllUsers = () => {
                     <tr>
                       <td colSpan="5" className="px-6 py-4 text-center">
                         <div className="flex justify-center">
-                          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                          <div className="w-8 h-8 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
                         </div>
                       </td>
                     </tr>
@@ -219,8 +258,8 @@ export const AllUsers = () => {
                       <tr key={user._id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <img className="h-10 w-10 rounded-full" src={user.profilePic || "https://via.placeholder.com/40"} alt="" />
+                            <div className="flex-shrink-0 w-10 h-10">
+                              <img className="w-10 h-10 rounded-full" src={user.profilePic || "https://via.placeholder.com/40"} alt="" />
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -229,7 +268,7 @@ export const AllUsers = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                          <span className="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">
                             {user.role}
                           </span>
                         </td>
@@ -240,10 +279,15 @@ export const AllUsers = () => {
                             {user.isVerified ? "Verified" : "Unverified"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                           {new Date(user.createdAt).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                          {user.loginHistory && user.loginHistory.length > 0 
+                            ? formatTimeAgo(user.loginHistory[user.loginHistory.length - 1].timestamp)
+                            : 'Never'}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
                           <button
                             onClick={() => {
                               setSelectedUser(user);
@@ -273,14 +317,14 @@ export const AllUsers = () => {
       {/* Delete Confirmation Modal */}
       {showModal && selectedUser && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-96">
+          <div className="p-6 bg-white shadow-xl rounded-xl w-96">
             <div className="flex items-center mb-4">
               <div className="p-2 bg-red-100 rounded-lg">
                 <FaUserShield className="w-6 h-6 text-red-600" />
               </div>
               <h3 className="ml-3 text-xl font-semibold text-gray-900">Confirm Deactivation</h3>
             </div>
-            <p className="text-gray-600 mb-6">
+            <p className="mb-6 text-gray-600">
               Are you sure you want to deactivate <span className="font-bold">{selectedUser.name}</span>? This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-3">

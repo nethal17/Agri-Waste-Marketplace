@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
-import { FiBell } from "react-icons/fi";
-import { Pie } from "react-chartjs-2";
-import "chart.js/auto";
-import { Navbar } from "../components/Navbar";
+import { FiBell, FiSearch } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-
 
 const WASTE_TYPES = {
   'Crop Residues': ['Wheat straw', 'Rice husk', 'Corn stalks', 'Lentil husks', 'Chickpea stalks', 'Pea pods','Mustard stalks', 'Sunflower husks', 'Groundnut shells'],
@@ -22,10 +18,8 @@ const WASTE_TYPES = {
   'Rubber Waste': ['Used Tires from Tractors & Farm Vehicles','Rubber Seals & Hoses','Discarded Conveyor Belts']
 };
 
-// Function to map waste items to waste types
 const getWasteType = (wasteItem) => {
   if (!wasteItem) return null;
-  
   for (const [wasteType, items] of Object.entries(WASTE_TYPES)) {
     if (items.some(item => wasteItem.toLowerCase() === item.toLowerCase())) {
       return wasteType;
@@ -35,47 +29,43 @@ const getWasteType = (wasteItem) => {
 };
 
 export const InventoryPage = () => {
-
   const navigate = useNavigate();
-
-  const token = localStorage.getItem("token");
-  if (!token) {
-    toast.error("Please login to view this page");
-    navigate("/login");
-  }
-
-  const userData = JSON.parse(localStorage.getItem("user") || "{}");
-  const userRole = userData.role;
-
-  if (userRole !== "admin") {
-    toast.error("Only Admin can view this page");
-    navigate("/");
-  }
-
   const [marketplaceListings, setMarketplaceListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please login to view this page");
+      navigate("/login");
+    }
+
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    if (userData.role !== "admin") {
+      toast.error("Only Admin can view this page");
+      navigate("/");
+    }
+
     fetchMarketplaceListings();
-  }, []);
+  }, [navigate]);
 
   const fetchMarketplaceListings = async () => {
     try {
       const response = await fetch("http://localhost:3000/api/marketplace/listings");
-      if (!response.ok) {
-        throw new Error("Failed to fetch marketplace listings.");
-      }
+      if (!response.ok) throw new Error("Failed to fetch marketplace listings.");
       const data = await response.json();
       
-      // Add wasteType to each listing and filter out null types
       const listingsWithTypes = data.map(listing => ({
         ...listing,
-        wasteType: getWasteType(listing.wasteItem)
+        wasteType: getWasteType(listing.wasteItem),
+        expireDate: new Date(listing.expireDate) // Convert to Date object for sorting
       })).filter(listing => listing.wasteType !== null);
       
-      setMarketplaceListings(listingsWithTypes);
+      // Sort by expiration date (nearest first)
+      const sortedListings = listingsWithTypes.sort((a, b) => a.expireDate - b.expireDate);
+      setMarketplaceListings(sortedListings);
     } catch (error) {
       setError(error.message || "An unknown error occurred.");
     } finally {
@@ -83,183 +73,128 @@ export const InventoryPage = () => {
     }
   };
 
-  // Filter listings based on search term
-  const filteredListings = marketplaceListings.filter(listing => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      ( listing.wasteItem.toLowerCase().includes(searchLower)) 
-    );
-  });
+  const filteredListings = marketplaceListings
+    .filter(listing => {
+      const searchLower = searchTerm.toLowerCase();
+      return listing.wasteItem.toLowerCase().includes(searchLower);
+    })
+    .sort((a, b) => a.expireDate - b.expireDate); 
 
-  // Calculate waste type statistics only for existing types
-  const wasteTypeStats = filteredListings.reduce((acc, listing) => {
-    if (!listing.wasteType) return acc;
-    
-    if (!acc[listing.wasteType]) {
-      acc[listing.wasteType] = {
-        count: 0,
-        totalQuantity: 0
-      };
-    }
-    acc[listing.wasteType].count += 1;
-    acc[listing.wasteType].totalQuantity += listing.quantity;
-    return acc;
-  }, {});
-
-  // Get only waste types that have actual listings
-  const existingWasteTypes = Object.keys(wasteTypeStats).filter(type => 
-    wasteTypeStats[type].count > 0
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen bg-gray-50">
+      <div className="animate-pulse flex flex-col items-center">
+        <div className="h-12 w-12 bg-green-400 rounded-full mb-4"></div>
+        <div className="h-4 w-32 bg-green-300 rounded"></div>
+      </div>
+    </div>
   );
 
-  // Prepare pie chart data with only existing types
-  const pieData = {
-    labels: existingWasteTypes,
-    datasets: [
-      {
-        data: existingWasteTypes.map(type => wasteTypeStats[type].totalQuantity),
-        backgroundColor: [
-          "#36A2EB", "#FF6384", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40",
-          "#8AC24A", "#607D8B", "#E91E63", "#9C27B0", "#3F51B5", "#009688"
-        ].slice(0, existingWasteTypes.length),
-      },
-    ],
-  };
-
-  if (loading) return <div className="flex justify-center items-center h-screen text-xl">Loading...</div>;
-  if (error) return <div className="flex justify-center items-center h-screen text-xl text-red-500">{error}</div>;
+  if (error) return (
+    <div className="flex justify-center items-center h-screen bg-gray-50">
+      <div className="text-center p-6 bg-white rounded-xl shadow-md max-w-md">
+        <div className="text-red-500 text-5xl mb-4">⚠️</div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Error Loading Data</h2>
+        <p className="text-gray-600 mb-4">{error}</p>
+        <button 
+          onClick={fetchMarketplaceListings}
+          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <>
-      
-      <div className="p-6 bg-gray-50 min-h-screen">
-        <div className="flex justify-between items-center mb-6">
-          <input
-            type="text"
-            placeholder="Search waste items..."
-            className="border border-gray-300 p-3 rounded-lg w-1/3 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <FiBell className="text-3xl text-gray-600 cursor-pointer hover:text-gray-900 transition" />
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header with Search and Notification */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <div className="relative w-full sm:w-96">
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search waste items..."
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button className="p-2 rounded-lg bg-white border border-gray-200 shadow-sm hover:shadow-md transition relative">
+            <FiBell className="text-gray-600" />
+            <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+          </button>
         </div>
-        
-        {!searchTerm && (
-          <div className="grid grid-cols-6 gap-4 mb-8">
-            {existingWasteTypes.slice(0, 6).map((wasteType) => (
-              <div key={wasteType} className="p-6 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200 hover:border-green-200">
-                <h3 className="text-lg font-semibold text-gray-800 truncate" title={wasteType}>
-                  {wasteType}
-                </h3>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-600">Items: {wasteTypeStats[wasteType].count}</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {wasteTypeStats[wasteType].totalQuantity} KG
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Main table section */}
-          <div className={`${searchTerm ? "w-full" : "w-full lg:w-2/3"}`}>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Inventory Details</h2>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 overflow-auto h-[800px]">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 bg-gradient-to-r from-green-50 to-green-100">
-                    <th className="p-2 text-left text-gray-700 font-semibold">Waste Type</th>
-                    <th className="p-2 text-left text-gray-700 font-semibold">Waste Item</th>
-                    <th className="p-2 text-left text-gray-700 font-semibold">Description</th>
-                    <th className="p-2 text-left text-gray-700 font-semibold">District</th>
-                    <th className="p-2 text-left text-gray-700 font-semibold">Price</th>
-                    <th className="p-2 text-left text-gray-700 font-semibold">Quantity</th>
-                    <th className="p-2 text-left text-gray-700 font-semibold">Expire Date</th>
+        {/* Main Table */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-gray-800">Inventory Items</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Showing {filteredListings.length} of {marketplaceListings.length} items
+              {filteredListings.length > 0 && " (Sorted by nearest expiry)"}
+            </p>
+          </div>
+          
+          <div className="overflow-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr className="border-b border-gray-200">
+                  <th className="p-3 text-left text-gray-700 font-semibold">Waste Type</th>
+                  <th className="p-3 text-left text-gray-700 font-semibold">Item</th>
+                  <th className="p-3 text-left text-gray-700 font-semibold">Quantity (KG)</th>
+                  <th className="p-3 text-left text-gray-700 font-semibold">Price</th>
+                  <th className="p-3 text-left text-gray-700 font-semibold">Location</th>
+                  <th className="p-3 text-left text-gray-700 font-semibold">Expires</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredListings.map((listing) => (
+                  <tr 
+                    key={listing._id} 
+                    className="border-b border-gray-100 hover:bg-green-50 transition-all duration-150"
+                  >
+                    <td className="p-3">
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                        {listing.wasteType}
+                      </span>
+                    </td>
+                    <td className="p-3">
+                      <div className="font-medium text-gray-800">{listing.wasteItem}</div>
+                      <div className="text-xs text-gray-500 truncate max-w-xs">{listing.description}</div>
+                    </td>
+                    <td className="p-3 font-medium text-gray-700">
+                      {listing.quantity} KG
+                    </td>
+                    <td className="p-3 font-semibold text-green-600">Rs.{listing.price}</td>
+                    <td className="p-3 text-gray-700">{listing.district}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        new Date(listing.expireDate) < new Date() 
+                          ? 'bg-red-100 text-red-800' 
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {listing.expireDate.toLocaleDateString()}
+                      </span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredListings.map((listing) => (
-                    <tr 
-                      key={listing._id} 
-                      className="border-b border-gray-100 hover:bg-green-50 transition-all duration-150"
-                    >
-                      <td className="p-2 text-gray-800 font-medium">{listing.wasteType}</td>
-                      <td className="p-2 text-gray-700">{listing.wasteItem}</td>
-                      <td className="p-2 text-gray-700 max-w-xs truncate">{listing.description}</td>
-                      <td className="p-2 text-gray-700">{listing.district}</td>
-                      <td className="p-2 text-green-600 font-semibold whitespace-nowrap">Rs.{listing.price}</td>
-                      <td className="p-2 text-gray-700 whitespace-nowrap">{listing.quantity} KG</td>
-                      <td className="p-2 text-gray-700 whitespace-nowrap">{new Date(listing.expireDate).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {filteredListings.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No listings found matching your search
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Pie chart section - hidden when searching */}
-          {!searchTerm && existingWasteTypes.length > 0 && (
-            <div className="w-full lg:w-1/3"> 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 h-[800px] flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-gray-800">Waste Distribution</h2>
-                </div>
-                <div className="flex-grow relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Pie 
-                      data={pieData} 
-                      options={{
-                        plugins: {
-                          tooltip: {
-                            callbacks: {
-                              label: function(context) {
-                                return `${context.label}: ${context.raw} KG`;
-                              }
-                            },
-                            displayColors: false,
-                            backgroundColor: '#4B5563',
-                            titleFont: { size: 14, weight: 'bold' },
-                            bodyFont: { size: 10 },
-                            padding: 12,
-                            cornerRadius: 8
-                          },
-                          legend: {
-                            position: 'right',
-                            labels: {
-                              boxWidth: 12,
-                              padding: 16,
-                              font: {
-                                size: 12,
-                                family: 'Inter'
-                              },
-                              usePointStyle: true,
-                              pointStyle: 'circle'
-                            }
-                          }
-                        },
-                        elements: {
-                          arc: {
-                            borderWidth: 0,
-                            borderColor: '#fff'
-                          }
-                        },
-                        cutout: '40%',
-                        maintainAspectRatio: false
-                      }}
-                    />
-                  </div>
-                </div>
+                ))}
+              </tbody>
+            </table>
+            {filteredListings.length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-gray-400 mb-4">No items found matching your search</div>
+                <button 
+                  onClick={() => setSearchTerm("")}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                >
+                  Clear search
+                </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };

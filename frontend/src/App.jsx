@@ -32,6 +32,9 @@ import StripePayment from './components/StripePayment';
 import PayHistory from './components/PayHistory';
 import HighPayments from './components/HighPayments';
 import Final from './components/Final';
+import FarmerList from './components/FarmerList';
+import FarmerPayment from './components/FarmerPayment';
+import FarmerPaymentNew from './components/FarmerPaymentNew';
 
 import { AddOrderPage } from './pages/AddOrderPage';
 import { AddReviewPage } from './pages/AddReviewPage';
@@ -43,7 +46,8 @@ import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
 import { ProductListingForm } from './pages/ProductListingForm';
 import { DisplayFarmerListings } from './pages/DisplayFarmerListings';
 import { DisplayFarmerReviews } from './pages/DisplayFarmerReviews';
-import InventoryChartpage from './pages/InventoryChartpage';
+import { InventoryChartpage } from './pages/InventoryChartpage';
+import { InventoryCategoryPage } from './pages/InventoryCategoryPage';
 
 
 
@@ -79,6 +83,8 @@ function App() {
       <Route path="/buyer-address-form" element={<BuyerAddressForm />} />
 
       <Route path="/driver" element={<DriverList />} />
+      <Route path="/farmer-list" element={<FarmerList />} />
+      <Route path="/farmer/:id/payment" element={<FarmerPaymentNew />} />
       <Route path="/create" element={<DriverForm />} />
       <Route path="/driver/:id/payment" element={<PaymentDetails />} />
       <Route path="/payment" element={<StripePayment />} /> 
@@ -92,6 +98,7 @@ function App() {
       <Route path="/inventory-dashboard" element={<InventoryManagerDashboard />}/>
       <Route path="/inventory-management" element={<InventoryManagement />} />
       <Route path="/inventory-chart" element={<InventoryChartpage />} />
+      <Route path="/inventory-category" element={<InventoryCategoryPage />} />
       <Route path="/inventory" element={<InventoryPage />} />
       <Route path="/order-history" element={<OrderHistoryPage />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />

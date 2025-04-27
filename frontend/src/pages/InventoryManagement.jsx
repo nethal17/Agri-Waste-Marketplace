@@ -4,6 +4,9 @@ import { LayoutDashboard, Package, List, PieChart, Grid } from 'lucide-react';
 import { InventoryManagerDashboard } from './InventoryManagerDashboard';
 import { InventoryPage } from './InventoryPage';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { InventoryChartpage } from './InventoryChartpage';
+import { InventoryCategoryPage } from './InventoryCategoryPage';
+import { FiBell, FiSearch, FiPieChart, FiDatabase, FiList, FiGrid } from "react-icons/fi";
 
 const InventoryManagement = () => {
   const [activeComponent, setActiveComponent] = useState('inventory');
@@ -25,9 +28,9 @@ const InventoryManagement = () => {
       case 'inventory':
         return <InventoryPage />;
       case 'charts':
-        return <div>Charts Component Coming Soon</div>;
+        return <InventoryChartpage/>;
       case 'category':
-        return <div>Category Management Coming Soon</div>;
+        return <InventoryCategoryPage/>;
       default:
         return <InventoryPage />;
     }
@@ -43,10 +46,10 @@ const InventoryManagement = () => {
 
   const sidebarItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { id: 'inventory', icon: Package, label: 'Inventory' },
-    { id: 'listings', icon: List, label: 'Listings' },
-    { id: 'charts', icon: PieChart, label: 'Charts' },
-    { id: 'category', icon: Grid, label: 'Category' },
+    { id: 'inventory', icon: FiDatabase, label: 'Inventory' },
+    { id: 'listings', icon: FiList, label: 'Listings' },
+    { id: 'charts', icon: FiPieChart, label: 'Charts' },
+    { id: 'category', icon: FiGrid, label: 'Category' },
   ];
 
   return (

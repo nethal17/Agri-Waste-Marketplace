@@ -82,27 +82,29 @@ export const ListingDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="w-12 h-12 border-t-2 border-b-2 border-green-500 rounded-full animate-spin"></div>
       </div>
     );
   }
 
+  console.log("No of Listings: ", listings.length);
+
   return (
     <div className="w-full p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Your Marketplace Listings</h2>
+      <h2 className="mb-6 text-2xl font-bold text-gray-800">Your Marketplace Listings</h2>
       
-      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+      <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-md">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gradient-to-r from-green-500 to-green-600">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">No</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider hidden md:table-cell">Description</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Quantity</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">No</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Product</th>
+                <th className="hidden px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase md:table-cell">Description</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Price</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Quantity</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Actions</th>
               </tr>
             </thead>
 
@@ -113,38 +115,38 @@ export const ListingDetails = () => {
                     key={listing._id} 
                     className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
                       {index + 1}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
                       {listing.wasteItem}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 hidden md:table-cell">
+                    <td className="hidden px-6 py-4 text-sm text-gray-600 md:table-cell">
                       {listing.description.length > 50 
                         ? `${listing.description.substring(0, 50)}...` 
                         : listing.description}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                    <td className="px-6 py-4 text-sm font-semibold text-green-600 whitespace-nowrap">
                       ${listing.price.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                    <td className="px-6 py-4 text-sm font-medium text-blue-600 whitespace-nowrap">
                       {listing.quantity} kg
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                       <div className="flex space-x-4">
                         <button
                           onClick={() => viewListingDetails(listing._id)}
-                          className="text-green-600 hover:text-green-800 transition-colors p-1 rounded-full hover:bg-green-100"
+                          className="p-1 text-green-600 transition-colors rounded-full hover:text-green-800 hover:bg-green-100"
                           title="View Details"
                         >
-                          <BsInfoCircle className="h-5 w-5" />
+                          <BsInfoCircle className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => confirmDelete(listing)}
-                          className="text-red-600 hover:text-red-800 transition-colors p-1 rounded-full hover:bg-red-100"
+                          className="p-1 text-red-600 transition-colors rounded-full hover:text-red-800 hover:bg-red-100"
                           title="Delete Listing"
                         >
-                          <MdOutlineDelete className="h-5 w-5" />
+                          <MdOutlineDelete className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
@@ -152,7 +154,7 @@ export const ListingDetails = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan="6" className="px-6 py-4 text-sm text-center text-gray-500">
                     <div className="flex flex-col items-center justify-center py-8">
                       <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -169,22 +171,22 @@ export const ListingDetails = () => {
 
       {/* Details Modal */}
       {showDetailsModal && selectedListing && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b p-4 bg-gradient-to-r from-green-500 to-green-600">
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-green-500 to-green-600">
               <h3 className="text-lg font-semibold text-white">Listing Details</h3>
               <button 
                 onClick={() => setShowDetailsModal(false)}
                 className="text-white hover:text-gray-200"
               >
-                <BsX className="h-6 w-6" />
+                <BsX className="w-6 h-6" />
               </button>
             </div>
             <div className="p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Product Name</p>
-                  <p className="mt-1 text-sm text-gray-900 font-medium">{selectedListing.wasteItem}</p>
+                  <p className="mt-1 text-sm font-medium text-gray-900">{selectedListing.wasteItem}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Category</p>
@@ -221,7 +223,7 @@ export const ListingDetails = () => {
                   <img 
                     src={selectedListing.image} 
                     alt={selectedListing.wasteItem}
-                    className="mt-2 max-w-full h-auto max-h-60 rounded-lg border border-gray-200 shadow-sm"
+                    className="h-auto max-w-full mt-2 border border-gray-200 rounded-lg shadow-sm max-h-60"
                   />
                 </div>
               )}
@@ -229,7 +231,7 @@ export const ListingDetails = () => {
             <div className="flex justify-end p-4 border-t">
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                className="px-4 py-2 font-medium text-gray-800 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300"
               >
                 Close
               </button>
@@ -240,35 +242,35 @@ export const ListingDetails = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && listingToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-            <div className="flex justify-between items-center border-b p-4 bg-gradient-to-r from-red-500 to-red-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="w-full max-w-md bg-white rounded-lg shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-red-500 to-red-600">
               <h3 className="text-lg font-semibold text-white">Confirm Deletion</h3>
               <button 
                 onClick={() => setShowDeleteModal(false)}
                 className="text-white hover:text-gray-200"
               >
-                <BsX className="h-6 w-6" />
+                <BsX className="w-6 h-6" />
               </button>
             </div>
             <div className="p-6">
-              <p className="text-gray-700 mb-4">
+              <p className="mb-4 text-gray-700">
                 Are you sure you want to delete the listing for <strong className="text-red-600">{listingToDelete.wasteItem}</strong>?
               </p>
               <p className="text-sm text-gray-500">
                 This action cannot be undone.
               </p>
             </div>
-            <div className="flex justify-end space-x-3 p-4 border-t">
+            <div className="flex justify-end p-4 space-x-3 border-t">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                className="px-4 py-2 font-medium text-gray-800 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300"
               >
                 Cancel
               </button>
               <button
                 onClick={deleteListing}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium shadow-md"
+                className="px-4 py-2 font-medium text-white transition-colors bg-red-600 rounded-lg shadow-md hover:bg-red-700"
               >
                 Delete
               </button>
