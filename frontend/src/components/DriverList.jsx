@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, Button, Modal, Form, message } from 'antd';
-import { EditOutlined, DeleteOutlined, DollarOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, DollarOutlined, UserOutlined } from '@ant-design/icons';
 import { Navbar } from "../components/Navbar";
 import { useNavigate } from 'react-router-dom';
 
@@ -139,7 +139,17 @@ const DriverList = () => {
     <>
     <Navbar />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Driver List</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Driver List</h1>
+        <Button
+          type="primary"
+          icon={<UserOutlined />}
+          onClick={() => navigate('/farmer-list')}
+          style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+        >
+          View Farmers
+        </Button>
+      </div>
       
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
