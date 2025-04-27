@@ -19,6 +19,8 @@ import stripePaymentsRoutes from './routes/stripePayments.routes.js';
 import driverPaymentsRoutes from './routes/driverPayments.routes.js';
 import driverPaymentRoutes from './routes/driverPayment.routes.js';
 
+import orderHistoryRoutes from "./routes/orderHistory.routes.js";
+
 import deliveryReqRoutes from"./routes/deliveryReqRoutes.js";
 
 import ProductListingRoutes from './routes/ProductListingRoutes.js';
@@ -27,6 +29,7 @@ import checkoutRoutes from "./routes/checkout.routes.js";
 import buyerAddressRoutes from "./routes/buyerAddressRoutes.js";
 
 import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
+
 
 
 dotenv.config();
@@ -64,13 +67,12 @@ app.use('/api/products', productRoutes);
 app.use('/api/product-listing', ProductListingRoutes);
 app.use('/api/marketplace', MarketplaceRoutes);
 
-
 //Naduli
 app.use("/api/agri-waste", agriWasteRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/address", buyerAddressRoutes);
-
+app.use("/api/order-history", orderHistoryRoutes);
 
 // yuwani
 app.use('/api/deliveryReq', deliveryReqRoutes);

@@ -1,59 +1,53 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Navbar } from "../components/Navbar";
+import axios from "axios";
 
 export const Cart = () => {
-  const [cart, setCart] = useState(null); 
+  const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  // Function to get user details from local storage
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = userData._id;
+
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchCartItems = async () => {
+
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          toast.error("Please login to view your cart");
-          navigate("/login");
+        
+        if (!userId) {
+          toast.error('Please login to view your cart');
+          navigate('/login');
           return;
         }
-        const userData = JSON.parse(localStorage.getItem("user") || "{}");
-        setUser(userData);
-        await fetchCart(userData._id);
+        const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
+        if (response.data) {
+          setCartItems(response.data.items);
+        }
       } catch (error) {
-        toast.error("Failed to load user data");
-        console.error("User data error:", error);
+        console.error('Error fetching cart items:', error);
+        toast.error('Failed to load cart items');
       } finally {
         setLoading(false);
       }
     };
-    fetchUserData();
-  }, [navigate]);
 
-  // Function to get cart items
-  const fetchCart = async (userId) => {
-    try {
-      const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
-      setCart(response.data);
-    } catch (error) {
-      if (error.response?.status === 404) {
-        setCart({ items: [], totalPrice: 0 });
-      } else {
-        toast.error("Failed to load cart items");
-        console.error("Cart fetch error:", error);
-      }
-    }
-  };
+    fetchCartItems();
+  }, [navigate]);
 
   // Function to update item quantity
   const updateQuantity = async (wasteId, change) => {
-    if (!user || !cart) return;
-    
     try {
-      const item = cart.items.find(item => item.wasteId === wasteId);
+      
+      if (!userId) {
+        toast.error('Please login to update cart');
+        navigate('/login');
+        return;
+      }
+
+      const item = cartItems.find(item => item.wasteId === wasteId);
       if (!item) return;
 
       const newQuantity = item.quantity + change;
@@ -62,151 +56,218 @@ export const Cart = () => {
         return;
       }
 
-      const response = await axios.put("http://localhost:3000/api/cart/update", {
-        userId: user._id,
+      const response = await axios.put('http://localhost:3000/api/cart/update', {
+        userId,
         wasteId,
         quantity: newQuantity
       });
 
-      setCart(response.data);
-      toast.success("Quantity updated");
+      if (response.data) {
+        setCartItems(prevItems => 
+          prevItems.map(item => 
+            item.wasteId === wasteId 
+              ? { ...item, quantity: newQuantity }
+              : item
+          )
+        );
+        toast.success("Cart updated successfully");
+      }
     } catch (error) {
-      toast.error("Failed to update quantity");
-      console.error("Quantity update error:", error);
+      console.error('Error updating quantity:', error);
+      toast.error('Failed to update cart');
     }
   };
 
   // Function to remove item from cart
   const removeItem = async (wasteId) => {
-    if (!user) return;
-    
     try {
-      const response = await axios.delete("http://localhost:3000/api/cart/remove", {
-        data: {
-          userId: user._id,
-          wasteId
-        }
+      
+      if (!userId) {
+        toast.error('Please login to remove items');
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.delete('http://localhost:3000/api/cart/remove', {
+        data: { userId, wasteId }
       });
 
-      setCart(response.data);
-      toast.success("Item removed");
+      if (response.data) {
+        setCartItems(prevItems => prevItems.filter(item => item.wasteId !== wasteId));
+        toast.success("Item removed from cart");
+      }
     } catch (error) {
-      toast.error("Failed to remove item");
-      console.error("Remove item error:", error);
+      console.error('Error removing item:', error);
+      toast.error('Failed to remove item');
     }
   };
 
+  // Calculate total price
+  const calculateTotal = () => {
+    return cartItems.reduce((total, item) => {
+      return total + ((item.price* item.quantity) + item.deliveryCost);
+    }, 0);
+  };
+
   if (loading) {
-    return <div className="p-6">Loading cart...</div>;
-  }
-
-  if (!user) {
     return (
-      <div className="p-6">
-        <h2 className="text-xl font-bold text-red-500">My Cart</h2>
-        <p className="mt-4">Please login to view your cart.</p>
-      </div>
+      <>
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          </div>
+        </div>
+      </>
     );
-  }
-
-  if (user.role !== "buyer") {
-    toast.error("Only buyers can view cart");
-    navigate("/");
-    
   }
 
   return (
     <>
-    <Navbar />
-    <div className="p-6">
-      <h2 className="justify-center text-2xl font-bold text-green-800 justify place-items-center">My Cart</h2>
-      
-      {cart?.items?.length > 0 ? (
-        <>
-          <table className="w-full mt-4 border-collapse">
-            <thead>
-              <tr className="bg-green-600">
-                <th className="p-2 text-left">Item</th>
-                <th className="text-left">Quantity</th>
-                <th className="text-left">Price</th>
-                <th className="text-left">Delivery</th>
-                <th className="text-left">Subtotal</th>
-                <th className="text-left">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cart.items.map((item) => (
-                <tr key={item.wasteId} className="border-b">
-                  <td className="p-2">{item.description}</td>
-                  <td>
-                    <div className="flex items-center">
-                      <button
-                        className="px-2 py-1 bg-gray-300 rounded-l hover:bg-gray-400"
-                        onClick={() => updateQuantity(item.wasteId, -1)}
-                        
-                      >
-                        -
-                      </button>
-                      <span className="mx-2">{item.quantity}</span>
-                      <button
-                        className="px-2 py-1 bg-gray-300 rounded-r hover:bg-gray-400"
-                        onClick={() => updateQuantity(item.wasteId, 1)}
-                        
-                      >
-                        +
-                      </button>
-                    </div>
-                  </td>
-                  <td>Rs. {item.price.toFixed(2)}</td>
-                  <td>Rs. {item.deliveryCost.toFixed(2)}</td>
-                  <td>Rs. {(item.price * item.quantity + item.deliveryCost).toFixed(2)}</td>
-                  <td>
-                    <button
-                      className="px-2 py-1 text-white bg-red-500 rounded hover:bg-red-600"
-                      onClick={() => removeItem(item.wasteId)}
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="p-4 mt-4 bg-gray-100 rounded">
-            <div className="flex justify-end">
-              <div className="text-right">
-                <p className="text-lg font-semibold">
-                  Total: Rs. {cart.totalPrice.toFixed(2)}
-                </p>
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Shopping Cart</h2>
+          
+          {cartItems.length > 0 ? (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Cost</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {cartItems.map((item) => (
+                      <tr key={item.wasteId}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="h-20 w-20 flex-shrink-0">
+                              {item.image ? (
+                                <img
+                                  className="h-20 w-20 object-cover rounded-md"
+                                  src={item.image}
+                                  alt={item.wasteItem}
+                                />
+                              ) : (
+                                <div className="h-20 w-20 bg-gray-200 rounded-md flex items-center justify-center">
+                                  <span className="text-gray-500 text-sm">No image</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">{item.wasteItem}</div>
+                              <div className="text-sm text-gray-500">{item.description}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => updateQuantity(item.wasteId, -1)}
+                              className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                            >
+                              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                              </svg>
+                            </button>
+                            <span className="text-gray-700">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.wasteId, 1)}
+                              className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                            >
+                              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">Rs. {item.price.toFixed(2)}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            Rs. {(item.quantity * item.price).toFixed(2)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">Rs. {item.deliveryCost.toFixed(2)}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => removeItem(item.wasteId)}
+                            className="text-red-600 hover:text-red-900 transition-colors"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          </div>
-        </>
-      ) : (
-        <p className="mt-4 text-center text-gray-500">Your cart is empty</p>
-      )}
 
-      <div className="flex justify-between mt-4">
-        <button 
-          className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
-          onClick={() => navigate("/organic-waste")}
-        >
-          Continue Shopping
-        </button>
-        
-        {cart?.items?.length > 0 && (
-          <div className="flex gap-4">
-            <button 
-              className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
-              onClick={() => navigate("/buyer-address-form")}
-            >
-              Checkout
-            </button>
-          </div>
-        )}
+              <div className="mt-8 border-t pt-8">
+                <div className="flex justify-between items-center">
+                  <div className="flex space-x-4">
+                    <button
+                      onClick={() => navigate('/organic-waste')}
+                      className="px-6 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                      Continue Shopping
+                    </button>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg text-gray-500">Total</p>
+                    <p className="text-2xl font-bold text-gray-900">Rs. {calculateTotal().toFixed(2)}</p>
+                    <button 
+                      onClick={() => {
+                        navigate('/buyer-address-form');
+                        toast.success("Proceeding to checkout...");
+                      }}
+                      className="mt-4 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      Proceed to Checkout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              <h3 className="mt-4 text-lg font-medium text-gray-900">Your cart is empty</h3>
+              <p className="mt-2 text-sm text-gray-500">Start adding some items to your cart!</p>
+              <button
+                onClick={() => navigate('/organic-waste')}
+                className="mt-6 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Start Shopping
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 };

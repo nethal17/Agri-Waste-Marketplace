@@ -46,6 +46,10 @@ import { ReviewManagerDashboard } from './pages/ReviewManagerDashboard';
 import { ProductListingForm } from './pages/ProductListingForm';
 import { DisplayFarmerListings } from './pages/DisplayFarmerListings';
 import { DisplayFarmerReviews } from './pages/DisplayFarmerReviews';
+import { InventoryChartpage } from './pages/InventoryChartpage';
+import { InventoryCategoryPage } from './pages/InventoryCategoryPage';
+
+
 
 import Delivery from './pages/Delivery';
 import TruckDriverDashboard from './pages/TruckDriverDashboard';
@@ -58,7 +62,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<SignUp />} />
       <Route path="/profile" element={<Profile />} />
-      <Route path="/profile/update-details" element={<UpdateDetails />} />
+      <Route path="/profile/update-details" element={< UpdateDetails />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
       <Route path="/all-users" element={<DisplayAllUsers />} />
       <Route path="/all-buyers" element={<DisplayAllBuyers />} />
@@ -93,6 +97,8 @@ function App() {
       <Route path="/add-review" element={<AddReviewPage />} />
       <Route path="/inventory-dashboard" element={<InventoryManagerDashboard />}/>
       <Route path="/inventory-management" element={<InventoryManagement />} />
+      <Route path="/inventory-chart" element={<InventoryChartpage />} />
+      <Route path="/inventory-category" element={<InventoryCategoryPage />} />
       <Route path="/inventory" element={<InventoryPage />} />
       <Route path="/order-history" element={<OrderHistoryPage />} />
       <Route path="/review-manager" element={<ReviewManagerDashboard />} />
