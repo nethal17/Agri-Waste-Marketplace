@@ -1,4 +1,5 @@
 import OrderHistory from "../models/orderHistory.model.js"; 
+import Cart from "../models/Cart.js";
 
 //Add Order History
 export const addOrderHistory = async (req, res) => {
@@ -36,9 +37,6 @@ export const cancelOrder = async (req, res) => {
   }
 };
 
-
-
-
 export const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -61,5 +59,38 @@ export const updateOrderStatus = async (req, res) => {
     res.status(200).json({ message: 'Order updated successfully.', order });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Process order after successful payment
+export const processOrderAfterPayment = async (req, res) => {
+  try {
+    const { userId, cartItems } = req.body;
+
+    // Insert cart items into order history
+    for (const item of cartItems) {
+      const orderData = {
+        userId: userId,
+        productId: item.wasteId,
+        productName: item.description,
+        quantity: item.quantity || 1,
+        totalPrice: item.price * (item.quantity || 1)
+      };
+
+      await OrderHistory.create(orderData);
+    }
+
+    // Clear the cart
+    const cart = await Cart.findOne({ userId });
+    if (cart) {
+      cart.items = [];
+      cart.totalPrice = 0;
+      await cart.save();
+    }
+
+    res.status(200).json({ message: "Order processed successfully" });
+  } catch (error) {
+    console.error("Error processing order:", error);
+    res.status(500).json({ message: "Failed to process order" });
   }
 };

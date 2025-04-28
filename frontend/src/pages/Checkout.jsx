@@ -91,18 +91,8 @@ export const Checkout = () => {
     setIsProcessingPayment(true);
     
     try {
-      // First, insert cart items into order history
-      for (const item of cartItems) {
-        const orderData = {
-          userId: user._id,
-          productId: item.wasteId,
-          productName: item.description,
-          quantity: item.quantity || 1,
-          totalPrice: item.price * (item.quantity || 1)
-        };
-
-        await axios.post("http://localhost:3000/api/order-history/add", orderData);
-      }
+      // Store cart items in localStorage for post-payment processing
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
 
       // Format cart items for Stripe
       const line_items = cartItems.map(item => ({

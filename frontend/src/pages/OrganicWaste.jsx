@@ -94,13 +94,23 @@ const CategoryProducts = () => {
   useEffect(() => {
     const fetchCartCount = async () => {
       try {
-        const userId = localStorage.getItem('userId'); // Assuming you store userId in localStorage after login
-        if (userId) {
-          const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
-          if (response.data) {
-            setCartItemsCount(response.data.items.length);
-          }
+      const token = localStorage.getItem("token");
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      const userId = userData._id;
+
+      if (!token) {
+        toast.error("No token found, please login again.");
+        navigate("/login");
+        return;
+      }
+      
+      if (userId) {
+        const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
+        if (response.data) {
+          setCartItemsCount(response.data.items.length);
         }
+      }
+      
       } catch (error) {
         console.error('Error fetching cart count:', error);
       }
@@ -311,13 +321,23 @@ export const OrganicWaste = () => {
   useEffect(() => {
     const fetchCartCount = async () => {
       try {
-        const userId = localStorage.getItem('userId');
+        const token = localStorage.getItem("token");
+        const userData = JSON.parse(localStorage.getItem("user") || "{}");
+        const userId = userData._id;
+
+        if (!token) {
+          toast.error("No token found, please login again.");
+          navigate("/login");
+          return;
+        }
+      
         if (userId) {
           const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
           if (response.data) {
             setCartItemsCount(response.data.items.length);
           }
         }
+        
       } catch (error) {
         console.error('Error fetching cart count:', error);
       }
