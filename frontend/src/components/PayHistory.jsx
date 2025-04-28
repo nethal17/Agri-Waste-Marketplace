@@ -2,144 +2,450 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from "../components/Navbar";
+import Sidebar from "./Sidebar";
+import { 
+  Table, 
+  Card, 
+  Button, 
+  Tag, 
+  Statistic, 
+  Row, 
+  Col, 
+  Spin,
+  DatePicker,
+  Input,
+  Space,
+  Typography,
+  Progress,
+  Tooltip
+} from 'antd';
+import { 
+  SearchOutlined, 
+  DollarOutlined,
+  ShoppingCartOutlined,
+  CheckCircleOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  CalendarOutlined,
+  BarChartOutlined,
+  PieChartOutlined,
+  LineChartOutlined
+} from '@ant-design/icons';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+
+const { Title, Text } = Typography;
+const { RangePicker } = DatePicker;
 
 const PayHistory = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const [dateRange, setDateRange] = useState(null);
+  const [filteredPayments, setFilteredPayments] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPayments = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/api/stripe-payments');
-        console.log('Full API Response:', response.data);
-        
-        if (!response.data || !Array.isArray(response.data)) {
-          throw new Error('Invalid data format received from API');
-        }
-
-         
-        const excludedNames = [
-          'yuwani perera',
-          'pasan perera',
-          'bobee perera'
-        ];
-
-        // Filter out payments with excluded names
-        const filteredPayments = response.data.filter(payment => {
-          if (!payment.driverName) return true;
-          
-          const lowerCaseName = payment.driverName.toLowerCase();
-          return !excludedNames.some(name => lowerCaseName.includes(name));
-        });
-
-        console.log('Filtered Payments:', filteredPayments);
-        setPayments(filteredPayments);
-      } catch (error) {
-        console.error('Error fetching payments:', error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPayments();
   }, []);
 
+  const fetchPayments = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/api/stripe-payments');
+      console.log('Full API Response:', response.data);
+      
+      if (!response.data || !Array.isArray(response.data)) {
+        throw new Error('Invalid data format received from API');
+      }
+
+      const excludedNames = [
+        'yuwani perera',
+        'pasan perera',
+        'bobee perera'
+      ];
+
+      const filteredPayments = response.data.filter(payment => {
+        if (!payment.driverName) return true;
+        const lowerCaseName = payment.driverName.toLowerCase();
+        return !excludedNames.some(name => lowerCaseName.includes(name));
+      });
+
+      setPayments(filteredPayments);
+      setFilteredPayments(filteredPayments);
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (value) => {
+    setSearchText(value);
+    filterPayments(value, dateRange);
+  };
+
+  const handleDateRangeChange = (dates) => {
+    setDateRange(dates);
+    filterPayments(searchText, dates);
+  };
+
+  const filterPayments = (searchValue, dates) => {
+    let filtered = [...payments];
+
+    if (searchValue) {
+      filtered = filtered.filter(payment => 
+        payment.driverName?.toLowerCase().includes(searchValue.toLowerCase())
+      );
+    }
+
+    if (dates && dates[0] && dates[1]) {
+      filtered = filtered.filter(payment => {
+        const paymentDate = new Date(payment.paymentDate);
+        return paymentDate >= dates[0].startOf('day') && 
+               paymentDate <= dates[1].endOf('day');
+      });
+    }
+
+    setFilteredPayments(filtered);
+  };
+
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 80,
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: 'Buyer Name',
+      dataIndex: 'driverName',
+      key: 'driverName',
+      width: 200,
+      render: (text) => (
+        <div className="flex items-center">
+          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+            <span className="text-blue-600 font-semibold">
+              {text ? text.charAt(0).toUpperCase() : 'N/A'}
+            </span>
+          </div>
+          <span>{text || 'N/A'}</span>
+        </div>
+      ),
+    },
+    {
+      title: 'Amount (Rs.)',
+      dataIndex: 'payAmount',
+      key: 'payAmount',
+      width: 150,
+      render: (amount) => (
+        <div className="flex items-center">
+          <span className="font-semibold text-green-600">
+            Rs. {amount ? amount.toFixed(2) : '0.00'}
+          </span>
+          {amount >= 20000 && (
+            <Tag color="gold" className="ml-2">High Value</Tag>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Payment Date',
+      dataIndex: 'paymentDate',
+      key: 'paymentDate',
+      width: 150,
+      render: (date) => (
+        <div className="flex items-center">
+          <CalendarOutlined className="text-gray-400 mr-2" />
+          <span className="text-gray-600">
+            {date ? new Date(date).toLocaleDateString() : 'N/A'}
+          </span>
+        </div>
+      ),
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      width: 120,
+      render: () => (
+        <Tag color="green" icon={<CheckCircleOutlined />}>
+          Completed
+        </Tag>
+      ),
+    }
+  ];
+
+  const totalAmount = filteredPayments.reduce((sum, payment) => sum + (payment.payAmount || 0), 0);
+  const averageAmount = totalAmount / (filteredPayments.length || 1);
+  const highValuePayments = filteredPayments.filter(payment => payment.payAmount >= 20000).length;
+  const highValuePercentage = (highValuePayments / (filteredPayments.length || 1)) * 100;
+
+  // Prepare data for charts
+  const monthlyData = filteredPayments.reduce((acc, payment) => {
+    const date = new Date(payment.paymentDate);
+    const month = date.toLocaleString('default', { month: 'short' });
+    const existingMonth = acc.find(item => item.name === month);
+    
+    if (existingMonth) {
+      existingMonth.amount += payment.payAmount || 0;
+    } else {
+      acc.push({ name: month, amount: payment.payAmount || 0 });
+    }
+    
+    return acc;
+  }, []);
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center py-8">
-          <p className="text-gray-600">Loading product payment history...</p>
+      <>
+        <Navbar />
+        <div className="flex h-screen">
+          <Sidebar />
+          <div className="flex-1 flex items-center justify-center ml-64">
+            <Spin size="large" />
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center py-8 text-red-500">
-          <p>Error loading payments: {error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            Retry
-          </button>
+      <>
+        <Navbar />
+        <div className="flex h-screen">
+          <Sidebar />
+          <div className="flex-1 flex items-center justify-center ml-64">
+            <div className="text-center">
+              <p className="text-red-500 text-xl mb-4">{error}</p>
+              <Button type="primary" onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
     <>
-    <Navbar />
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-        Product Payment Transactions
-      </h1>
+      <Navbar />
+      <div className="flex h-screen">
+        <Sidebar />
+        <div className="flex-1 overflow-auto bg-gray-50 ml-64">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="mb-8">
+              <Title level={2} className="text-3xl font-bold text-gray-800 mb-2">
+                Product Payment Transactions
+              </Title>
+              <Text className="text-gray-600">
+                View and manage all payment transactions
+              </Text>
+            </div>
 
-      {payments.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600">No payment records found</p>
-        </div>
-      ) : (
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-green-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Buyer Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Amount (Rs.)</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Payment Date</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {payments.map((payment, index) => (
-                  <tr key={payment.id || index} className="hover:bg-green-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{index + 1}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {payment.driverName || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {payment.payAmount ? payment.payAmount.toFixed(2) : '0.00'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : 'N/A'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {/* Statistics Cards */}
+            <Row gutter={[16, 16]} className="mb-8">
+              <Col xs={24} sm={12} lg={6}>
+                <Card className="shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-blue-100 border-0">
+                  <Statistic
+                    title={<span className="text-gray-600">Total Transactions</span>}
+                    value={filteredPayments.length}
+                    prefix={<ShoppingCartOutlined className="text-blue-500" />}
+                    valueStyle={{ color: '#3b82f6' }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} lg={6}>
+                <Card className="shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-green-50 to-green-100 border-0">
+                  <Statistic
+                    title={<span className="text-gray-600">Total Amount</span>}
+                    value={totalAmount}
+                    prefix={<DollarOutlined className="text-green-500" />}
+                    suffix="Rs."
+                    precision={2}
+                    valueStyle={{ color: '#10b981' }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} lg={6}>
+                <Card className="shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50 to-purple-100 border-0">
+                  <Statistic
+                    title={<span className="text-gray-600">Average Amount</span>}
+                    value={averageAmount}
+                    prefix={<DollarOutlined className="text-purple-500" />}
+                    suffix="Rs."
+                    precision={2}
+                    valueStyle={{ color: '#8b5cf6' }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} lg={6}>
+                <Card className="shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-yellow-50 to-yellow-100 border-0">
+                  <Statistic
+                    title={<span className="text-gray-600">High Value Payments</span>}
+                    value={highValuePayments}
+                    prefix={<ArrowUpOutlined className="text-yellow-500" />}
+                    suffix={` (${highValuePercentage.toFixed(1)}%)`}
+                    valueStyle={{ color: '#f59e0b' }}
+                  />
+                </Card>
+              </Col>
+            </Row>
+
+            {/* Charts Section */}
+            <Row gutter={[16, 16]} className="mb-8">
+              <Col xs={24} lg={12}>
+                <Card 
+                  title={
+                    <div className="flex items-center">
+                      <BarChartOutlined className="text-blue-500 mr-2" />
+                      <span>Monthly Transactions</span>
+                    </div>
+                  }
+                  className="shadow-md hover:shadow-lg transition-shadow"
+                >
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={monthlyData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <RechartsTooltip />
+                        <Legend />
+                        <Bar dataKey="amount" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </Card>
+              </Col>
+              <Col xs={24} lg={12}>
+                <Card 
+                  title={
+                    <div className="flex items-center">
+                      <PieChartOutlined className="text-purple-500 mr-2" />
+                      <span>Payment Distribution</span>
+                    </div>
+                  }
+                  className="shadow-md hover:shadow-lg transition-shadow"
+                >
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: 'High Value', value: highValuePayments },
+                            { name: 'Regular', value: filteredPayments.length - highValuePayments }
+                          ]}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          paddingAngle={5}
+                          dataKey="value"
+                          label
+                        >
+                          {[0, 1].map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+
+            {/* Search and Filter Section */}
+            <Card className="mb-8 shadow-md bg-gradient-to-r from-gray-50 to-gray-100 border-0">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="flex-1 w-full">
+                  <Input
+                    placeholder="Search by buyer name"
+                    prefix={<SearchOutlined className="text-gray-400" />}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="flex gap-4 w-full md:w-auto">
+                  <RangePicker
+                    onChange={handleDateRangeChange}
+                    className="w-full md:w-auto"
+                  />
+                </div>
+              </div>
+            </Card>
+
+            {/* Payments Table */}
+            <Card className="shadow-md">
+              {filteredPayments.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+                  <ShoppingCartOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                  <p className="text-lg">No payment records found</p>
+                  <p className="text-sm">Try adjusting your search or date filters</p>
+                </div>
+              ) : (
+                <Table
+                  columns={columns}
+                  dataSource={filteredPayments}
+                  rowKey={(record) => record.id || Math.random()}
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showTotal: (total) => `Total ${total} payments`,
+                  }}
+                  scroll={{ x: 1000 }}
+                  className="custom-table"
+                />
+              )}
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
+              <Button
+                type="primary"
+                onClick={() => navigate('/high-payments')}
+                className="bg-green-600 hover:bg-green-700 h-10"
+                icon={<ArrowUpOutlined />}
+              >
+                Driver Paid Salaries
+              </Button>
+              <Button
+                onClick={() => navigate('/')}
+                className="bg-gray-600 hover:bg-gray-700 text-white h-10"
+                icon={<ArrowDownOutlined />}
+              >
+                Back to Driver List
+              </Button>
+              <Button
+                onClick={() => navigate('/final-summary')}
+                className="bg-purple-600 hover:bg-purple-700 text-white h-10"
+                icon={<LineChartOutlined />}
+              >
+                View Total Payments
+              </Button>
+            </div>
           </div>
         </div>
-      )}
-
-      <div className="mt-6 flex justify-center gap-4">
-        <button
-          onClick={() => navigate('/high-payments')}
-          className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-        >
-          Driver Paid Salaries
-        </button>
-        <button
-          onClick={() => navigate('/')}
-          className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-        >
-          Back to Driver List
-        </button>
-        <button
-  onClick={() => navigate('/final-summary')}
-  className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
->
-  View Total Payments
-</button>
-
       </div>
-    </div>
     </>
   );
 };

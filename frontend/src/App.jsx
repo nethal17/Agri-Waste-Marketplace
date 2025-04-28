@@ -15,6 +15,8 @@ import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from "./pages/ResetPassword";
 import { StartList } from './pages/StartList';
 import { TwoStepVerification } from './components/TwoStepVerification';
+import Charts from './pages/Charts';
+import PaymentDashboard from './pages/PaymentDashboard';
 
 import { OrganicWaste, CategoryProducts } from './pages/OrganicWaste';
 import { NonOrganicWaste, CategoryProducts as NonOrganicCategoryProducts } from './pages/NonOrganicWaste';
@@ -73,6 +75,8 @@ function App() {
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/two-step" element={<TwoStepVerification />} />
       <Route path="/start-listing" element={<StartList />} />
+      <Route path="/charts" element={<Charts />} />
+      <Route path="/payment-dashboard" element={<PaymentDashboard />} />
 
       <Route path="/organic-waste" element={<OrganicWaste />} />
       <Route path="/non-organic" element={<NonOrganicWaste />} />
@@ -89,7 +93,7 @@ function App() {
       <Route path="/driver/:id/payment" element={<PaymentDetails />} />
       <Route path="/payment" element={<StripePayment />} /> 
       <Route path="/success" element={<Success />} /> 
-      <Route path="/pay-history" element={<PayHistory />} />
+      <Route path="/pay-history" element={<PaymentDetails />} />
       <Route path="/high-payments" element={<HighPayments />} />
       <Route path="/final-summary" element={<Final />} />
 

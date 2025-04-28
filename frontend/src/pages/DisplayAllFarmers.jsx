@@ -1,4 +1,4 @@
-import { Sidebar } from "../components/Sidebar";
+import Sidebar from "../components/Sidebar";
 import { Navbar } from "../components/Navbar";
 import { AllFarmers } from "../components/AllFarmers";
 
