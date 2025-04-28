@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-hot-toast"
@@ -36,9 +34,8 @@ export const Cart = () => {
     }
 
     fetchCartItems()
-  }, [navigate])
+  }, [navigate, userId])
 
-  // Function to update item quantity
   const updateQuantity = async (wasteId, change) => {
     try {
       if (!userId) {
@@ -74,7 +71,6 @@ export const Cart = () => {
     }
   }
 
-  // Function to remove item from cart
   const removeItem = async (wasteId) => {
     try {
       if (!userId) {
@@ -97,21 +93,18 @@ export const Cart = () => {
     }
   }
 
-  // Calculate total price
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => {
       return total + (item.price * item.quantity + item.deliveryCost)
     }, 0)
   }
 
-  // Calculate subtotal (without delivery)
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
       return total + item.price * item.quantity
     }, 0)
   }
 
-  // Calculate total delivery cost
   const calculateDelivery = () => {
     return cartItems.reduce((total, item) => {
       return total + item.deliveryCost
@@ -122,9 +115,6 @@ export const Cart = () => {
     return (
       <>
         <Navbar />
-        <div className="container px-4 py-8 mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="w-12 h-12 border-b-2 border-green-600 rounded-full animate-spin"></div>
         <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
           <div className="container max-w-6xl px-4 py-16 mx-auto">
             <div className="flex flex-col items-center justify-center h-64 space-y-6">
@@ -140,39 +130,6 @@ export const Cart = () => {
   return (
     <>
       <Navbar />
-      <div className="container px-4 py-8 mx-auto">
-        <div className="p-6 bg-white rounded-lg shadow-lg">
-          <h2 className="mb-6 text-2xl font-bold text-gray-800">Shopping Cart</h2>
-          
-          {cartItems.length > 0 ? (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Product</th>
-                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Quantity</th>
-                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Price</th>
-                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Subtotal</th>
-                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Delivery Cost</th>
-                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {cartItems.map((item) => (
-                      <tr key={item.wasteId}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 w-20 h-20">
-                              {item.image ? (
-                                <img
-                                  className="object-cover w-20 h-20 rounded-md"
-                                  src={item.image}
-                                  alt={item.wasteItem}
-                                />
-                              ) : (
-                                <div className="flex items-center justify-center w-20 h-20 bg-gray-200 rounded-md">
-                                  <span className="text-sm text-gray-500">No image</span>
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
         <div className="container max-w-6xl px-4 py-12 mx-auto">
           <div className="flex items-center mb-8 space-x-2">
@@ -208,11 +165,11 @@ export const Cart = () => {
                               {item.image ? (
                                 <img
                                   className="object-cover w-full h-full"
-                                  src={item.image || "/placeholder.svg"}
+                                  src={item.image}
                                   alt={item.wasteItem || "Product"}
                                   onError={(e) => {
                                     e.target.onerror = null
-                                    e.target.src = "/images/no-image.png" // Fallback image
+                                    e.target.src = "/images/no-image.png"
                                   }}
                                 />
                               ) : (
@@ -235,8 +192,23 @@ export const Cart = () => {
                             </div>
 
                             <div className="flex flex-wrap items-end justify-between mt-4 gap-y-3">
-                              <div className="px-3 py-1.5 bg-gray-50 rounded-lg">
-                                <span className="font-medium text-gray-700">Quantity: {item.quantity}</span>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => updateQuantity(item.wasteId, -1)}
+                                  className="px-2 py-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
+                                  disabled={item.quantity <= 1}
+                                >
+                                  -
+                                </button>
+                                <span className="px-3 py-1 font-medium text-gray-700 rounded-lg bg-gray-50">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  onClick={() => updateQuantity(item.wasteId, 1)}
+                                  className="px-2 py-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
+                                >
+                                  +
+                                </button>
                               </div>
 
                               <div className="flex items-center space-x-4">
@@ -255,36 +227,6 @@ export const Cart = () => {
                               </div>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center space-x-2">
-                            
-                            <span className="text-gray-700">{item.quantity}</span>
-                            
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">Rs. {item.price.toFixed(2)}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            Rs. {(item.quantity * item.price).toFixed(2)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">Rs. {item.deliveryCost.toFixed(2)}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => removeItem(item.wasteId)}
-                            className="text-red-600 transition-colors hover:text-red-900"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </td>
-                      </tr>
                         </div>
                       </div>
                     ))}
@@ -292,20 +234,6 @@ export const Cart = () => {
                 </div>
               </div>
 
-              <div className="pt-8 mt-8 border-t">
-                <div className="flex items-center justify-between">
-                  <div className="flex space-x-4">
-                    <button
-                      onClick={() => navigate('/organic-waste')}
-                      className="px-6 py-3 text-gray-800 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
-                    >
-                      Continue Shopping
-                    </button>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg text-gray-500">Total</p>
-                    <p className="text-2xl font-bold text-gray-900">Rs. {calculateTotal().toFixed(2)}</p>
-                    <button 
               <div className="lg:col-span-1">
                 <div className="sticky top-8">
                   <div className="p-6 bg-white shadow-md rounded-2xl">
@@ -333,7 +261,6 @@ export const Cart = () => {
                         navigate("/buyer-address-form")
                         toast.success("Proceeding to checkout...")
                       }}
-                      className="px-6 py-3 mt-4 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
                       className="flex items-center justify-center w-full px-6 py-3.5 mt-6 space-x-2 text-white transition-all duration-300 bg-green-600 rounded-lg hover:bg-green-700 hover:shadow-lg focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 focus:outline-none"
                     >
                       <CreditCard className="w-5 h-5" />
@@ -352,25 +279,6 @@ export const Cart = () => {
               </div>
             </div>
           ) : (
-            <div className="py-12 text-center">
-              <svg
-                className="w-12 h-12 mx-auto text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <h3 className="mt-4 text-lg font-medium text-gray-900">Your cart is empty</h3>
-              <p className="mt-2 text-sm text-gray-500">Start adding some items to your cart!</p>
-              <button
-                onClick={() => navigate('/organic-waste')}
-                className="px-6 py-3 mt-6 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
             <div className="p-12 text-center bg-white shadow-md rounded-2xl">
               <div className="inline-flex items-center justify-center w-20 h-20 mb-6 text-green-500 bg-green-100 rounded-full">
                 <ShoppingCart className="w-10 h-10" />
