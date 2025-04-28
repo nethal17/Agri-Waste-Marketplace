@@ -1,11 +1,21 @@
 import express from 'express';
-import {addReview,publishReview,getPendingReviews,getPublishedReviews,
-  getFarmerAverageRating,deleteReview,getReviewDetails,getFarmerReviews} from '../controllers/review.Controller.js'; 
+import {
+  addReview,
+  publishReview,
+  getPendingReviews,
+  getPublishedReviews,
+  getFarmerAverageRating,
+  getFarmerReviews,
+  deleteReview,
+  getReviewDetails
+} from '../controllers/review.Controller.js'; 
 
 const router = express.Router();
 
 
 router.post('/add', addReview);
+// import { isAdmin } from '../middleware/auth.js';
+// router.put('/publish/:reviewId', isAdmin, publishReview);
 router.put('/publish/:reviewId', publishReview);
 router.get('/pending', getPendingReviews);
 router.get('/published/:productId', getPublishedReviews);

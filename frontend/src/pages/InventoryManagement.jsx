@@ -6,7 +6,8 @@ import { InventoryPage } from './InventoryPage';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { InventoryChartpage } from './InventoryChartpage';
 import { InventoryCategoryPage } from './InventoryCategoryPage';
-import { FiBell, FiSearch, FiPieChart, FiDatabase, FiList, FiGrid } from "react-icons/fi";
+import { FiBell, FiFileText, FiPieChart, FiDatabase, FiList, FiGrid } from "react-icons/fi";
+import { ReportsAndAnalytics } from './ReportsAndAnalytics';
 
 const InventoryManagement = () => {
   const [activeComponent, setActiveComponent] = useState('inventory');
@@ -31,6 +32,8 @@ const InventoryManagement = () => {
         return <InventoryChartpage/>;
       case 'category':
         return <InventoryCategoryPage/>;
+      case 'reports':
+        return <ReportsAndAnalytics />;
       default:
         return <InventoryPage />;
     }
@@ -50,6 +53,7 @@ const InventoryManagement = () => {
     { id: 'listings', icon: FiList, label: 'Listings' },
     { id: 'charts', icon: FiPieChart, label: 'Charts' },
     { id: 'category', icon: FiGrid, label: 'Category' },
+    { id: 'reports', icon: FiFileText, label: 'Reports' },
   ];
 
   return (

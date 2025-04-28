@@ -124,15 +124,33 @@ export const InventoryManagerDashboard = () => {
         return;
       }
 
+       // Find the listing to get farmer's email
+      const listingToDelete = listings.find(listing => listing._id === productToDelete);
+      if (!listingToDelete) {
+        toast.error('Listing not found');
+        return;
+      }
+
+      const farmerEmail = listingToDelete.farmerId?.email;
+      if (!farmerEmail) {
+        toast.error('Farmer email not found');
+        return;
+      }
+
+
       await axios.delete(`http://localhost:3000/api/product-listing/admin/delete/${productToDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        data: { reason: deleteReason },
+        data: { 
+          reason: deleteReason,
+          farmerEmail: farmerEmail,
+          productName: listingToDelete.wasteItem
+        },
       });
 
-      toast.success('Listing deleted successfully.');
+      toast.success('Listing deleted successfully and farmer notified.');
       setShowDeleteModal(false);
       setDeleteReason('');
       fetchListings();

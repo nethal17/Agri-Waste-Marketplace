@@ -1,5 +1,6 @@
 import Review from '../models/Review.js';
 import OrderHistory from '../models/orderHistory.model.js';
+import { User } from '../models/user.js';
 import mongoose from 'mongoose';
 
 // Add a review (Buyer)
@@ -70,22 +71,14 @@ export const publishReview = async (req, res) => {
     review.status = 'published';
     await review.save();
 
-    // Notify buyer and farmer (optional)
-    const buyerNotification = new Notification({
-      userId: review.buyerId,
-      message: 'Your review has been published.',
-    });
-    await buyerNotification.save();
-
-    const farmerNotification = new Notification({
-      userId: review.farmerId,
-      message: 'You have a new review for your product.',
-    });
-    await farmerNotification.save();
-
-    // Send email notifications (optional)
+    
+    // Get farmerId from order history
+    const order = await OrderHistory.findById(review.orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found for this review.' });
+    }
     const buyer = await User.findById(review.buyerId);
-    const farmer = await User.findById(review.farmerId);
+    const farmer = await User.findById(order.userId);
     await sendNotificationEmail(buyer.email, 'Your review has been published.');
     await sendNotificationEmail(farmer.email, 'You have a new review for your product.');
 
