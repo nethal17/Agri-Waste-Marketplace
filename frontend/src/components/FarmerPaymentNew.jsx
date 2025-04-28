@@ -121,9 +121,14 @@ const FarmerPaymentNew = () => {
   const handleStripePayment = async () => {
     try {
       const totalAmount = calculatePayment();
+      console.log('Initiating payment for farmer:', {
+        farmerId: id,
+        farmerName: farmer.name,
+        totalAmount: totalAmount
+      });
       
       // Create a Stripe checkout session using the correct endpoint
-      const response = await axios.post('http://localhost:3000/api/stripe/checkout', {
+      const response = await axios.post('http://localhost:3000/api/stripe/farmer-payment', {
         userId: id,
         amount: totalAmount * 100, // Convert to cents
         currency: "LKR",
@@ -142,6 +147,11 @@ const FarmerPaymentNew = () => {
       window.location.href = response.data.url;
     } catch (error) {
       console.error('Error creating Stripe checkout session:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       message.error('Failed to initiate payment. Please try again.');
     }
   };
