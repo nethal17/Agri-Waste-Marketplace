@@ -1,5 +1,6 @@
 import OrderHistory from "../models/orderHistory.model.js"; 
 import Cart from "../models/Cart.js";
+import ProductListing from "../models/ProductListing.js";
 
 //Add Order History
 export const addOrderHistory = async (req, res) => {
@@ -78,6 +79,9 @@ export const processOrderAfterPayment = async (req, res) => {
       };
 
       await OrderHistory.create(orderData);
+
+      // Delete the item from Marketplace
+      await ProductListing.findByIdAndDelete(item.wasteId);
     }
 
     // Clear the cart

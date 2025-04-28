@@ -137,7 +137,7 @@ const CategoryProducts = () => {
         wasteId: product._id,
         description: product.wasteItem,
         price: product.price,
-        quantity: 1,
+        quantity: product.quantity,
         deliveryCost: 300 // You can modify this based on your requirements
       };
 
