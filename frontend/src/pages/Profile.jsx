@@ -475,7 +475,7 @@ export const Profile = () => {
                     </div>
                     <h2 className="mt-4 text-2xl font-bold text-gray-800">{user.name}</h2>
                     <span className="px-3 py-1 mt-1 text-sm font-semibold text-green-600 bg-green-100 rounded-full">
-                      {user.role === "admin" ? "SYSTEM ADMIN" : "buyer" ? "Buyer" : "farmer" ? "Farmer" : "Truck Driver"}
+                      {user.role === "admin" ? "SYSTEM ADMIN" : user.role === "buyer" ? "Buyer" : user.role === "farmer" ? "Farmer"  : "Truck Driver"}
                     </span>
                   </div>
 
@@ -595,10 +595,10 @@ export const Profile = () => {
                 <div className="mb-8">
                   <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
                     <div className="flex items-center">
-                      <FaUserShield className="w-6 h-6 mr-3 text-green-500" />
+                      <FaUserShield className="mr-3 text-green-500 h-7 w-7" />
                       <div>
                         <h3 className="font-semibold text-gray-800">Two-Factor Authentication</h3>
-                        <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
+                        <p className="text-sm text-gray-600 mt-[-25px]">Add an extra layer of security to your account</p>
                       </div>
                     </div>
                     <button
@@ -623,7 +623,7 @@ export const Profile = () => {
                       onClick={() => navigate("/admin-dashboard")}
                       className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
                     >
-                      <BiSolidDashboard className="w-6 h-6 mr-3 text-green-500" />
+                      <BiSolidDashboard className="mr-3 text-green-500 h-7 w-7" />
                       <span className="font-medium">Admin Dashboard</span>
                     </button>
                   )}
@@ -633,7 +633,7 @@ export const Profile = () => {
                       onClick={() => navigate("/farmer-listings")}
                       className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
                     >
-                      <FaShoppingCart className="w-6 h-6 mr-3 text-green-500" />
+                      <FaShoppingCart className="mr-3 text-green-500 h-7 w-7" />
                       <span className="font-medium">My Listings</span>
                     </button>
                   )}
@@ -643,7 +643,7 @@ export const Profile = () => {
                       onClick={() => navigate("/order-history")}
                       className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
                     >
-                      <FaShoppingCart className="w-6 h-6 mr-3 text-green-500" />
+                      <FaShoppingCart className="mr-3 text-green-500 h-7 w-7" />
                       <span className="font-medium">My Orders</span>
                     </button>
                   )}
@@ -653,7 +653,7 @@ export const Profile = () => {
                       onClick={() => navigate("")}
                       className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
                     >
-                      <FaTruck className="w-6 h-6 mr-3 text-green-500" />
+                      <FaTruck className="mr-3 text-green-500 h-7 w-7" />
                       <span className="font-medium">My Pickups</span>
                     </button>
                   )}
@@ -666,7 +666,7 @@ export const Profile = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
                     <div className="flex items-center">
-                      <FaLock className="w-5 h-5 mr-3 text-green-500" />
+                      <FaLock className="w-6 h-6 mr-3 text-green-500" />
                       <div>
                         <h4 className="font-medium text-gray-800">Change Password</h4>
                         <p className="text-sm text-gray-600">Update your account password</p>

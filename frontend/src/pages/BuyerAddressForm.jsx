@@ -15,6 +15,10 @@ export const BuyerAddressForm = () => {
     saveInfo: false,
   });
 
+  const [errors, setErrors] = useState({
+    phone: "",
+  });
+
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [existingAddress, setExistingAddress] = useState(null);
@@ -25,7 +29,7 @@ export const BuyerAddressForm = () => {
   useEffect(() => {
     const fetchAddress = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/buyer-address/${userData._id}`);
+        const response = await axios.get(`http://localhost:3000/api/address/get-address/${userData._id}`);
         if (response.data) {
           setExistingAddress(response.data);
           setFormData({
@@ -53,17 +57,55 @@ export const BuyerAddressForm = () => {
     }
   }, [userData._id]);
 
+  const validatePhone = (phone) => {
+    // Remove all non-digit characters
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Validate length (must be exactly 10 digits)
+    if (cleaned.length !== 10 && cleaned.length > 0) {
+      return "Phone number must be 10 digits";
+    }
+    
+    return "";
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
+    
+    // Special handling for phone number input
+    if (name === "phone") {
+      // Only allow numbers and limit to 10 characters
+      const cleanedValue = value.replace(/\D/g, '').slice(0, 10);
+      
+      setFormData({
+        ...formData,
+        [name]: cleanedValue,
+      });
+      
+      // Validate phone number
+      setErrors({
+        ...errors,
+        phone: validatePhone(cleanedValue),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: type === "checkbox" ? checked : value,
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    // Validate all fields before submission
+    const phoneError = validatePhone(formData.phone);
+    if (phoneError) {
+      setErrors({ ...errors, phone: phoneError });
+      setLoading(false);
+      return;
+    }
 
     if (!formData.saveInfo) {
       toast.error("You must agree to save the information");
@@ -75,7 +117,7 @@ export const BuyerAddressForm = () => {
       let response;
       if (isEditing) {
         response = await axios.put(
-          `http://localhost:3000/api/buyer-address/${formData.buyerId}`,
+          `http://localhost:3000/api/address/add/${formData.buyerId}`,
           formData
         );
       } else {
@@ -100,62 +142,87 @@ export const BuyerAddressForm = () => {
   return (
     <>
       <Navbar />
-      <div className="container max-w-2xl px-4 py-8 mx-auto">
-        <h1 className="mb-6 text-2xl font-bold">Shipping Address</h1>
-        
-        <form onSubmit={handleSubmit} className="p-6 bg-white rounded-lg shadow-md">
-          <div className="mb-4">
-            <label className="block mb-2 text-gray-700">Address</label>
+      <div className="container mx-auto max-w-3xl px-6 py-10">
+        <h1 className="mb-8 text-3xl font-extrabold text-center text-green-700">
+          Shipping Address
+        </h1>
+  
+        <form
+          onSubmit={handleSubmit}
+          className="p-8 bg-white rounded-3xl shadow-2xl border border-gray-200"
+        >
+          <div className="mb-6">
+            <label className="block mb-2 text-lg font-semibold text-gray-700">
+              Address
+            </label>
             <input
               type="text"
               name="address"
               value={formData.address}
               onChange={handleChange}
-              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-green-500"
               required
               placeholder="Street address or P.O. Box"
             />
           </div>
-
-          <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <label className="block mb-2 text-gray-700">City</label>
+              <label className="block mb-2 text-lg font-semibold text-gray-700">
+                City
+              </label>
               <input
                 type="text"
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-green-500"
                 required
+                placeholder="City"
               />
             </div>
+  
             <div>
-              <label className="block mb-2 text-gray-700">Postal Code</label>
+              <label className="block mb-2 text-lg font-semibold text-gray-700">
+                Postal Code
+              </label>
               <input
                 type="text"
                 name="postalCode"
                 value={formData.postalCode}
                 onChange={handleChange}
-                className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-green-500"
                 placeholder="Optional"
               />
             </div>
           </div>
-
-          <div className="mb-4">
-            <label className="block mb-2 text-gray-700">Phone Number</label>
+  
+          <div className="mb-2">
+            <label className="block mb-2 text-lg font-semibold text-gray-700">
+              Phone Number
+            </label>
             <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none ${
+                errors.phone ? "border-red-500" : "border-gray-300 focus:border-green-500"
+              }`}
               required
-              placeholder="For delivery updates"
+              placeholder="10 digit phone number"
+              pattern="[0-9]{10}"
+              maxLength="10"
             />
+            {errors.phone && (
+              <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+            )}
+            <p className="mt-1 text-sm text-gray-500">
+              Enter a 10-digit phone number (numbers only)
+            </p>
           </div>
-
-          <div className="flex items-center mb-6">
+  
+          <div className="flex items-center mb-8">
             <input
               type="checkbox"
               name="saveInfo"
@@ -164,25 +231,30 @@ export const BuyerAddressForm = () => {
               className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
               id="saveInfo"
             />
-            <label htmlFor="saveInfo" className="ml-2 text-gray-700">
+            <label htmlFor="saveInfo" className="ml-3 text-gray-700 text-base">
               Save this information for next time
             </label>
           </div>
-
+  
           <div className="flex justify-between">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="px-6 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-6 py-3 text-gray-700 border border-gray-400 rounded-xl hover:bg-gray-100 transition duration-300"
             >
               Back
             </button>
+  
             <button
               type="submit"
-              disabled={loading}
-              className={`px-6 py-2 rounded-md text-white ${loading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'}`}
+              disabled={loading || errors.phone}
+              className={`px-8 py-3 text-lg font-semibold rounded-xl text-white transition duration-300 ${
+                loading || errors.phone
+                  ? "bg-green-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
             >
-              {loading ? 'Saving...' : 'Continue to Checkout'}
+              {loading ? "Saving..." : "Continue to Checkout"}
             </button>
           </div>
         </form>

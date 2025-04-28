@@ -188,7 +188,6 @@ export const getAllProductListings = async (req, res) => {
   }
 };
 
-
 export const approveProductListing = async (req, res) => {
   try {
     const { listingId } = req.params;
@@ -324,6 +323,44 @@ export const deleteProductListing = async (req, res) => {
     res.status(200).json({ message: 'Product listing deleted and farmer notified successfully.' });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const getProductById = async (req, res) => {
+  try {
+      const { id } = req.params;
+
+      // Validate productId
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ 
+              success: false,
+              message: 'Invalid product ID.' 
+          });
+      }
+
+      // Find the product and populate farmer details
+      const product = await ProductListing.findById(id)
+          .populate('farmerId', 'farmerId name email phone')
+          .select('-__v'); // Exclude version key
+
+      if (!product) {
+          return res.status(404).json({ 
+              success: false,
+              message: 'Product not found.' 
+          });
+      }
+
+      res.status(200).json({
+          success: true,
+          data: product
+      });
+
+  } catch (error) {
+      res.status(500).json({ 
+          success: false,
+          message: 'Server error while fetching product',
+          error: error.message 
+      });
   }
 };
 

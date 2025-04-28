@@ -9,6 +9,10 @@ const CartSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Waste", required: true 
     },
+      farmerId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User", required: true
+    },
       description: { 
         type: String, 
         required: true 
