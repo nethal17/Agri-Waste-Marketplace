@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { loadStripe } from "@stripe/stripe-js";
+import { Navbar } from "../components/Navbar";
 
 export const Checkout = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -94,6 +95,7 @@ export const Checkout = () => {
       for (const item of cartItems) {
         const orderData = {
           userId: user._id,
+          productId: item.wasteId,
           productName: item.description,
           quantity: item.quantity || 1,
           totalPrice: item.price * (item.quantity || 1)
@@ -107,12 +109,27 @@ export const Checkout = () => {
         price_data: {
           currency: 'lkr',
           product_data: {
-            name: item.description || ''
+            name: item.description || 'Product'
           },
           unit_amount: Math.round(item.price * 100), // Convert to cents
         },
         quantity: item.quantity || 1,
       }));
+
+      // Add delivery cost as a separate line item
+      const totalDeliveryCost = cartItems.reduce((total, item) => total + (item.deliveryCost || 0), 0);
+      if (totalDeliveryCost > 0) {
+        line_items.push({
+          price_data: {
+            currency: 'lkr',
+            product_data: {
+              name: 'Delivery Cost'
+            },
+            unit_amount: Math.round(totalDeliveryCost * 100), // Convert to cents
+          },
+          quantity: 1,
+        });
+      }
 
       const response = await axios.post(
         "http://localhost:3000/api/stripe/checkout",
@@ -132,16 +149,37 @@ export const Checkout = () => {
         }
       );
 
+      console.log('Backend response:', response.data);
+
+      if (response.data.url) {
+        // If we get a URL directly, redirect to it
+        window.location.href = response.data.url;
+        return;
+      }
+
+      // If we get a session ID, use the Stripe redirect
+      const sessionId = response.data.id || response.data.sessionId || response.data.session?.id;
+      
+      if (!sessionId) {
+        console.error('Invalid response format:', response.data);
+        throw new Error('Invalid response format from server');
+      }
+
       const result = await stripe.redirectToCheckout({
-        sessionId: response.data.id
+        sessionId: sessionId
       });
 
       if (result.error) {
         throw result.error;
       }
     } catch (error) {
-      console.error("Payment error:", error);
-      toast.error(error.response?.data?.error || "Payment failed");
+      console.error("Payment error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        stack: error.stack
+      });
+      toast.error(error.response?.data?.error || `Payment failed: ${error.message}`);
     } finally {
       setIsProcessingPayment(false);
     }
@@ -172,11 +210,15 @@ export const Checkout = () => {
   }
 
   return (
+
+    <>
+          <Navbar />
+          
     <div className="flex flex-col items-center min-h-screen py-10 bg-white">
       <h1 className="mb-5 text-2xl font-bold text-green-900">Check Out</h1>
 
       {/* Shipping Address Section */}
-      <div className="w-3/4 p-4 mb-5 rounded-lg shadow-sm bg-green-100">
+      <div className="w-3/4 p-4 mb-5 bg-green-100 rounded-lg shadow-sm">
         <h2 className="text-lg font-bold">Shipping Address</h2>
         {address ? (
           <>
@@ -191,7 +233,7 @@ export const Checkout = () => {
       </div>
 
       {/* Cart Items Table */}
-      <div className="w-3/4 p-4 rounded-lg shadow-sm bg-green-100">
+      <div className="w-3/4 p-4 bg-green-100 rounded-lg shadow-sm">
         <table className="w-full">
           <thead>
             <tr className="font-bold text-left text-md">
@@ -217,7 +259,7 @@ export const Checkout = () => {
       </div>
 
       {/* Total Price Section */}
-      <div className="w-3/4 p-4 mt-5 text-right rounded-lg shadow-sm bg-green-100">
+      <div className="w-3/4 p-4 mt-5 text-right bg-green-100 rounded-lg shadow-sm">
         <h2 className="text-lg font-bold">
           Total Price: Rs. {calculateTotal().toFixed(2)}
         </h2>
@@ -234,6 +276,7 @@ export const Checkout = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

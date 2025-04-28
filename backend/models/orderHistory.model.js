@@ -1,11 +1,14 @@
-// models/orderHistory.model.js
-
 import mongoose from "mongoose";
 
 const OrderHistorySchema = new mongoose.Schema({
   userId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: "User",
+    required: true,
+  },
+  productId: {  
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
     required: true,
   },
   productName: {
@@ -27,8 +30,17 @@ const OrderHistorySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  orderStatus: {
+    type: String,
+    enum: ["toDeliver", "toReceive", "toReview"],
+    default: "toDeliver",
+  },
 });
 
 const OrderHistory = mongoose.model("OrderHistory", OrderHistorySchema);
 
 export default OrderHistory;
+
+
+
+
