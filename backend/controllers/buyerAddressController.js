@@ -9,11 +9,9 @@ export const saveOrUpdateBuyerAddress = async (req, res) => {
       return res.status(400).json({ error: "Buyer ID is required" });
     }
 
-    // Check if the buyer already has an address
     const existingAddress = await BuyerAddress.findOne({ buyerId });
 
     if (existingAddress) {
-      // If address exists, update it
       existingAddress.address = address;
       existingAddress.city = city;
       existingAddress.postalCode = postalCode;
@@ -24,7 +22,6 @@ export const saveOrUpdateBuyerAddress = async (req, res) => {
 
       return res.status(200).json({ message: "Buyer address updated successfully", data: existingAddress });
     } else {
-      // If no address exists, create new
       const newAddress = new BuyerAddress({
         buyerId,
         address,
@@ -49,7 +46,7 @@ export const getBuyerAddresses = async (req, res) => {
     const addresses = await BuyerAddress.find();
     res.json(addresses);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: "Failed to fetch buyer addresses" });
   }
 };
