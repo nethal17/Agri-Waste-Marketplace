@@ -1,62 +1,89 @@
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { 
+  DashboardOutlined, 
+  DollarOutlined, 
+  BarChartOutlined,
+  HistoryOutlined,
+  LogoutOutlined,
+  LineChartOutlined
+} from '@ant-design/icons';
 
-export const Sidebar = () => {
+const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/');
-    window.location.reload();
+  const menuItems = [
+    
+    {
+      key: 'final-dashboard',
+      icon: <LineChartOutlined />,
+      label: 'Dashboard',
+      path: '/final-summary'
+    },
+    {
+      key: 'payments',
+      icon: <DollarOutlined />,
+      label: 'Payments',
+      path: '/payment-dashboard'
+    },
+    {
+      key: 'charts',
+      icon: <BarChartOutlined />,
+      label: 'Charts',
+      path: '/charts'
+    },
+    {
+      key: 'product-history',
+      icon: <HistoryOutlined />,
+      label: 'Product History',
+      path: '/pay-history'
+    }
+  ];
+
+  const isActive = (path) => {
+    return location.pathname === path;
   };
-  
+
   return (
-    <div className="p-8 text-white bg-zinc-900 w-[225px] text-lg">
-      <ul>
-        <div>
-        <Link to="/all-users">
-        <li className="mb-4">
-          <a href="#" className="hover:text-green-600">All Users</a>
-        </li>
-        </Link>
-
-        <Link to="/all-farmers">
-        <li className="mb-4">
-          <a href="#" className="hover:text-green-600">Farmers</a>
-        </li>
-        </Link>
-
-        <Link to="/all-buyers">
-        <li className="mb-4">
-          <a href="#" className="hover:text-green-600">Buyers</a>
-        </li>
-        </Link>
-
-        <Link to="/all-drivers">
-        <li className="mb-4">
-          <a href="#" className="hover:text-green-600">Truck Drivers</a>
-        </li>
-        </Link>
+    <div 
+      className={`bg-black h-screen shadow-lg fixed left-0 top-0 pt-16 transition-all duration-300 ease-in-out ${isExpanded ? 'w-64' : 'w-20'}`}
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+    >
+      <div className="flex flex-col h-full">
+        <div className="flex-1 py-4">
+          <ul className="space-y-2 px-3">
+            {menuItems.map((item) => (
+              <li key={item.key}>
+                <button
+                  onClick={() => navigate(item.path)}
+                  className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive(item.path)
+                      ? 'bg-gray-800 text-white'
+                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <span className="text-xl mr-3">{item.icon}</span>
+                  {isExpanded && <span className="font-medium">{item.label}</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
-        
-        <div className="mt-[450px]">
-        <li className="mb-4">
+        <div className="p-4 border-t border-gray-700">
           <button
-            className="hover:text-green-600"
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate('/')}
+            className="w-full flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
           >
-            Profile Settings
+            <span className="text-xl mr-3"><LogoutOutlined /></span>
+            {isExpanded && <span className="font-medium">Logout</span>}
           </button>
-        </li>
-        <li className="mb-4">
-          <button 
-            className="hover:text-green-600"
-            onClick={handleLogout}>
-            Log Out
-          </button>
-        </li>
         </div>
-      </ul>
+      </div>
     </div>
   );
 };
+
+export default Sidebar;
