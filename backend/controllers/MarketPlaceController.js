@@ -46,7 +46,7 @@ export const getListingDetails = async (req, res) => {
     }
   };
 
-  export const deleteListing = async (req, res) => {
+export const deleteListing = async (req, res) => {
     try {
       const { listingId } = req.params;
   
@@ -68,7 +68,7 @@ export const getListingDetails = async (req, res) => {
     }
   };
 
-  export const getProductById = async (req, res) => {
+export const getProductById = async (req, res) => {
     try {
         const { productId } = req.params;
 
@@ -108,7 +108,7 @@ export const getListingDetails = async (req, res) => {
 
 export const getAllListings = async (req, res) => {
   try {
-    const listings = await Marketplace.find().populate('farmerId', 'name email');
+    const listings = await ProductListing.find().populate('farmerId', 'name email');
     res.status(200).json(listings);
   } catch (error) {
     res.status(500).json({ message: error.message });

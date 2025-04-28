@@ -52,6 +52,8 @@ import { DisplayFarmerReviews } from './pages/DisplayFarmerReviews';
 import { InventoryChartpage } from './pages/InventoryChartpage';
 import { InventoryCategoryPage } from './pages/InventoryCategoryPage';
 
+import HomeTesting from './pages/HomeTesting';
+
 
 
 import Delivery from './pages/Delivery';
@@ -115,6 +117,9 @@ function App() {
       <Route path="/product-listing-form" element={<ProductListingForm />} />
       <Route path="/farmer-listings" element={<DisplayFarmerListings />} /> 
       <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 
+
+      <Route path="/home-testing" element={<HomeTesting />} />
+      
     </Routes>
   )
 }

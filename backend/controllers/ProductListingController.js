@@ -264,13 +264,14 @@ export const approveProductListing = async (req, res) => {
 export const deleteProductListing = async (req, res) => {
   try {
     const { listingId } = req.params;
+    const { reason, farmerEmail, productName } = req.body;
 
     const deletedListing = await ProductListing.findByIdAndDelete(listingId).populate('farmerId');
     if (!deletedListing) {
       return res.status(404).json({ message: 'Product listing not found.' });
     }
 
-    // Send deletion notification email to farmer
+    // Send deletion notification email to farmer with the reason
     try {
         const transporter = nodemailer.createTransport({
             service: "Gmail",
@@ -281,35 +282,46 @@ export const deleteProductListing = async (req, res) => {
         });
 
         const mailOptions = {
-            to: deletedListing.farmerId.email,
+            to: farmerEmail || deletedListing.farmerId.email,
             from: process.env.EMAIL_USER,
-            subject: `Your ${deletedListing.wasteItem} Listing Has Been Removed`,
+            subject: `Your ${productName || deletedListing.wasteItem} Listing Has Been Declined`,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #4CAF50;">AgriWaste Management</h2>
                     <p>Dear ${deletedListing.farmerId.name || 'Valued Farmer'},</p>
                     
-                    <p>We're informing you that your product listing has been removed from our system.</p>
+                    <p>We regret to inform you that your product listing has been declined by our admin team.</p>
                     
                     <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0;">
                         <h3 style="margin-top: 0;">Product Details</h3>
-                        <p><strong>Product Name:</strong> ${deletedListing.wasteItem}</p>
-                        <p><strong>Reason:</strong> Listing removed by admin</p>
+                        <p><strong>Product Name:</strong> ${productName || deletedListing.wasteItem}</p>
+                        <p><strong>Status:</strong> Declined</p>
+                        ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
                     </div>
                     
-                    <p>If you believe this was done in error, please contact our support team.</p>
+                    <p>If you would like more information about this decision or would like to submit a revised listing, 
+                    please don't hesitate to contact our support team.</p>
                     
                     <p>Best regards,<br>The AgriWaste Management Team</p>
+                    
+                    <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #777;">
+                        <p>This is an automated message. Please do not reply directly to this email.</p>
+                    </div>
                 </div>
             `
         };
 
         await transporter.sendMail(mailOptions);
     } catch (emailError) {
-        console.error('Failed to send deletion email:', emailError);
+        console.error('Failed to send decline email:', emailError);
+        // Continue with the response even if email fails
+        return res.status(200).json({ 
+            message: 'Product listing deleted but failed to send email notification.',
+            error: emailError.message 
+        });
     }
 
-    res.status(200).json({ message: 'Product listing deleted successfully.' });
+    res.status(200).json({ message: 'Product listing deleted and farmer notified successfully.' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
