@@ -1,45 +1,56 @@
-import React, { useState, useEffect } from "react";
-import { Navbar } from "../components/Navbar";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { toast } from "react-hot-toast";
+"use client"
+
+import { useState, useEffect } from "react"
+import { Navbar } from "../components/Navbar"
+import { Link, useParams, useNavigate } from "react-router-dom"
+import axios from "axios"
+import { toast } from "react-hot-toast"
+import { MapPin, Calendar, User, ShoppingCart, ArrowLeft, Search, ImageIcon } from "lucide-react"
 
 const nonOrganics = [
-    { name: "Chemical Waste", image: "/images/Chemical_Waste.jpg", value: "Chemical Waste" }, 
-    { name: "Plastic Waste", image: "/images/Plastic_Waste.jpg", value: "Plastic Waste" },  
-    { name: "Metal Waste", image: "/images/Metal_Waste.jpg", value: "Metal Waste" },
-    { name: "Fabric & Textile", image: "/images/Fabric_Textile_Waste.jpg", value: "Fabric Textile" }, 
-    { name: "Glass & Ceramic", image: "/images/Glass_Ceramic_Waste.jpg", value: "Glass Ceramic" },
-    { name: "Rubber Waste", image: "/images/Rubber_Waste.jpg", value: "Rubber Waste" }
-];
+  { name: "Chemical Waste", image: "/images/Chemical_Waste.jpg", value: "Chemical Waste" },
+  { name: "Plastic Waste", image: "/images/Plastic_Waste.jpg", value: "Plastic Waste" },
+  { name: "Metal Waste", image: "/images/Metal_Waste.jpg", value: "Metal Waste" },
+  { name: "Fabric & Textile", image: "/images/Fabric_Textile_Waste.jpg", value: "Fabric Textile" },
+  { name: "Glass & Ceramic", image: "/images/Glass_Ceramic_Waste.jpg", value: "Glass Ceramic" },
+  { name: "Rubber Waste", image: "/images/Rubber_Waste.jpg", value: "Rubber Waste" },
+]
 
 const wasteItemsByType = {
-  'Chemical Waste': ['Expired Pesticides & Herbicides','Fertilizer Residues','Disinfectants & Cleaning Agents'],
-  'Plastic Waste': ['Pesticide & Fertilizer Packaging (Plastic bags, bottles, sachets)','Mulching Films & Plastic Sheets','Drip Irrigation Pipes & Tubes','Greenhouse Plastic Covers'],
-  'Metal Waste': ['Rusty Farm Equipment & Tools (Plows, Harrows, Blades)','Wire Fencing & Metal Posts','Discarded Machinery Parts (Tractor parts, Gears, Bearings)'],
-  'Fabric & Textile Waste': ['Burlap Sacks & Jute Bags','Tarpaulins & Netting Materials','Old Protective Gear (Gloves, Aprons, Coveralls)'],
-  'Glass & Ceramic Waste': ['Chemical Containers','Pesticide Bottles','Damaged Ceramic Pots & Storage Jars'],
-  'Rubber Waste': ['Used Tires from Tractors & Farm Vehicles','Rubber Seals & Hoses','Discarded Conveyor Belts']
-};
+  "Chemical Waste": ["Expired Pesticides & Herbicides", "Fertilizer Residues", "Disinfectants & Cleaning Agents"],
+  "Plastic Waste": [
+    "Pesticide & Fertilizer Packaging (Plastic bags, bottles, sachets)",
+    "Mulching Films & Plastic Sheets",
+    "Drip Irrigation Pipes & Tubes",
+    "Greenhouse Plastic Covers",
+  ],
+  "Metal Waste": [
+    "Rusty Farm Equipment & Tools (Plows, Harrows, Blades)",
+    "Wire Fencing & Metal Posts",
+    "Discarded Machinery Parts (Tractor parts, Gears, Bearings)",
+  ],
+  "Fabric & Textile Waste": [
+    "Burlap Sacks & Jute Bags",
+    "Tarpaulins & Netting Materials",
+    "Old Protective Gear (Gloves, Aprons, Coveralls)",
+  ],
+  "Glass & Ceramic Waste": ["Chemical Containers", "Pesticide Bottles", "Damaged Ceramic Pots & Storage Jars"],
+  "Rubber Waste": ["Used Tires from Tractors & Farm Vehicles", "Rubber Seals & Hoses", "Discarded Conveyor Belts"],
+}
 
 const CartButton = ({ itemCount }) => {
-  const navigate = useNavigate();
-  
+  const navigate = useNavigate()
+
   return (
-    <button
-      onClick={() => navigate('/cart')}
-      className="relative group"
-    >
-      <div className="p-3 bg-white rounded-full shadow-lg transform transition-transform group-hover:scale-110 group-hover:shadow-xl">
+    <button onClick={() => navigate("/cart")} className="relative group">
+      <div className="p-3 transition-all duration-300 transform bg-white rounded-full shadow-md group-hover:shadow-lg group-hover:bg-green-50">
         <div className="relative">
-          <svg className="w-6 h-6 text-gray-700 group-hover:text-green-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
+          <ShoppingCart className="w-6 h-6 text-green-600 transition-colors group-hover:text-green-700" />
           {itemCount > 0 && (
-            <div className="absolute -top-2 -right-2 transform transition-all group-hover:scale-110">
+            <div className="absolute transition-all transform -top-2 -right-2">
               <div className="relative">
-                <div className="absolute w-full h-full bg-green-500 rounded-full animate-ping opacity-75"></div>
-                <div className="relative bg-green-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                <div className="absolute w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"></div>
+                <div className="relative flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full">
                   {itemCount}
                 </div>
               </div>
@@ -47,121 +58,193 @@ const CartButton = ({ itemCount }) => {
           )}
         </div>
       </div>
-      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+      <div className="absolute px-2 py-1 text-xs font-medium text-white transition-all duration-300 transform -translate-x-1/2 bg-green-700 rounded-md opacity-0 -bottom-8 left-1/2 group-hover:opacity-100 whitespace-nowrap">
         View Cart
       </div>
     </button>
-  );
-};
+  )
+}
 
 // Component to display products for a specific category
 const CategoryProducts = () => {
-  const { waste_type } = useParams();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedWasteItem, setSelectedWasteItem] = useState('all');
-  const [cartItemsCount, setCartItemsCount] = useState(0);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const updateCartCount = () => {
-      const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-      setCartItemsCount(cartItems.length);
-    };
-
-    updateCartCount();
-    window.addEventListener('storage', updateCartCount);
-    
-    return () => {
-      window.removeEventListener('storage', updateCartCount);
-    };
-  }, []);
+  const { waste_type } = useParams()
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [selectedWasteItem, setSelectedWasteItem] = useState("all")
+  const [cartItemsCount, setCartItemsCount] = useState(0)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        setLoading(true);
-        console.log('Fetching products for waste type:', waste_type);
-        
-        const response = await axios.get(`http://localhost:3000/api/marketplace/waste-type/${encodeURIComponent(waste_type)}`);
-        
+        setLoading(true)
+        console.log("Fetching products for waste type:", waste_type)
+
+        const response = await axios.get(
+          `http://localhost:3000/api/marketplace/waste-type/${encodeURIComponent(waste_type)}`,
+        )
+
         if (!response.data.success) {
-          throw new Error(response.data.message || 'No products found in this category');
+          throw new Error(response.data.message || "No products found in this category")
         }
-        
-        console.log('API Response:', response.data);
-        setProducts(response.data.data);
-        setError(null);
+
+        console.log("API Response:", response.data)
+        setProducts(response.data.data)
+        setError(null)
       } catch (err) {
-        console.error('Error fetching products:', err);
-        setError(`Failed to fetch products: ${err.message}`);
-        setProducts([]);
+        console.error("Error fetching products:", err)
+        setError(`Failed to fetch products: ${err.message}`)
+        setProducts([])
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchProducts();
-  }, [waste_type]);
+    fetchProducts()
+  }, [waste_type])
 
-  const wasteItems = wasteItemsByType[waste_type] || [];
-  
-  const filteredProducts = selectedWasteItem === 'all' 
-    ? products 
-    : products.filter(product => product.wasteItem === selectedWasteItem);
+  useEffect(() => {
+    const fetchCartCount = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        const userData = JSON.parse(localStorage.getItem("user") || "{}")
+        const userId = userData._id
+
+        if (!token) {
+          toast.error("No token found, please login again.")
+          navigate("/login")
+          return
+        }
+
+        if (userId) {
+          const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
+          if (response.data) {
+            setCartItemsCount(response.data.items.length)
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching cart count:", error)
+      }
+    }
+
+    fetchCartCount()
+  }, [])
+
+  const handleAddToCart = async (product) => {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}")
+    const userId = userData._id
+
+    try {
+      if (!userId) {
+        toast.error("Please login to add items to cart")
+        navigate("/login")
+        return
+      }
+
+      const cartItem = {
+        userId,
+        wasteId: product._id,
+        description: product.wasteItem,
+        price: product.price,
+        quantity: product.quantity,
+        deliveryCost: 300, // You can modify this based on your requirements
+        image: product.image || "", // Add the image URL to the cart item
+      }
+
+      const response = await axios.post("http://localhost:3000/api/cart/add", cartItem)
+
+      if (response.data) {
+        setCartItemsCount((prevCount) => prevCount + 1)
+        toast.success(`${product.wasteItem} added to cart!`)
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error)
+      toast.error("Failed to add item to cart")
+    }
+  }
+
+  const wasteItems = wasteItemsByType[waste_type] || []
+
+  const filteredProducts =
+    selectedWasteItem === "all" ? products : products.filter((product) => product.wasteItem === selectedWasteItem)
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="container px-4 py-8 mx-auto">
+          <div className="flex flex-col items-center justify-center h-64 space-y-4">
+            <div className="w-16 h-16 border-t-4 border-b-4 border-green-600 rounded-full animate-spin"></div>
+            <p className="text-lg font-medium text-green-700">Loading products...</p>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center text-red-600">{error}</div>
+        <div className="container px-4 py-8 mx-auto">
+          <div className="p-8 text-center bg-white rounded-lg shadow-md">
+            <div className="inline-flex items-center justify-center w-16 h-16 mb-4 text-red-500 bg-red-100 rounded-full">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-xl font-semibold text-gray-800">Error</h3>
+            <p className="text-red-600">{error}</p>
+            <button
+              onClick={() => navigate("/non-organic")}
+              className="px-4 py-2 mt-4 text-white bg-green-600 rounded-lg hover:bg-green-700"
+            >
+              Return to Categories
+            </button>
+          </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-3">
-            <Link to="/non-organic" className="inline-flex items-center text-green-600 hover:text-green-700 transition-colors">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Categories
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-900 capitalize">{waste_type}</h1>
+      <div className="container px-4 py-8 mx-auto max-w-7xl">
+        <div className="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
+          <div className="flex flex-col">
+            <div className="flex items-center mb-2">
+              <Link
+                to="/non-organic"
+                className="inline-flex items-center px-3 py-1.5 mr-3 text-sm font-medium text-green-700 transition-all duration-300 bg-green-100 rounded-full hover:bg-green-200"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back
+              </Link>
+              <h1 className="text-3xl font-bold text-gray-900 capitalize">{waste_type}</h1>
+            </div>
+            <p className="text-gray-600">Browse sustainable {waste_type.toLowerCase()} products for recycling</p>
           </div>
           <CartButton itemCount={cartItemsCount} />
         </div>
 
         {/* Waste Items Filter */}
         {wasteItems.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-8">
+            <h2 className="mb-3 text-lg font-semibold text-gray-700">Filter by Waste Type</h2>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setSelectedWasteItem('all')}
+                onClick={() => setSelectedWasteItem("all")}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                  selectedWasteItem === 'all'
-                    ? 'bg-green-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                  selectedWasteItem === "all"
+                    ? "bg-green-600 text-white shadow-md"
+                    : "bg-white border border-gray-200 text-gray-700 hover:bg-green-50 hover:border-green-200"
                 }`}
               >
                 All Items
@@ -172,8 +255,8 @@ const CategoryProducts = () => {
                   onClick={() => setSelectedWasteItem(item)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     selectedWasteItem === item
-                      ? 'bg-green-600 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                      ? "bg-green-600 text-white shadow-md"
+                      : "bg-white border border-gray-200 text-gray-700 hover:bg-green-50 hover:border-green-200"
                   }`}
                 >
                   {item}
@@ -184,80 +267,86 @@ const CategoryProducts = () => {
         )}
 
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl shadow-lg p-8">
-            <p className="text-gray-600 text-lg">
-              {selectedWasteItem === 'all'
-                ? 'No products available in this category.'
-                : `No products available for ${selectedWasteItem}.`}
+          <div className="p-12 text-center bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div className="inline-flex items-center justify-center w-20 h-20 mb-6 text-green-500 bg-green-100 rounded-full">
+              <Search className="w-10 h-10" />
+            </div>
+            <h3 className="mb-2 text-2xl font-semibold text-gray-800">No Products Found</h3>
+            <p className="max-w-md mx-auto mb-6 text-gray-600">
+              {selectedWasteItem === "all"
+                ? "No products are currently available in this category."
+                : `No products are currently available for ${selectedWasteItem}.`}
             </p>
+            <button
+              onClick={() => setSelectedWasteItem("all")}
+              className="px-6 py-2.5 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors duration-300"
+            >
+              View All Products
+            </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {filteredProducts.map((product) => (
-              <div key={product._id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full">
+              <div
+                key={product._id}
+                className="group flex flex-col h-full overflow-hidden transition-all duration-300 transform bg-white border border-gray-100 shadow-sm rounded-2xl hover:shadow-xl hover:-translate-y-1"
+              >
                 <div className="relative h-64 overflow-hidden bg-gray-100">
                   {product.image ? (
                     <img
-                      src={product.image}
+                      src={product.image || "/placeholder.svg"}
                       alt={product.wasteItem}
-                      className="w-full h-full object-contain"
+                      className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/images/no-image.png'; // Fallback image
+                        e.target.onerror = null
+                        e.target.src = "/images/no-image.png" // Fallback image
                       }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                      <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
+                    <div className="flex items-center justify-center w-full h-full bg-gray-100">
+                      <ImageIcon className="w-16 h-16 text-gray-300" />
                     </div>
                   )}
-                  <div className="absolute top-0 right-0 bg-green-600 text-white px-3 py-1 rounded-bl-lg">
+                  <div className="absolute top-0 right-0 px-3 py-1.5 m-3 text-sm font-medium text-white bg-green-600 rounded-lg shadow-sm">
                     {product.quantity} kg
                   </div>
                 </div>
-                <div className="p-6 flex-grow flex flex-col">
+                <div className="flex flex-col flex-grow p-6">
                   <div className="flex-grow">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.wasteItem}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2 min-h-[3rem]">{product.description}</p>
+                    <h3 className="mb-2 text-xl font-semibold text-gray-900 group-hover:text-green-700 transition-colors">
+                      {product.wasteItem}
+                    </h3>
+                    <p className="mb-4 text-gray-600 line-clamp-2 min-h-[3rem]">{product.description}</p>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-2xl font-bold text-green-600">Rs. {product.price}</span>
+                      <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                        {waste_type}
+                      </span>
                     </div>
-                    <div className="space-y-2 text-sm text-gray-500">
+                    <div className="space-y-2.5 text-sm text-gray-500">
                       <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        <span className="truncate">{product.farmer?.name || product.farmerId?.name || 'Unknown Farmer'}</span>
+                        <User className="flex-shrink-0 w-4 h-4 text-green-500" />
+                        <span className="truncate">
+                          {product.farmer?.name || product.farmerId?.name || "Unknown Farmer"}
+                        </span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span className="truncate">{product.location?.city || product.city}, {product.location?.district || product.district}</span>
+                        <MapPin className="flex-shrink-0 w-4 h-4 text-green-500" />
+                        <span className="truncate">
+                          {product.location?.city || product.city}, {product.location?.district || product.district}
+                        </span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                        <Calendar className="flex-shrink-0 w-4 h-4 text-green-500" />
                         <span className="truncate">Expires: {new Date(product.expireDate).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
                   <button
-                    onClick={() => {
-                      const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-                      cartItems.push(product);
-                      localStorage.setItem("cart", JSON.stringify(cartItems));
-                      toast.success(`${product.wasteItem} added to cart!`);
-                    }}
-                    className="w-full mt-6 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center justify-center space-x-2"
+                    onClick={() => handleAddToCart(product)}
+                    className="flex items-center justify-center w-full px-4 py-3 mt-6 space-x-2 text-white transition-all duration-300 bg-green-600 rounded-lg hover:bg-green-700 hover:shadow-md focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 focus:outline-none"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                    <ShoppingCart className="w-5 h-5" />
                     <span>Add to Cart</span>
                   </button>
                 </div>
@@ -267,94 +356,129 @@ const CategoryProducts = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
 export const NonOrganicWaste = () => {
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [cartItemsCount, setCartItemsCount] = useState(0);
+  const navigate = useNavigate()
+  const [searchTerm, setSearchTerm] = useState("")
+  const [cartItemsCount, setCartItemsCount] = useState(0)
 
   useEffect(() => {
-    const updateCartCount = () => {
-      const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-      setCartItemsCount(cartItems.length);
-    };
+    const fetchCartCount = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        const userData = JSON.parse(localStorage.getItem("user") || "{}")
+        const userId = userData._id
 
-    updateCartCount();
-    window.addEventListener('storage', updateCartCount);
-    
-    return () => {
-      window.removeEventListener('storage', updateCartCount);
-    };
-  }, []);
+        if (!token) {
+          toast.error("No token found, please login again.")
+          navigate("/login")
+          return
+        }
 
-  const filteredWaste = nonOrganics.filter((waste) =>
-    waste.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+        if (userId) {
+          const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
+          if (response.data) {
+            setCartItemsCount(response.data.items.length)
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching cart count:", error)
+      }
+    }
+
+    fetchCartCount()
+  }, [])
+
+  const filteredWaste = nonOrganics.filter((waste) => waste.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <Navbar />
-      <div className="container p-4 mx-auto">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
+      <div className="container px-4 py-8 mx-auto max-w-7xl">
+        {/* Hero Section */}
+        <div className="mb-10 text-center">
+          <h1 className="mb-3 text-4xl font-bold text-green-800">Non-Organic Waste Marketplace</h1>
+          <p className="max-w-2xl mx-auto text-gray-600">
+            Browse sustainable non-organic agricultural waste products for recycling and reuse. Help reduce waste and
+            support eco-friendly practices.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-6 mb-8 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap gap-3">
             <Link to="/organic-waste">
-              <button className="px-4 py-2 text-white bg-black rounded hover:bg-gray-800 transition-colors">
+              <button className="px-5 py-2.5 font-medium text-green-700 transition-all duration-300 bg-white border-2 border-green-600 rounded-lg shadow-sm hover:bg-green-50 hover:shadow-md focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 focus:outline-none">
                 Organic Waste
               </button>
             </Link>
             <Link to="/non-organic">
-              <button className="px-4 py-2 text-white bg-black rounded hover:bg-gray-800 transition-colors">
+              <button className="px-5 py-2.5 font-medium text-white transition-all duration-300 bg-green-600 rounded-lg shadow-md hover:bg-green-700 hover:shadow-lg focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 focus:outline-none">
                 Non-Organic Waste
               </button>
             </Link>
           </div>
-          <div className="flex items-center space-x-6">
-            <div className="relative">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 md:w-72">
               <input
                 type="text"
                 placeholder="Search Agri-Waste"
-                className="w-64 p-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full p-3 pl-12 text-gray-700 transition-all duration-300 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <svg
-                className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+              <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-4 top-1/2" />
             </div>
             <CartButton itemCount={cartItemsCount} />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredWaste.map((waste, index) => (
-            <div 
-              key={index} 
-              className="relative overflow-hidden rounded-lg shadow-lg cursor-pointer transform transition-transform hover:scale-105"
-              onClick={() => navigate(`/non-organic/${waste.value}`)}
-            >
-              <img src={waste.image} alt={waste.name} className="object-cover w-full h-60" />
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <span className="text-lg font-bold text-white">{waste.name}</span>
-              </div>
+
+        {filteredWaste.length === 0 ? (
+          <div className="p-12 text-center bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div className="inline-flex items-center justify-center w-20 h-20 mb-6 text-green-500 bg-green-100 rounded-full">
+              <Search className="w-10 h-10" />
             </div>
-          ))}
-        </div>
+            <h3 className="mb-2 text-2xl font-semibold text-gray-800">No Categories Found</h3>
+            <p className="max-w-md mx-auto mb-6 text-gray-600">
+              No waste categories match your search term "{searchTerm}".
+            </p>
+            <button
+              onClick={() => setSearchTerm("")}
+              className="px-6 py-2.5 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors duration-300"
+            >
+              Clear Search
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredWaste.map((waste, index) => (
+              <div
+                key={index}
+                className="group relative overflow-hidden transition-all duration-500 transform rounded-2xl shadow-md cursor-pointer hover:shadow-xl hover:-translate-y-1"
+                onClick={() => navigate(`/non-organic/${waste.value}`)}
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src={waste.image || "/placeholder.svg"}
+                    alt={waste.name}
+                    className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+                  />
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center transition-opacity bg-gradient-to-t from-black/80 via-black/50 to-transparent">
+                  <h3 className="text-2xl font-bold text-white drop-shadow-md">{waste.name}</h3>
+                  <div className="w-16 h-1 my-3 bg-green-500 rounded-full"></div>
+                  <span className="px-4 py-1.5 mt-2 text-sm font-medium text-white bg-green-600 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 delay-100">
+                    Browse Products
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </>
-  );
-};
+    </div>
+  )
+}
 
-export { CategoryProducts };
-
-
+export { CategoryProducts }
