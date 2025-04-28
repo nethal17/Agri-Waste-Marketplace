@@ -29,6 +29,8 @@ import checkoutRoutes from "./routes/checkout.routes.js";
 import buyerAddressRoutes from "./routes/buyerAddressRoutes.js";
 
 import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
+import vehicleRegRoutes from "./routes/VehicleReg.routes.js";
+import deliveryHistoryRoutes from "./routes/deliveryHistoryRoutes.js";
 
 
 
@@ -76,6 +78,8 @@ app.use("/api/order-history", orderHistoryRoutes);
 
 // yuwani
 app.use('/api/deliveryReq', deliveryReqRoutes);
+app.use("/api/vehicle-reg", vehicleRegRoutes);
+app.use("/api/delivery-history", deliveryHistoryRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
@@ -87,3 +91,10 @@ connect(process.env.MONGO_URI, {
   .catch(err => console.log(err));
 
 
+  
+ 
+  
+  
+
+  
+  export default router;
