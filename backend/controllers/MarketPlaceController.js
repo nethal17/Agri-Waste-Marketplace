@@ -46,7 +46,7 @@ export const getListingDetails = async (req, res) => {
     }
   };
 
-  export const deleteListing = async (req, res) => {
+export const deleteListing = async (req, res) => {
     try {
       const { listingId } = req.params;
   
@@ -68,7 +68,7 @@ export const getListingDetails = async (req, res) => {
     }
   };
 
-  export const getProductById = async (req, res) => {
+export const getProductById = async (req, res) => {
     try {
         const { productId } = req.params;
 
