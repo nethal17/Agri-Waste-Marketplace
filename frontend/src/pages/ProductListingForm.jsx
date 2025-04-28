@@ -29,6 +29,10 @@ export const ProductListingForm = () => {
     description: "",
     expireDate: "",
     image: null,
+    bankName: "",
+    accountNumber: "",
+    accountHolderName: "",
+    branch: "",
   });
 
   const [wasteTypes, setWasteTypes] = useState([]);
@@ -195,7 +199,11 @@ export const ProductListingForm = () => {
         price,
         description: formData.description,
         expireDate: formData.expireDate,
-        photo
+        photo,
+        bankName: formData.bankName,
+        accountNumber: formData.accountNumber,
+        accountHolderName: formData.accountHolderName,
+        branch: formData.branch,
       };
 
       // First create the product listing
@@ -215,40 +223,33 @@ export const ProductListingForm = () => {
         throw new Error(responseData.message || responseData.error?.message || "Submission failed");
       }
 
-      // After successful product listing, create Stripe checkout session
-      const stripeResponse = await fetch("http://localhost:3000/api/stripe/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: userData._id,
-          amount: 100000, // Rs. 1000.00 in cents (minimum required by Stripe)
-          currency: "LKR",
-          success_url: "http://localhost:5173/success",
-          cancel_url: "http://localhost:5173/product-listing",
-          customerEmail: userData.email
-        }),
-      });
-
-      const stripeData = await stripeResponse.json();
-      
-      if (!stripeResponse.ok) {
-        throw new Error(stripeData.error || "Failed to create payment session");
+      if (response.ok) {
+        toast.success("Product listed successfully! Your Listings will be reviewed shortly.");
+        // Reset form after successful submission
+        setFormData({
+          wasteCategory: "",
+          wasteType: "",
+          wasteItem: "",
+          province: "",
+          district: "",
+          city: "",
+          quantity: "",
+          price: "",
+          description: "",
+          expireDate: "",
+          image: null,
+          bankName: "",
+          accountNumber: "",
+          accountHolderName: "",
+          branch: "",
+        });
       }
-
-      if (!stripeData.url) {
-        throw new Error("No payment URL received from server");
-      }
-
-      // Redirect to Stripe Checkout
-      window.location.href = stripeData.url;
-      
     } catch (error) {
       console.error("Submission error:", error);
       toast.error(error.message || "Submission failed. Please try again.");
     }
-  };
+};    
+      
 
   return (
     <>
@@ -477,6 +478,61 @@ export const ProductListingForm = () => {
                       accept="image/*"
                     />
                   </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Banking Details */}
+            <div className="bg-gray-50 p-6 rounded-xl">
+              <h3 className="mb-4 text-xl font-semibold text-gray-800">Banking Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">Bank Name</label>
+                  <input
+                    type="text"
+                    name="bankName"
+                    placeholder="Enter your bank name"
+                    value={formData.bankName}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">Branch</label>
+                  <input
+                    type="text"
+                    name="branch"
+                    placeholder="Enter branch name"
+                    value={formData.branch}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">Account Holder Name</label>
+                  <input
+                    type="text"
+                    name="accountHolderName"
+                    placeholder="Enter account holder's name"
+                    value={formData.accountHolderName}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">Account Number</label>
+                  <input
+                    type="text"
+                    name="accountNumber"
+                    placeholder="Enter account number"
+                    value={formData.accountNumber}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
                 </div>
               </div>
             </div>

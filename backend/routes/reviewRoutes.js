@@ -1,14 +1,6 @@
 import express from 'express';
-import {
-  addReview,
-  publishReview,
-  getPendingReviews,
-  getPublishedReviews,
-  getFarmerAverageRating,
-  deleteReview,
-  getReviewDetails,
-  getFarmerReviews
-} from '../controllers/review.Controller.js'; 
+import {addReview,publishReview,getPendingReviews,getPublishedReviews,
+  getFarmerAverageRating,deleteReview,getReviewDetails,getFarmerReviews} from '../controllers/review.Controller.js'; 
 
 const router = express.Router();
 

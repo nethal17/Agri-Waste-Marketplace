@@ -14,6 +14,10 @@ const ProductListingSchema = new mongoose.Schema({
   image: { type: String, optional: true },
   status: { type: String, default: 'Pending', enum: ['Pending', 'Approved', 'Rejected'] },
   farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  bankName: { type: String, required: true },
+  accountNumber: { type: String, required: true },
+  accountHolderName: { type: String, required: true },
+  branch: { type: String, required: true },
 }, { timestamps: true });
 
 export default mongoose.model('ProductListing', ProductListingSchema);

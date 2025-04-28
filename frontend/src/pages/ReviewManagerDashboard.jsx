@@ -6,6 +6,7 @@ import { FaCheck, FaTrash, FaEye, FaSpinner } from 'react-icons/fa';
 
 export const ReviewManagerDashboard = () => {
   const [pendingReviews, setPendingReviews] = useState([]);
+  const [userDetails, setUserDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedReview, setSelectedReview] = useState(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
@@ -52,7 +53,7 @@ export const ReviewManagerDashboard = () => {
     }
   };
 
-  const handlePreviewReview = async (reviewId) => {
+  /*const handlePreviewReview = async (reviewId) => {
     try {
       const response = await axios.get(`http://localhost:3000/api/reviews/details/${reviewId}`);
       setSelectedReview(response.data); // Set the selected review
@@ -61,8 +62,9 @@ export const ReviewManagerDashboard = () => {
       console.error('Error fetching review details:', error);
       toast.error('Failed to fetch review details. Please try again.');
     }
-  };
+  };*/
 
+  console.log(pendingReviews);
 
   return (
     <>
@@ -93,7 +95,7 @@ export const ReviewManagerDashboard = () => {
                     className="border-b hover:bg-gray-50 transition"
                   >
                     <td className="p-4 text-gray-700">{review.buyerId?.name || "Unknown Buyer"}</td>
-                    <td className="p-4 text-gray-700">{review.productId?.wasteItem || "Unknown Product"}</td>
+                    <td className="p-4 text-gray-700">{review.productName || "Unknown Product"}</td>
                     <td className="p-4 text-gray-700">{review.rating}</td>
                     <td className="p-4 text-gray-700">{review.review}</td>
                     <td className="p-4">

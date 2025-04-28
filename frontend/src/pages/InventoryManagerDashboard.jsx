@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { FiPackage, FiCheck, FiTrash2, FiEye, FiCalendar, FiAlertTriangle, FiClock } from 'react-icons/fi';
+import { FiUser, FiFileText, FiDollarSign, FiLayers, FiSettings } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 export const InventoryManagerDashboard = () => {
@@ -239,21 +240,49 @@ export const InventoryManagerDashboard = () => {
         </div>
 
         {/* Listings Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farmer</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <tr className="bg-gradient-to-r from-green-50 to-gray-50">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <FiUser className="mr-2 opacity-70" /> Farmer
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <FiPackage className="mr-2 opacity-70" /> Product
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <FiFileText className="mr-2 opacity-70" /> Description
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <FiDollarSign className="mr-2 opacity-70" /> Price
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <FiLayers className="mr-2 opacity-70" /> Quantity
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <FiCalendar className="mr-2 opacity-70" /> Expiry
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <FiSettings className="mr-2 opacity-70" /> Actions
+                    </div>
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="divide-y divide-gray-100">
                 {pendingListings.map((listing) => {
                   const statusColor = getStatusColor(listing.expiryStatus);
                   const statusIcon = getStatusIcon(listing.expiryStatus);
@@ -262,63 +291,87 @@ export const InventoryManagerDashboard = () => {
                   return (
                     <tr 
                       key={listing._id} 
-                      className={`hover:bg-gray-50 transition-colors ${
-                        listing.expiryStatus === 'expired' ? 'bg-red-50' : 
-                        listing.expiryStatus === 'soon' ? 'bg-yellow-50' : ''
+                      className={`hover:bg-gray-50 transition-colors duration-150 ${
+                        listing.expiryStatus === 'expired' ? 'bg-red-50/50' : 
+                        listing.expiryStatus === 'soon' ? 'bg-yellow-50/50' : ''
                       }`}
                     >
-                      
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                          <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center border border-green-100 shadow-sm">
                             <span className="text-sm font-medium text-green-800">
                               {(listing.farmerId?.name || 'Unknown')[0]}
                             </span>
+                            <span className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-white ${
+                              listing.expiryStatus === 'expired' ? 'bg-red-500' : 
+                              listing.expiryStatus === 'soon' ? 'bg-yellow-500' : 'bg-green-500'
+                            }`}></span>
                           </div>
                           <div className="ml-3">
                             <p className="text-sm font-medium text-gray-900">{listing.farmerId?.name || 'Unknown Farmer'}</p>
+                            <p className="text-xs text-gray-500">{listing.farmerId?.email || ''}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{listing.wasteItem}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{listing.description}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">Rs.{listing.price}</div>
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <span className="text-xs font-medium">
-                            {listing.quantity} units
-                          </span>
+                          <div className={`h-2 w-2 rounded-full mr-2 ${
+                            listing.expiryStatus === 'expired' ? 'bg-red-500' : 
+                            listing.expiryStatus === 'soon' ? 'bg-yellow-500' : 'bg-green-500'
+                          }`}></div>
+                          <span className="text-sm font-medium text-gray-900">{listing.wasteItem}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 max-w-xs">
+                        <p className="text-sm text-gray-600 line-clamp-2">{listing.description}</p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Rs.{listing.price}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <FiCalendar className="w-4 h-4 text-gray-400 mr-2" />
-                          <span className={`text-sm font-medium ${
-                            listing.expiryStatus === 'expired' ? 'text-red-600' : 
-                            listing.expiryStatus === 'soon' ? 'text-yellow-600' : 'text-gray-600'
-                          }`}>
-                            {listing.formattedExpiry}
-                            {statusIcon}
-                            {statusText}
-                          </span>
+                          <div className="relative w-16">
+                            <span className="text-xs font-medium absolute -bottom-5 left-0">
+                              {listing.quantity} units
+                            </span>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-gray-900">
+                              {listing.formattedExpiry}
+                            </p>
+                            {(listing.expiryStatus === 'soon' || listing.expiryStatus === 'expired') && (
+                              <p className={`text-xs ${
+                                listing.expiryStatus === 'expired' ? 'text-red-600' : 'text-yellow-600'
+                              }`}>
+                                {statusIcon} {statusText}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           <button 
                             onClick={() => handlePreview(listing)}
-                            className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors"
+                            className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+                            title="Preview"
                           >
-                            <FiEye className="w-4 h-4 mr-1.5" />
+                            <FiEye className="w-4 h-4" />
                           </button>
                           <button 
                             onClick={() => handleApprove(listing._id)}
                             disabled={approving}
-                            className="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 text-sm font-medium rounded-lg hover:bg-green-100 transition-colors"
+                            className="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors duration-200"
+                            title="Approve"
                           >
-                            <FiCheck className="w-4 h-4 mr-1.5" />
+                            <FiCheck className="w-4 h-4" />
                           </button>
                           <button 
                             onClick={() => {
@@ -326,27 +379,27 @@ export const InventoryManagerDashboard = () => {
                               setShowDeleteModal(true);
                             }}
                             disabled={deleting}
-                            className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors"
+                            className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200"
+                            title="Delete"
                           >
-                            <FiTrash2 className="w-4 h-4 mr-1.5" />
+                            <FiTrash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
                     </tr>
                   );
                 })}
-                {pendingListings.length === 0 && (
-                  <tr>
-                    <td colSpan="8" className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center">
-                        <FiPackage className="w-12 h-12 text-gray-400 mb-4" />
-                        <p className="text-gray-500 text-sm">No pending listings to review</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
+            {pendingListings.length === 0 && (
+              <div className="p-12 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                  <FiPackage className="w-8 h-8 text-gray-400" />
+                </div>
+                <h4 className="text-lg font-medium text-gray-900 mb-1">No pending listings</h4>
+                <p className="text-gray-500 max-w-md mx-auto">All listings have been reviewed. Check back later for new submissions.</p>
+              </div>
+            )}
           </div>
         </div>
 

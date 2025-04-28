@@ -9,6 +9,7 @@ import {
   FaCheckCircle, FaTimesCircle, FaTimes
 } from "react-icons/fa";
 import { BiSolidDashboard } from "react-icons/bi";
+import { MdOutlineSecurity } from "react-icons/md";
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export const Profile = () => {
   const [listings, setListings] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -76,7 +78,9 @@ export const Profile = () => {
             fetchReviews()
           ]);
         } else if (user?.role === "buyer") {
-          // Add buyer-specific fetches here if needed
+          await Promise.all([
+            fetchOrders()
+          ]);
         } else if (user?.role === "truck_driver") {
           // Add truck driver-specific fetches here if needed
         }
@@ -205,6 +209,24 @@ export const Profile = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const userId = userData._id;
+
+    if (!userId) {
+      toast.error("Please login to view your orders");
+      return;
+    } 
+  
+    try {
+      const response = await axios.get(`http://localhost:3000/api/order-history/user/${userId}`);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setOrders(data);
+    } catch (error) {
+      console.error("Failed to fetch order history", error);
     }
   };
 
@@ -423,8 +445,6 @@ export const Profile = () => {
     );
   }
 
-  console.log("Total Users: ", allUsers.length);
-
   return (
     <>
       <Navbar />
@@ -455,7 +475,7 @@ export const Profile = () => {
                     </div>
                     <h2 className="mt-4 text-2xl font-bold text-gray-800">{user.name}</h2>
                     <span className="px-3 py-1 mt-1 text-sm font-semibold text-green-600 bg-green-100 rounded-full">
-                      {user.role}
+                      {user.role === "admin" ? "SYSTEM ADMIN" : "buyer" ? "Buyer" : "farmer" ? "Farmer" : "Truck Driver"}
                     </span>
                   </div>
 
@@ -504,7 +524,7 @@ export const Profile = () => {
                     <div className="p-4 rounded-lg bg-green-50">
                       <div className="flex items-center">
                         <FaShoppingCart className="w-6 h-6 mr-2 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-800">{stats.orders}</span>
+                        <span className="text-2xl font-bold text-gray-800">{orders.length}</span>
                       </div>
                       <p className="mt-1 text-sm text-gray-600">Total Orders</p>
                     </div>
@@ -547,27 +567,6 @@ export const Profile = () => {
                   )}
                 </div>
               </div>
-
-              {/* Achievements Card 
-              <div className="p-6 bg-white shadow-lg rounded-xl">
-                <h3 className="mb-4 text-lg font-semibold text-gray-800">Achievements</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center p-3 rounded-lg bg-yellow-50">
-                    <FaTrophy className="w-5 h-5 mr-3 text-yellow-500" />
-                    <div>
-                      <p className="font-medium text-gray-800">Verified Seller</p>
-                      <p className="text-sm text-gray-600">Completed 10 successful transactions</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-3 rounded-lg bg-green-50">
-                    <FaShieldAlt className="w-5 h-5 mr-3 text-green-500" />
-                    <div>
-                      <p className="font-medium text-gray-800">Trusted Member</p>
-                      <p className="text-sm text-gray-600">Member for over 1 year</p>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
             </div>
 
             {/* Main Content - Right Side */}
@@ -683,7 +682,7 @@ export const Profile = () => {
                   {/* Login History Section */}
                   <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
                     <div className="flex items-center">
-                      <FaHistory className="w-5 h-5 mr-3 text-green-500" />
+                      <FaHistory className="w-6 h-6 mr-3 text-green-500" />
                       <div>
                         <h4 className="font-medium text-gray-800">Login History</h4>
                         <p className="text-sm text-gray-600">View your recent login activity</p>
@@ -699,7 +698,7 @@ export const Profile = () => {
 
                   {/* Security Settings Update Section */}
                   <div className="flex items-center p-4 rounded-lg bg-gray-50">
-                    <FaUserShield className="w-5 h-5 mr-3 text-green-500" />
+                    <MdOutlineSecurity className="mr-3 text-green-500 h-7 w-7" />
                     <div>
                       <p className="font-medium text-gray-800">Security settings updated</p>
                       <p className="text-sm text-gray-600">

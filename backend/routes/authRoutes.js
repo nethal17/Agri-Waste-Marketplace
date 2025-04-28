@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, loginUser, logoutUser, verifyEmail, verifyTwoStepCode, getLoginHistory, toggleTwoFactorAuth } from "../controllers/authController.js";
+import { registerUser, loginUser, logoutUser, verifyEmail, verifyTwoStepCode, getLoginHistory, toggleTwoFactorAuth, exportUsers } from "../controllers/authController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { forgotPassword, resetPassword, changePassword} from "../controllers/authController.js";
 import { getUsers, getUserById, updateUserDetails, deleteUser } from "../controllers/authController.js";
@@ -20,5 +20,6 @@ router.put("/updateUser/:id", updateUserDetails);
 router.delete("/userDelete/:id", deleteUser);
 router.get("/login-history", authMiddleware, getLoginHistory);
 router.post("/toggle-2fa", authMiddleware, toggleTwoFactorAuth);
+router.get("/exportUsers", exportUsers);
 
 export default router;
