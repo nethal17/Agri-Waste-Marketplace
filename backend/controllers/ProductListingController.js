@@ -188,7 +188,6 @@ export const getAllProductListings = async (req, res) => {
   }
 };
 
-
 export const approveProductListing = async (req, res) => {
   try {
     const { listingId } = req.params;
