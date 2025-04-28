@@ -113,9 +113,9 @@ export const Cart = () => {
     return (
       <>
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="container px-4 py-8 mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="w-12 h-12 border-b-2 border-green-600 rounded-full animate-spin"></div>
           </div>
         </div>
       </>
@@ -125,9 +125,9 @@ export const Cart = () => {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Shopping Cart</h2>
+      <div className="container px-4 py-8 mx-auto">
+        <div className="p-6 bg-white rounded-lg shadow-lg">
+          <h2 className="mb-6 text-2xl font-bold text-gray-800">Shopping Cart</h2>
           
           {cartItems.length > 0 ? (
             <>
@@ -135,12 +135,12 @@ export const Cart = () => {
                 <table className="w-full">
                   <thead>
                     <tr className="bg-gray-50">
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Cost</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Product</th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Quantity</th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Price</th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Subtotal</th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Delivery Cost</th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -148,16 +148,16 @@ export const Cart = () => {
                       <tr key={item.wasteId}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="h-20 w-20 flex-shrink-0">
+                            <div className="flex-shrink-0 w-20 h-20">
                               {item.image ? (
                                 <img
-                                  className="h-20 w-20 object-cover rounded-md"
+                                  className="object-cover w-20 h-20 rounded-md"
                                   src={item.image}
                                   alt={item.wasteItem}
                                 />
                               ) : (
-                                <div className="h-20 w-20 bg-gray-200 rounded-md flex items-center justify-center">
-                                  <span className="text-gray-500 text-sm">No image</span>
+                                <div className="flex items-center justify-center w-20 h-20 bg-gray-200 rounded-md">
+                                  <span className="text-sm text-gray-500">No image</span>
                                 </div>
                               )}
                             </div>
@@ -169,23 +169,9 @@ export const Cart = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => updateQuantity(item.wasteId, -1)}
-                              className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                            >
-                              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                              </svg>
-                            </button>
+                            
                             <span className="text-gray-700">{item.quantity}</span>
-                            <button
-                              onClick={() => updateQuantity(item.wasteId, 1)}
-                              className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                            >
-                              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                              </svg>
-                            </button>
+                            
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -202,7 +188,7 @@ export const Cart = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <button
                             onClick={() => removeItem(item.wasteId)}
-                            className="text-red-600 hover:text-red-900 transition-colors"
+                            className="text-red-600 transition-colors hover:text-red-900"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -215,12 +201,12 @@ export const Cart = () => {
                 </table>
               </div>
 
-              <div className="mt-8 border-t pt-8">
-                <div className="flex justify-between items-center">
+              <div className="pt-8 mt-8 border-t">
+                <div className="flex items-center justify-between">
                   <div className="flex space-x-4">
                     <button
                       onClick={() => navigate('/organic-waste')}
-                      className="px-6 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="px-6 py-3 text-gray-800 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
                     >
                       Continue Shopping
                     </button>
@@ -233,7 +219,7 @@ export const Cart = () => {
                         navigate('/buyer-address-form');
                         toast.success("Proceeding to checkout...");
                       }}
-                      className="mt-4 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      className="px-6 py-3 mt-4 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
                     >
                       Proceed to Checkout
                     </button>
@@ -242,9 +228,9 @@ export const Cart = () => {
               </div>
             </>
           ) : (
-            <div className="text-center py-12">
+            <div className="py-12 text-center">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="w-12 h-12 mx-auto text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -260,7 +246,7 @@ export const Cart = () => {
               <p className="mt-2 text-sm text-gray-500">Start adding some items to your cart!</p>
               <button
                 onClick={() => navigate('/organic-waste')}
-                className="mt-6 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="px-6 py-3 mt-6 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
               >
                 Start Shopping
               </button>

@@ -5,9 +5,10 @@ import mongoose from 'mongoose';
 // Add a review (Buyer)
 export const addReview = async (req, res) => {
   try {
-    const { buyerId, orderId, productName, rating, review } = req.body;
+    const { buyerId, orderId, farmerId, productName, rating, review } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(buyerId) ||
+        !mongoose.Types.ObjectId.isValid(farmerId) ||
         !mongoose.Types.ObjectId.isValid(orderId)) {
       return res.status(400).json({ message: 'Invalid IDs provided.' });
     }
@@ -34,6 +35,7 @@ export const addReview = async (req, res) => {
     const newReview = new Review({
       buyerId,
       orderId,
+      farmerId,
       productName,
       rating,
       review,
@@ -191,8 +193,7 @@ export const getFarmerReviews = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(farmerId)) {
       return res.status(400).json({ message: 'Invalid farmer ID.' });
     }
-
-    // Find all reviews for products belonging to this farmer
+    /* Find all reviews for products belonging to this farmer
     const reviews = await Review.find()
       .populate({
         path: 'productId',
@@ -201,15 +202,23 @@ export const getFarmerReviews = async (req, res) => {
         select: 'wasteItem'
       })
       .populate('buyerId', 'name email');
-
     // Filter out reviews that don't have a product (due to the match)
     const filteredReviews = reviews.filter(review => review.productId);
-
     if (filteredReviews.length === 0) {
       return res.status(404).json({ message: 'No reviews found for this farmer.' });
     }
+    res.status(200).json(filteredReviews);*/
+    // Find all reviews for this farmer
+    const reviews = await Review.find({ farmerId })
+    .populate('buyerId', 'name email');
+    if (reviews.length === 0) {
+      return res.status(404).json({ message: 'No reviews found for this farmer.' });
+    }
+    // Populate buyerId and productId details
 
-    res.status(200).json(filteredReviews);
+
+    res.status(200).json(reviews);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

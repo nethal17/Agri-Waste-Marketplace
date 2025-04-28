@@ -73,6 +73,7 @@ export const processOrderAfterPayment = async (req, res) => {
       const orderData = {
         userId: userId,
         productId: item.wasteId,
+        farmerId: item.farmerId,
         productName: item.description,
         quantity: item.quantity || 1,
         totalPrice: item.price * (item.quantity || 1)

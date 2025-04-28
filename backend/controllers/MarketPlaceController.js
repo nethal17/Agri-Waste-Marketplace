@@ -182,7 +182,7 @@ export const getWasteDetailsByCategory = async (req, res) => {
       wasteCategory: category,
       status: 'Approved' // Only get approved listings
     })
-    .populate('farmerId', 'name email phone')
+    .populate('farmerId', 'name phone')
     .select('-__v'); // Exclude version key
 
     if (products.length === 0) {
@@ -253,7 +253,7 @@ export const getWasteDetailsByType = async (req, res) => {
       ],
       status: 'Approved' // Only get approved listings
     })
-    .populate('farmerId', 'name email phone')
+    .populate('farmerId', 'name phone email')
     .select('-__v'); // Exclude version key
 
     if (products.length === 0) {
@@ -279,6 +279,7 @@ export const getWasteDetailsByType = async (req, res) => {
       price: product.price * 1.2,
       expireDate: product.expireDate,
       image: product.image,
+      farmerId: product.farmerId,
       farmer: {
         name: product.farmerId?.name,
         email: product.farmerId?.email,
