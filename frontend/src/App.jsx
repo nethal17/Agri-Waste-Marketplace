@@ -57,6 +57,8 @@ import { InventoryCategoryPage } from './pages/InventoryCategoryPage';
 import Delivery from './pages/Delivery';
 import TruckDriverDashboard from './pages/TruckDriverDashboard';
 import FarmerReqForm from './pages/FarmerReqForm';
+import VehicleRegPage from './pages/VehicleReg';
+import DeliveryHistoryPage from './pages/DeliveryHistoryDashboard';
 
 function App() {
   return (
@@ -115,6 +117,8 @@ function App() {
       <Route path="/product-listing-form" element={<ProductListingForm />} />
       <Route path="/farmer-listings" element={<DisplayFarmerListings />} /> 
       <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 
+      <Route path="/vehicle-registration" element={<VehicleRegPage />} />
+      <Route path="/delivery-history" element={<DeliveryHistoryPage />} />
     </Routes>
   )
 }
