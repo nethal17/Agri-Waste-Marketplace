@@ -18,6 +18,7 @@ import { StartList } from './pages/StartList';
 import { TwoStepVerification } from './components/TwoStepVerification';
 import Charts from './pages/Charts';
 import PaymentDashboard from './pages/PaymentDashboard';
+import EmailVerificationSuccess from './pages/EmailVerificationSuccess';
 
 import { OrganicWaste, CategoryProducts } from './pages/OrganicWaste';
 import { NonOrganicWaste, CategoryProducts as NonOrganicCategoryProducts } from './pages/NonOrganicWaste';
@@ -79,6 +80,7 @@ function App() {
       <Route path="/start-listing" element={<StartList />} />
       <Route path="/charts" element={<Charts />} />
       <Route path="/payment-dashboard" element={<PaymentDashboard />} />
+      <Route path="/email-verification-success" element={<EmailVerificationSuccess />} />
 
       <Route path="/organic-waste" element={<OrganicWaste />} />
       <Route path="/non-organic" element={<NonOrganicWaste />} />
