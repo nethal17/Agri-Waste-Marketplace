@@ -14,17 +14,6 @@ export const addOrderHistory = async (req, res) => {
   }
 };
 
-// Get all order history
-export const getAllOrderHistory = async (req, res) => {
-  try {
-    const orders = await OrderHistory.find().sort({ orderDate: -1 });
-    res.status(200).json(orders);
-  } catch (error) {
-    console.error("Error fetching all order history:", error);
-    res.status(500).json({ message: "Failed to fetch all orders" });
-  }
-};
-
 // 🧹 Get Order History by User
 export const getOrderHistory = async (req, res) => {
   try {
@@ -46,23 +35,6 @@ export const cancelOrder = async (req, res) => {
   } catch (error) {
     console.error("Error cancelling order:", error);
     res.status(500).json({ message: "Failed to cancel order" });
-  }
-};
-
-export const deleteOrder = async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    const order = await OrderHistory.findByIdAndDelete(id);
-    
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    res.status(200).json({ message: "Order deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting order:", error);
-    res.status(500).json({ message: "Error deleting order" });
   }
 };
 
