@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const buyerAddressSchema = new mongoose.Schema({
   buyerId: {
     type: String,
-    required: true,  // ✨ Made buyerId required (no default 119)
+    required: true,  //Made buyerId required (no default 119)
   },
   address: { 
     type: String, 
