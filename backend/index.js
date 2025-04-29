@@ -30,7 +30,7 @@ import buyerAddressRoutes from "./routes/buyerAddressRoutes.js";
 
 import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
 
-
+import refundRoutes from './routes/refund.routes.js';
 
 dotenv.config();
 
@@ -57,6 +57,7 @@ app.use('/api/webhook', webhookRoutes);
 app.use('/api', stripePaymentsRoutes);
 app.use('/api', driverPaymentsRoutes);
 app.use('/api', driverPaymentRoutes);
+app.use('/api/refunds', refundRoutes);
 
 
 //Ricky

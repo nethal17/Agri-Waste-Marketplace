@@ -128,7 +128,7 @@ const CategoryProducts = () => {
         description: product.wasteItem,
         price: product.price,
         quantity: 1,
-        deliveryCost: 300 // You can modify this based on your requirements
+        deliveryCost: 1000 // You can modify this based on your requirements
       };
 
       const response = await axios.post('http://localhost:3000/api/cart/add', cartItem);
