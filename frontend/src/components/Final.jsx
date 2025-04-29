@@ -51,10 +51,18 @@ const Final = () => {
   const [productListingPayments, setProductListingPayments] = useState(0);
   const [monthlyData, setMonthlyData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
+  const [orderHistoryTotal, setOrderHistoryTotal] = useState(0);
 
   useEffect(() => {
     const fetchAndCalculateTotals = async () => {
       try {
+        // Fetch all order history data
+        const orderHistoryResponse = await axios.get('http://localhost:3000/api/order-history');
+        const orderHistoryData = orderHistoryResponse.data;
+        const orderHistoryCount = orderHistoryData.length;
+        const orderHistoryTotal = orderHistoryCount * 1000;
+        setOrderHistoryTotal(orderHistoryTotal);
+
         const response = await axios.get('http://localhost:3000/api/stripe-payments');
         const payments = response.data;
 
@@ -95,8 +103,8 @@ const Final = () => {
         setCategoryData(categoryData);
         
       } catch (err) {
-        console.error('Error fetching payments:', err);
-        setError('Failed to fetch payment data. Please try again later.');
+        console.error('Error fetching data:', err);
+        setError(err.message || 'Failed to fetch data. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -238,8 +246,8 @@ const Final = () => {
                   <Col xs={24} sm={12} lg={6}>
                     <Card className="shadow-md hover:shadow-lg transition-shadow border-0 rounded-lg">
                       <Statistic
-                        title={<span className="text-gray-600">Driver Payments</span>}
-                        value={highTotalAmount}
+                        title={<span className="text-gray-600">Delivary Payments</span>}
+                        value={orderHistoryTotal}
                         precision={2}
                         prefix={<TeamOutlined className="text-purple-500" />}
                         suffix="Rs."
@@ -247,7 +255,7 @@ const Final = () => {
                       />
                       <div className="mt-2 flex items-center">
                         <ClockCircleOutlined className="text-purple-500 mr-1" />
-                        <span className="text-purple-500 text-sm">Monthly salaries</span>
+                        <span className="text-purple-500 text-sm">Total from orders</span>
                       </div>
                     </Card>
                   </Col>
@@ -292,6 +300,21 @@ const Final = () => {
                             Regular salary payments to truck drivers for delivery services.
                           </Paragraph>
                         </div>
+
+                        {/* Order History Total */}
+                        <div className="border-b border-gray-200 pb-4">
+                          <div className="flex items-center mb-2">
+                            <HistoryOutlined className="text-2xl text-indigo-600 mr-2" />
+                            <Title level={4} className="m-0">Delivary Payments</Title>
+                          </div>
+                          <div className="flex items-baseline">
+                            <Text className="text-3xl font-bold text-indigo-600">Rs. <CountUp end={orderHistoryTotal} duration={2} separator="," decimal="." /></Text>
+                            <Tag color="indigo" className="ml-2">Shipping</Tag>
+                          </div>
+                          <Paragraph className="text-gray-500 mt-2">
+                            
+                          </Paragraph>
+                        </div>
                       </div>
 
                       {/* Right Side: Other Payments */}
@@ -309,7 +332,7 @@ const Final = () => {
                             Total revenue from all product sales in the marketplace.
                           </Paragraph>
                         </div>
-                        
+
                         <div className="border-b border-gray-200 pb-4">
                           <div className="flex items-center mb-2">
                             <UserOutlined className="text-2xl text-blue-600 mr-2" />
@@ -346,7 +369,7 @@ const Final = () => {
                 <Card className="shadow-lg border-0 rounded-lg overflow-hidden">
                   <div className="bg-gradient-to-r from-indigo-500 to-blue-600 p-4 text-white">
                     <Title level={3} className="text-white m-0">Payment Analysis</Title>
-                  </div>
+                </div>
 
                   <div className="p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -369,8 +392,8 @@ const Final = () => {
                               <Bar dataKey="amount" fill="#6366f1" radius={[4, 4, 0, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
-                        </div>
-                      </div>
+                </div>
+              </div>
 
                       {/* Right: Payment Distribution Chart */}
                       <div>
@@ -380,21 +403,21 @@ const Final = () => {
                         </div>
                         <div className="h-[300px]">
                           <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie
-                                data={pieData}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                fill="#8884d8"
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      fill="#8884d8"
                                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              >
-                                {pieData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                              </Pie>
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
                               <Tooltip formatter={(value) => `Rs. ${value.toLocaleString()}`} />
                               <Legend verticalAlign="bottom" height={36}/>
                             </PieChart>
@@ -432,12 +455,12 @@ const Final = () => {
                                   <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
                                 ))}
                               </Pie>
-                              <Tooltip />
-                              <Legend verticalAlign="bottom" height={36}/>
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" height={36}/>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
                       {/* Right: Category Description */}
                       <div className="flex flex-col justify-center">
@@ -463,8 +486,8 @@ const Final = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                </div>
+                </div>
                 </Card>
               </div>
             </div>
