@@ -67,7 +67,7 @@ import DeliveryHistoryPage from './pages/DeliveryHistoryDashboard';
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<HomeTesting />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<SignUp />} />
       <Route path="/profile" element={<Profile />} />
@@ -124,7 +124,8 @@ function App() {
       <Route path="/farmer-listings" element={<DisplayFarmerListings />} /> 
       <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 
 
-      <Route path="/home-testing" element={<HomeTesting />} />
+      
+      
       
 
       <Route path="/vehicle-registration" element={<VehicleRegPage />} />
