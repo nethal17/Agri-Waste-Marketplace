@@ -142,9 +142,11 @@ const CategoryProducts = () => {
         return
       }
 
+      console.log("Farmer ID:", product.farmerId._id)
       const cartItem = {
         userId,
         wasteId: product._id,
+        farmerId: product.farmerId._id, // Add the farmerId property
         description: product.wasteItem,
         price: product.price,
         quantity: product.quantity,

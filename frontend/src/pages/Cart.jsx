@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-hot-toast"
@@ -130,7 +132,7 @@ export const Cart = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      <div className="min-h-screen bg-gradient-to-b from-green-40 to-white">
         <div className="container max-w-6xl px-4 py-12 mx-auto">
           <div className="flex items-center mb-8 space-x-2">
             <button
@@ -165,7 +167,7 @@ export const Cart = () => {
                               {item.image ? (
                                 <img
                                   className="object-cover w-full h-full"
-                                  src={item.image}
+                                  src={item.image || "/placeholder.svg"}
                                   alt={item.wasteItem || "Product"}
                                   onError={(e) => {
                                     e.target.onerror = null
@@ -192,23 +194,10 @@ export const Cart = () => {
                             </div>
 
                             <div className="flex flex-wrap items-end justify-between mt-4 gap-y-3">
-                              <div className="flex items-center space-x-2">
-                                <button
-                                  onClick={() => updateQuantity(item.wasteId, -1)}
-                                  className="px-2 py-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
-                                  disabled={item.quantity <= 1}
-                                >
-                                  -
-                                </button>
+                              <div className="flex items-center">
                                 <span className="px-3 py-1 font-medium text-gray-700 rounded-lg bg-gray-50">
-                                  {item.quantity}
+                                  Quantity: {item.quantity}
                                 </span>
-                                <button
-                                  onClick={() => updateQuantity(item.wasteId, 1)}
-                                  className="px-2 py-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
-                                >
-                                  +
-                                </button>
                               </div>
 
                               <div className="flex items-center space-x-4">
