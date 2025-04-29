@@ -120,10 +120,6 @@ export const InventoryPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="p-2 rounded-lg bg-white border border-gray-200 shadow-sm hover:shadow-md transition relative">
-            <FiBell className="text-gray-600" />
-            <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-          </button>
         </div>
 
         {/* Main Table */}
