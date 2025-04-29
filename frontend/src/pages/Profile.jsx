@@ -474,7 +474,7 @@ export const Profile = () => {
                       </label>
                     </div>
                     <h2 className="mt-4 text-2xl font-bold text-gray-800">{user.name}</h2>
-                    <span className="px-3 py-1 mt-1 text-sm font-semibold text-green-600 bg-green-100 rounded-full">
+                    <span className="px-3 py-1 mt-2 text-sm font-semibold text-green-600 bg-green-100 rounded-full">
                       {user.role === "admin" ? "SYSTEM ADMIN" : user.role === "buyer" ? "Buyer" : user.role === "farmer" ? "Farmer"  : "Truck Driver"}
                     </span>
                   </div>
@@ -598,7 +598,7 @@ export const Profile = () => {
                       <FaUserShield className="mr-3 text-green-500 h-7 w-7" />
                       <div>
                         <h3 className="font-semibold text-gray-800">Two-Factor Authentication</h3>
-                        <p className="text-sm text-gray-600 mt-[-25px]">Add an extra layer of security to your account</p>
+                        <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
                       </div>
                     </div>
                     <button

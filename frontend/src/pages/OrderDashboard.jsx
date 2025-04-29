@@ -108,7 +108,7 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
   );
 };
 
-export const OrderHistoryPage = ({ checkoutData }) => {
+export const OrderDashboard = ({ checkoutData }) => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [startDate, setStartDate] = useState("");
