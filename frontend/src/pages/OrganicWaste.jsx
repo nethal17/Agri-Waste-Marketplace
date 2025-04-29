@@ -174,6 +174,9 @@ const CategoryProducts = () => {
         farmerId: product.farmerId._id,
         description: product.wasteItem,
         price: product.price,
+        quantity: 1,
+        deliveryCost: 1000 // You can modify this based on your requirements
+      };
         quantity: product.quantity,
         deliveryCost: 300, // You can modify this based on your requirements
         //image: product.image || "", // Add the image URL to the cart item
