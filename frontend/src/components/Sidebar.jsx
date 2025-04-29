@@ -6,8 +6,7 @@ import {
   BarChartOutlined,
   HistoryOutlined,
   LogoutOutlined,
-  LineChartOutlined,
-  RollbackOutlined
+  LineChartOutlined
 } from '@ant-design/icons';
 
 const Sidebar = () => {
@@ -40,12 +39,6 @@ const Sidebar = () => {
       icon: <HistoryOutlined />,
       label: 'Product History',
       path: '/pay-history'
-    },
-    {
-      key: 'refunds',
-      icon: <RollbackOutlined />,
-      label: 'Refund Management',
-      path: '/refunds'
     }
   ];
 

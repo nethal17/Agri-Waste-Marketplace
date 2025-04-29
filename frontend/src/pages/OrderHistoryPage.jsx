@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import { FiShoppingBag, FiCalendar, FiFilter, FiX, FiCheck, FiTruck, FiStar } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { Navbar } from "../components/Navbar";
-import { Modal, Input, message } from "antd";
 
 const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
   const [rating, setRating] = useState(0);
@@ -118,9 +117,6 @@ export const OrderHistoryPage = ({ checkoutData }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [refundReason, setRefundReason] = useState("");
-  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
-  const [orderToCancel, setOrderToCancel] = useState(null);
 
   const userData = JSON.parse(localStorage.getItem("user"));
   const userId = userData?._id;
@@ -227,42 +223,13 @@ export const OrderHistoryPage = ({ checkoutData }) => {
   };
 
   const handleCancelOrder = async (orderId) => {
-    try {
-      // Get the order details first
-      const order = orders.find(o => o._id === orderId);
-      if (!order) {
-        message.error('Order not found');
-        return;
-      }
-
-      // Format the data for refund
-      const refundData = {
-        userId: order.userId, // Directly use userId as it's already the ID
-        productName: order.productName,
-        quantity: order.quantity,
-        totalPrice: order.totalPrice,
-        orderDate: order.orderDate,
-        //refundDate: new Date().toISOString(),
-        refundReason: "Order cancelled by user",
-        refundStatus: "pending"
-      };
-
-      console.log('Sending refund data:', refundData); // Debug log
-
-      // Create refund record first
-      const refundResponse = await axios.post('http://localhost:3000/api/refunds/add', refundData);
-
-      if (refundResponse.data) {
-        // Then delete the order using the correct endpoint
+    if (window.confirm("Are you sure you want to cancel this order?")) {
+      try {
         await axios.delete(`http://localhost:3000/api/order-history/cancel/${orderId}`);
-        
-        message.success('Order cancelled and refund created successfully');
-        fetchOrders(); // Refresh the orders list
+        fetchOrders();
+      } catch (error) {
+        console.error("Failed to cancel order", error);
       }
-    } catch (error) {
-      console.error('Error cancelling order:', error);
-      console.error('Error response:', error.response?.data); // Debug log
-      message.error(error.response?.data?.message || 'Failed to cancel order');
     }
   };
 
@@ -450,7 +417,6 @@ export const OrderHistoryPage = ({ checkoutData }) => {
                   ? "You haven't placed any orders yet."
                   : `You don't have any orders with status "${activeStatus}".`}
               </p>
-
               {(startDate || endDate || activeStatus !== "all") && (
                 <button
                   onClick={handleResetFilters}
@@ -459,7 +425,6 @@ export const OrderHistoryPage = ({ checkoutData }) => {
                   Reset filters
                 </button>
               )}
-              
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -504,7 +469,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          Rs. {order.totalPrice.toLocaleString()}
+                          ${order.totalPrice.toFixed(2)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
