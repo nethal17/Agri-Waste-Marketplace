@@ -34,7 +34,8 @@ import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
 import refundRoutes from './routes/refund.routes.js';
 import reportRoutes from "./routes/reportRoutes.js";
 import vehicleRegRoutes from "./routes/VehicleReg.routes.js";
-import deliveryHistoryRoutes from "./routes/deliveryHistoryRoutes.js";
+import deliveryHistoryRoutes from './routes/deliveryHistory.routes.js';
+
 
 
 dotenv.config();
@@ -86,7 +87,8 @@ app.use("/api/order-history", orderHistoryRoutes);
 // yuwani
 app.use('/api/deliveryReq', deliveryReqRoutes);
 app.use("/api/vehicle-reg", vehicleRegRoutes);
-app.use("/api/delivery-history", deliveryHistoryRoutes);
+app.use('/api/delivery-orders', deliveryHistoryRoutes);
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;

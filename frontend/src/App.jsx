@@ -65,7 +65,9 @@ import FarmerReqForm from './pages/FarmerReqForm';
 import Sidebar from './components/Sidebar';
 import Refund from './components/refund';
 import VehicleRegPage from './pages/VehicleReg';
-import DeliveryHistoryPage from './pages/DeliveryHistoryDashboard';
+import DeliveryHistoryDashboard from './pages/DeliveryHistoryDashboard';
+
+
 
 function App() {
   return (
@@ -124,6 +126,7 @@ function App() {
       <Route path='/Delivery' element={<Delivery/>} />
       <Route path='/truck-dashboard' element={<TruckDriverDashboard/>} />
       <Route path='/farmer-ReqForm' element={<FarmerReqForm/>} />
+
       <Route path="/product-listing-form" element={<ProductListingForm />} />
       <Route path="/farmer-listings" element={<DisplayFarmerListings />} /> 
       <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 
@@ -133,7 +136,8 @@ function App() {
       
 
       <Route path="/vehicle-registration" element={<VehicleRegPage />} />
-      <Route path="/delivery-history" element={<DeliveryHistoryPage />} />
+      <Route path="/delivery-history" element={<DeliveryHistoryDashboard />} />
+      
         
     </Routes>
   )

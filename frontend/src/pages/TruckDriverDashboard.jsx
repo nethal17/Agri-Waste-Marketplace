@@ -1,171 +1,181 @@
-import React, { useState, useEffect } from "react";
-import "../styles/dashboard.css";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { Navbar } from "../components/Navbar";
 
 const TruckDriverDashboard = () => {
-  const [pendingRequests, setPendingRequests] = useState([]);
-  const [acceptedRequests, setAcceptedRequests] = useState([]);
-  const [completedDeliveries, setCompletedDeliveries] = useState([]);
-  const [selectedRequest, setSelectedRequest] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [location, setLocation] = useState(null);
-
-  const handleViewDetails = (request) => {
-    setSelectedRequest(request);
-
-    if (request?.location?.coordinates?.length === 2) {
-      setLocation({
-        lat: request.location.coordinates[0], 
-        lng: request.location.coordinates[1],
-      });
-    }
-
-    setIsModalOpen(true); // Open modal
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedRequest(null);
-    setLocation(null);
-  };
+  const [orders, setOrders] = useState([]);
+  const userData = JSON.parse(localStorage.getItem("user"));
+  const userId = userData?._id;
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/deliveryReq/get-delivery-requests")
-      .then((res) => res.json())
-      .then((data) => {
-        setPendingRequests(data.filter((req) => req.status === "Pending"));
-        setAcceptedRequests(data.filter((req) => req.status === "accepted"));
-        setCompletedDeliveries(
-          data.filter((req) => req.status === "completed")
-        );
-      })
-      .catch((err) => console.error("Error fetching requests:", err));
-  }, []);
+    if (userId) {
+      fetchOrders();
+    }
+  }, [userId]);
 
-  const handleAccept = (id) => {
-    fetch(`http://localhost:3000/api/deliveryReq/update-delivery-requests/${id}`, {
-      method: "PUT",
-    }).then(() => {
-      setPendingRequests((prev) => prev.filter((req) => req._id !== id));
-      setAcceptedRequests((prev) => [...prev, { _id: id, status: "accepted" }]);
-      window.location.reload()
-    });
+  const fetchOrders = () => {
+    axios
+      .get(`http://localhost:3000/api/order-history`)
+      .then((res) => setOrders(res.data))
+      .catch((err) => console.error("Error fetching delivery orders:", err));
   };
 
-  const handleCompleted = (id) => {
-    fetch(`http://localhost:3000/api/deliveryReq/update-delivery-requests/${id}`, {
-      method: "PUT",
-    }).then(() => {
-      setPendingRequests((prev) => prev.filter((req) => req._id !== id));
-      setCompletedDeliveries((prev) => [
-        ...prev,
-        { _id: id, status: "completed" },
-      ]);
-      window.location.reload()
-    });
+  const handleAccept = async (orderId) => {
+    try {
+      await axios.put(`http://localhost:3000/api/order-history/${orderId}/accept`);
+      fetchOrders();
+    } catch (err) {
+      console.error("Error accepting order:", err);
+    }
   };
 
-  // const handleComplete = (id) => {
-  //   fetch(`http://localhost:5000/api/delivery-requests/${id}`, { method: "PUT" })
-  //     .then(() => {
-  //       setAcceptedRequests(prev => prev.filter(req => req._id !== id));
-  //     });
-  // };
+  const handleDecline = async (orderId) => {
+    try {
+      await axios.put(`http://localhost:3000/api/order-history/${orderId}/decline`);
+      fetchOrders();
+    } catch (err) {
+      console.error("Error declining order:", err);
+    }
+  };
+
+  const handleMarkAsDone = async (orderId) => {
+    try {
+      await axios.put(`http://localhost:3000/api/order-history/${orderId}/mark-done`);
+      fetchOrders();
+    } catch (err) {
+      console.error("Error marking order as done:", err);
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "toDeliver":
+        return "bg-yellow-100 text-yellow-800";
+      case "toReceive":
+        return "bg-blue-100 text-blue-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handlePickupRequestClick = () => {
+    navigate("/truck-dashboard");
+  };
+
+  const handleDeliveryRequestClick = () => {
+    navigate("/delivery-history");
+  };
 
   return (
-    <div className="dashboard-container">
-      <h2>Truck Driver Dashboard</h2>
-      <div className="requests-section">
-        <div className="pending">
-          <h3>Pending Requests</h3>
-          {pendingRequests.map((req) => (
-            <div key={req._id}>
-              <p>Farmer ID: {req.farmerId}</p>
-              <p>District: {req.district}</p>
-              <p>Waste Type: {req.wasteType}</p>
-              <div className="buttons">
-                <button
-                  style={{ backgroundColor: "blue" }}
-                  onClick={() => handleViewDetails(req)}
-                >
-                  View Details
-                </button>
-                <button onClick={() => handleAccept(req._id)}>Accept</button>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="accepted">
-          <h3>Accepted Deliveries</h3>
-          {acceptedRequests.map((req) => (
-            <div key={req._id}>
-              <p>Farmer ID: {req.farmerId}</p>
-              <p>District: {req.district}</p>
-              <p>Waste Type: {req.wasteType}</p>
-              <button onClick={() => handleCompleted(req._id)}>
-                Mark as Done
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="completed">
-          <h3>Completed Deliveries</h3>
-          {completedDeliveries.map((req) => (
-            <div key={req._id}>
-              <p>Farmer ID: {req.farmerId}</p>
-              <p>District: {req.district}</p>
-              <p>Waste Type: {req.wasteType}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Modal Dialog */}
-      {isModalOpen && selectedRequest && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Request Details</h3>
-            <p>
-              <strong>Farmer ID:</strong> {selectedRequest.farmerId}
-            </p>
-            <p>
-              <strong>District:</strong> {selectedRequest.district}
-            </p>
-            <p>
-              <strong>Waste Type:</strong> {selectedRequest.wasteType}
-            </p>
-            <p>
-              <strong>Pickup Date:</strong>{" "}
-              {new Date(selectedRequest.pickupDate).toDateString()}
-            </p>
-            <p>
-              <strong>Emergency Contact:</strong>{" "}
-              {selectedRequest.emergencyContact}
-            </p>
-            <p>
-              <strong>Location:</strong>
-            </p>
-
-            <LoadScript googleMapsApiKey="AIzaSyBvdWTRDRIKWd11ClIGYQrSfc883IEkRiw">
-              <GoogleMap
-                id="map"
-                mapContainerStyle={{ width: "100%", height: "400px" }}
-                center={location}
-                zoom={12}
-              >
-                <Marker position={location} />
-              </GoogleMap>
-            </LoadScript>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex space-x-4 mb-6">
             <button
-              style={{ backgroundColor: "red", marginTop: "15px" }}
-              onClick={closeModal}
+              onClick={handleDeliveryRequestClick}
+              className="px-6 py-2 rounded-lg font-medium transition-colors bg-green-600 text-white hover:bg-green-700"
             >
-              Close
+              Delivery Requests
+            </button>
+            <button
+              onClick={handlePickupRequestClick}
+              className="px-6 py-2 rounded-lg font-medium transition-colors bg-white border border-green-600 text-green-600 hover:bg-green-50"
+            >
+              Pickup Requests
             </button>
           </div>
+          
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Truck Driver Dashboard</h2>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      User ID
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Product Name
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Quantity
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {orders.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                        No orders found.
+                      </td>
+                    </tr>
+                  ) : (
+                    orders.map((order) => (
+                      <tr key={order._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {order.userId}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {order.productName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {order.quantity}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.orderStatus)}`}>
+                            {order.orderStatus}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {order.orderStatus === "toDeliver" && (
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleAccept(order._id)}
+                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => handleDecline(order._id)}
+                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                              >
+                                Decline
+                              </button>
+                            </div>
+                          )}
+                          {order.orderStatus === "toReceive" && (
+                            <button
+                              onClick={() => handleMarkAsDone(order._id)}
+                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                              Mark As Done
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 };
 
