@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { 
   FaUser, FaEnvelope, FaPhone, FaCalendarAlt, FaEdit, FaTruck, 
   FaShoppingCart, FaUserShield, FaLock, FaHistory, FaChartLine, 
-  FaCheckCircle, FaTimesCircle, FaTimes
+  FaCheckCircle, FaTimesCircle, FaTimes, FaDesktop, FaGlobe
 } from "react-icons/fa";
 import { BiSolidDashboard } from "react-icons/bi";
 import { MdOutlineSecurity } from "react-icons/md";
@@ -715,14 +715,17 @@ export const Profile = () => {
 
       {/* Login History Modal */}
       {showLoginHistoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto transform transition-all duration-300 ease-in-out">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-800">Login History</h3>
+              <div className="flex items-center justify-between pb-4 mb-6 border-b">
+                <div className="flex items-center space-x-3">
+                  <FaHistory className="w-6 h-6 text-green-500" />
+                  <h3 className="text-2xl font-bold text-gray-800">Recent Login History</h3>
+                </div>
                 <button 
                   onClick={() => setShowLoginHistoryModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 transition-colors duration-200 hover:text-gray-700"
                 >
                   <FaTimes className="w-6 h-6" />
                 </button>
@@ -730,15 +733,20 @@ export const Profile = () => {
               
               <div className="space-y-4">
                 {loginHistory.length > 0 ? (
-                  loginHistory.map((login, index) => (
-                    <div key={index} className="p-4 border rounded-lg">
+                  loginHistory.slice(0, 5).map((login, index) => (
+                    <div 
+                      key={index} 
+                      className="p-4 transition-shadow duration-200 border rounded-lg hover:shadow-md bg-gradient-to-r from-gray-50 to-white"
+                    >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          {login.status === "success" ? (
-                            <FaCheckCircle className="w-5 h-5 mr-3 text-green-500" />
-                          ) : (
-                            <FaTimesCircle className="w-5 h-5 mr-3 text-red-500" />
-                          )}
+                        <div className="flex items-center space-x-4">
+                          <div className={`p-2 rounded-full ${login.status === "success" ? "bg-green-100" : "bg-red-100"}`}>
+                            {login.status === "success" ? (
+                              <FaCheckCircle className="w-6 h-6 text-green-500" />
+                            ) : (
+                              <FaTimesCircle className="w-6 h-6 text-red-500" />
+                            )}
+                          </div>
                           <div>
                             <p className="font-medium text-gray-800">
                               {login.action || (login.status === "success" ? "Successful Login" : "Failed Login Attempt")}
@@ -746,26 +754,36 @@ export const Profile = () => {
                             <p className="text-sm text-gray-600">{formatDate(login.timestamp)}</p>
                           </div>
                         </div>
-                        <div className="text-sm text-gray-600">
-                          <p>{getDeviceInfo(login.deviceInfo)}</p>
-                          <p>IP: {formatIPAddress(login.ipAddress)}</p>
+                        <div className="space-y-1 text-sm text-gray-600">
+                          <div className="flex items-center space-x-2">
+                            <FaDesktop className="w-4 h-4 text-gray-400" />
+                            <p>{getDeviceInfo(login.deviceInfo)}</p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <FaGlobe className="w-4 h-4 text-gray-400" />
+                            <p>IP: {formatIPAddress(login.ipAddress)}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="py-8 text-center text-gray-500">
-                    No login history available
+                  <div className="py-8 text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 mb-4 bg-gray-100 rounded-full">
+                      <FaHistory className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-lg text-gray-500">No login history available</p>
                   </div>
                 )}
               </div>
 
-              <div className="flex justify-end mt-6">
+              <div className="flex justify-end pt-4 mt-6 border-t">
                 <button
                   onClick={() => setShowLoginHistoryModal(false)}
-                  className="px-4 py-2 text-gray-800 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  className="flex items-center px-6 py-2 space-x-2 text-gray-700 transition-colors duration-200 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
-                  Close
+                  <FaTimes className="w-4 h-4" />
+                  <span>Close</span>
                 </button>
               </div>
             </div>
@@ -775,11 +793,14 @@ export const Profile = () => {
 
       {/* Password Change Modal */}
       {showPasswordChangeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md bg-white rounded-lg shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="w-full max-w-md transition-all duration-300 ease-in-out transform bg-white shadow-2xl rounded-xl">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-800">Change Password</h3>
+              <div className="flex items-center justify-between pb-4 mb-6 border-b">
+                <div className="flex items-center space-x-3">
+                  <FaLock className="w-6 h-6 text-green-500" />
+                  <h3 className="text-2xl font-bold text-gray-800">Change Password</h3>
+                </div>
                 <button 
                   onClick={() => {
                     setShowPasswordChangeModal(false);
@@ -788,58 +809,70 @@ export const Profile = () => {
                     setConfirmPassword("");
                     setPasswordError("");
                   }}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 transition-colors duration-200 hover:text-gray-700"
                 >
                   <FaTimes className="w-6 h-6" />
                 </button>
               </div>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
                     Current Password
                   </label>
-                  <input
-                    type="password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Enter current password"
-                  />
+                  <div className="relative">
+                    <input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full px-4 py-3 transition-all duration-200 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Enter current password"
+                    />
+                    <FaLock className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
+                  </div>
                 </div>
                 
-                <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
                     New Password
                   </label>
-                  <input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Enter new password"
-                  />
+                  <div className="relative">
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full px-4 py-3 transition-all duration-200 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Enter new password"
+                    />
+                    <FaLock className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
+                  </div>
                 </div>
                 
-                <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
                     Confirm New Password
                   </label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Confirm new password"
-                  />
+                  <div className="relative">
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full px-4 py-3 transition-all duration-200 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Confirm new password"
+                    />
+                    <FaLock className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
+                  </div>
                 </div>
                 
                 {passwordError && (
-                  <div className="text-sm text-red-500">{passwordError}</div>
+                  <div className="flex items-center p-3 space-x-2 border border-red-200 rounded-lg bg-red-50">
+                    <FaTimesCircle className="text-red-500" />
+                    <p className="text-sm text-red-600">{passwordError}</p>
+                  </div>
                 )}
               </div>
 
-              <div className="flex justify-end mt-6 space-x-3">
+              <div className="flex justify-end pt-4 mt-6 space-x-3 border-t">
                 <button
                   onClick={() => {
                     setShowPasswordChangeModal(false);
@@ -848,16 +881,27 @@ export const Profile = () => {
                     setConfirmPassword("");
                     setPasswordError("");
                   }}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  className="flex items-center px-6 py-2 space-x-2 text-gray-700 transition-colors duration-200 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
-                  Cancel
+                  <FaTimes className="w-4 h-4" />
+                  <span>Cancel</span>
                 </button>
                 <button
                   onClick={handlePasswordChange}
                   disabled={isChangingPassword}
-                  className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                  className="flex items-center px-6 py-2 space-x-2 text-white transition-colors duration-200 bg-green-500 rounded-lg hover:bg-green-600 disabled:opacity-50"
                 >
-                  {isChangingPassword ? "Changing..." : "Change Password"}
+                  {isChangingPassword ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+                      <span>Changing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaLock className="w-4 h-4" />
+                      <span>Change Password</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -867,76 +911,99 @@ export const Profile = () => {
 
       {/* Update Details Modal */}
       {showUpdateDetailsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md bg-white rounded-lg shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="w-full max-w-md transition-all duration-300 ease-in-out transform bg-white shadow-2xl rounded-xl">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-800">Update Profile Details</h3>
+              <div className="flex items-center justify-between pb-4 mb-6 border-b">
+                <div className="flex items-center space-x-3">
+                  <FaUser className="w-6 h-6 text-green-500" />
+                  <h3 className="text-2xl font-bold text-gray-800">Update Profile Details</h3>
+                </div>
                 <button 
                   onClick={() => setShowUpdateDetailsModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 transition-colors duration-200 hover:text-gray-700"
                 >
                   <FaTimes className="w-6 h-6" />
                 </button>
               </div>
               
               <form onSubmit={handleUpdateDetails}>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
                       Full Name
                     </label>
-                    <input
-                      type="text"
-                      value={updateDetails.name}
-                      onChange={(e) => setUpdateDetails({ ...updateDetails, name: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter your full name"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={updateDetails.name}
+                        onChange={(e) => setUpdateDetails({ ...updateDetails, name: e.target.value })}
+                        className="w-full px-4 py-3 transition-all duration-200 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter your full name"
+                      />
+                      <FaUser className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
+                    </div>
                   </div>
                   
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
                       Email
                     </label>
-                    <input
-                      type="email"
-                      value={updateDetails.email}
-                      onChange={(e) => setUpdateDetails({ ...updateDetails, email: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter your email"
-                      readOnly
-                    />
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={updateDetails.email}
+                        onChange={(e) => setUpdateDetails({ ...updateDetails, email: e.target.value })}
+                        className="w-full px-4 py-3 transition-all duration-200 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
+                        placeholder="Enter your email"
+                        readOnly
+                      />
+                      <FaEnvelope className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
+                    </div>
                   </div>
                   
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
                       Phone Number
                     </label>
-                    <input
-                      type="tel"
-                      value={updateDetails.phone}
-                      onChange={(e) => setUpdateDetails({ ...updateDetails, phone: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter your phone number"
-                    />
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        value={updateDetails.phone}
+                        onChange={(e) => setUpdateDetails({ ...updateDetails, phone: e.target.value })}
+                        className="w-full px-4 py-3 transition-all duration-200 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter your phone number"
+                      />
+                      <FaPhone className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-6 space-x-3">
+                <div className="flex justify-end pt-4 mt-6 space-x-3 border-t">
                   <button
                     type="button"
                     onClick={() => setShowUpdateDetailsModal(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                    className="flex items-center px-6 py-2 space-x-2 text-gray-700 transition-colors duration-200 bg-gray-100 rounded-lg hover:bg-gray-200"
                   >
-                    Cancel
+                    <FaTimes className="w-4 h-4" />
+                    <span>Cancel</span>
                   </button>
                   <button
                     type="submit"
                     disabled={isUpdatingDetails}
-                    className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                    className="flex items-center px-6 py-2 space-x-2 text-white transition-colors duration-200 bg-green-500 rounded-lg hover:bg-green-600 disabled:opacity-50"
                   >
-                    {isUpdatingDetails ? "Updating..." : "Update"}
+                    {isUpdatingDetails ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+                        <span>Updating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaEdit className="w-4 h-4" />
+                        <span>Update Profile</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </form>

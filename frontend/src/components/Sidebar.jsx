@@ -44,7 +44,7 @@ const Sidebar = () => {
     {
       key: 'refunds',
       icon: <RollbackOutlined />,
-      label: 'Refund Management',
+      label: 'Refund',
       path: '/refunds'
     }
   ];
@@ -80,13 +80,7 @@ const Sidebar = () => {
           </ul>
         </div>
         <div className="p-4 border-t border-gray-700">
-          <button
-            onClick={() => navigate('/')}
-            className="w-full flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-          >
-            <span className="text-xl mr-3"><LogoutOutlined /></span>
-            {isExpanded && <span className="font-medium">Logout</span>}
-          </button>
+          
         </div>
       </div>
     </div>

@@ -304,7 +304,7 @@ export const OrderDashboard = ({ checkoutData }) => {
                 <div className="flex gap-2">
                   <button
                     onClick={handleDateFilter}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     <FiFilter className="mr-2" />
                     Apply
@@ -366,7 +366,7 @@ export const OrderDashboard = ({ checkoutData }) => {
                 <FiStar className="w-6 h-6" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">To Review</p>
+                <p className="text-sm font-medium text-gray-500">Complete</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {orders.filter(o => o.orderStatus === 'toReview').length}
                 </p>

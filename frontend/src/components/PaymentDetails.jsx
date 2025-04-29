@@ -1,302 +1,178 @@
-import React, { useState, useEffect } from 'react';
-import { Navbar } from "./Navbar";
-import Sidebar from "./Sidebar";
-import { 
-  Table, 
-  Card, 
-  Input, 
-  Button, 
-  DatePicker, 
-  Space, 
-  Tag, 
-  Statistic, 
-  Row, 
-  Col, 
-  Spin,
-  message
-} from 'antd';
-import { 
-  SearchOutlined, 
-  DownloadOutlined,
-  DollarOutlined,
-  ShoppingCartOutlined,
-  CheckCircleOutlined
-} from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
-const { RangePicker } = DatePicker;
+import { useParams, useNavigate } from 'react-router-dom';
+import { Navbar } from "../components/Navbar";
 
 const PaymentDetails = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [payments, setPayments] = useState([]);
-  const [filteredPayments, setFilteredPayments] = useState([]);
-  const [searchText, setSearchText] = useState('');
-  const [dateRange, setDateRange] = useState(null);
-  const [stats, setStats] = useState({
-    totalPayments: 0,
-    totalAmount: 0,
-    averageAmount: 0
-  });
+  const [driver, setDriver] = useState(null);
+  const [completedDeliveries, setCompletedDeliveries] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchPayments();
-  }, []);
-
-  const fetchPayments = async () => {
+    const fetchDriverData = async () => {
       try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${id}`);
+        setDriver(response.data);
+        // Set a default value for completed deliveries if not available
+        setCompletedDeliveries(response.data.deliveryCount || 0);
+      } catch (error) {
+        console.error('Error fetching driver data:', error);
+        setError('Failed to load driver information');
+      }
+    };
 
-      // Fetch all payments from Stripe
-      const response = await axios.get('http://localhost:3000/api/stripe-payments', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+    fetchDriverData();
+  }, [id]);
+
+  const basicSalary = 20000.00;
+  const deliveryBonus = 500.00;
+  const bonusDeliveries = Math.max(0, completedDeliveries - 15);
+  const totalSalary = basicSalary + (bonusDeliveries * deliveryBonus);
+
+  const handlePay = async () => {
+    setIsProcessing(true);
+    setError(null);
+    
+    try {
+      console.log('Sending payment request with:', {
+        totalSalary,
+        driverId: id,
+        driverName: driver.name
       });
       
-      // Transform the data to match our table structure
-      const transformedPayments = response.data.map(payment => ({
-        key: payment._id || payment.id, // Use as key for table rows
-        productName: payment.productName || 'Unknown Product',
-        category: payment.category || 'Unknown Category',
-        quantity: payment.quantity || 1,
-        amount: payment.payAmount || 0,
-        createdAt: payment.createdAt || new Date().toISOString(),
-        status: payment.status || 'completed'
-      }));
-
-      console.log('Transformed payments:', transformedPayments); // Debug log
-
-      setPayments(transformedPayments);
-      setFilteredPayments(transformedPayments);
-      
-      // Calculate statistics
-      const totalAmount = transformedPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
-      setStats({
-        totalPayments: transformedPayments.length,
-        totalAmount: totalAmount,
-        averageAmount: totalAmount / (transformedPayments.length || 1)
+      // Use the new driver payment endpoint
+      const response = await axios.post('http://localhost:3000/api/driver-payment', {
+        totalSalary,
+        driverId: id,
+        driverName: driver.name
       });
-    } catch (error) {
-      console.error('Error fetching payments:', error);
-      if (error.response?.status === 401) {
-        message.error('Session expired. Please login again');
-        navigate('/login');
+      
+      console.log('Payment response:', response.data);
+      
+      if (response.data.success && response.data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = response.data.url;
       } else {
-        message.error('Failed to fetch payment data');
+        throw new Error('Invalid response from payment server');
       }
-    } finally {
-      setLoading(false);
-      }
-  };
-
-  const handleSearch = (value) => {
-    setSearchText(value);
-    filterPayments(value, dateRange);
-  };
-
-  const handleDateRangeChange = (dates) => {
-    setDateRange(dates);
-    filterPayments(searchText, dates);
-  };
-
-  const filterPayments = (searchValue, dates) => {
-    let filtered = [...payments];
-
-    // Filter by search text
-    if (searchValue) {
-      filtered = filtered.filter(payment => 
-        payment.productName?.toLowerCase().includes(searchValue.toLowerCase()) ||
-        payment.category?.toLowerCase().includes(searchValue.toLowerCase())
-      );
+    } catch (error) {
+      console.error('Payment error:', error);
+      setError(error.response?.data?.message || 'Failed to process payment. Please try again.');
+      setIsProcessing(false);
     }
-
-    // Filter by date range
-    if (dates && dates[0] && dates[1]) {
-      filtered = filtered.filter(payment => {
-        const paymentDate = new Date(payment.createdAt);
-        return paymentDate >= dates[0].startOf('day') && 
-               paymentDate <= dates[1].endOf('day');
-      });
-    }
-
-    setFilteredPayments(filtered);
   };
 
-  const handleExport = () => {
-    const csvContent = [
-      ['Product', 'Category', 'Quantity', 'Amount', 'Date', 'Status'],
-      ...filteredPayments.map(payment => [
-        payment.productName,
-        payment.category,
-        payment.quantity,
-        payment.amount,
-        new Date(payment.createdAt).toLocaleDateString(),
-        payment.status
-      ])
-    ].map(row => row.join(',')).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'payment_history.csv';
-    link.click();
-  };
-
-  const columns = [
-    {
-      title: 'Product',
-      dataIndex: 'productName',
-      key: 'productName',
-      width: 200,
-    },
-    {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      width: 150,
-      render: (category) => (
-        <Tag color={category === 'Organic' ? 'green' : 'blue'}>
-          {category}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Quantity',
-      dataIndex: 'quantity',
-      key: 'quantity',
-      width: 100,
-    },
-    {
-      title: 'Amount',
-      dataIndex: 'amount',
-      key: 'amount',
-      width: 150,
-      render: (amount) => `Rs. ${amount.toLocaleString()}`,
-    },
-    {
-      title: 'Date',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 150,
-      render: (date) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: 120,
-      render: (status) => (
-        <Tag color={status === 'completed' ? 'green' : 'orange'}>
-          {status.toUpperCase()}
-        </Tag>
-      ),
+  if (!driver) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      </div>
+    );
   }
-  ];
 
   return (
     <>
     <Navbar />
-      <div className="flex h-screen bg-gray-50">
-        <Sidebar />
-        <div className="flex-1 overflow-auto ml-64"> {/* Added ml-64 to prevent sidebar overlay */}
-          <div className="p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Payment History</h1>
-              <p className="text-gray-600">View and manage your payment transactions</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            Salary Payment 
+          </h1><br></br>
+          <p className="mt-3 text-xl text-gray-600">
+            Process payment for {driver.name}
+          </p>
         </div>
 
-            {/* Statistics Cards */}
-            <Row gutter={[16, 16]} className="mb-8">
-              <Col xs={24} sm={8}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow">
-                  <Statistic
-                    title="Total Payments"
-                    value={stats.totalPayments}
-                    prefix={<ShoppingCartOutlined />}
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={8}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow">
-                  <Statistic
-                    title="Total Amount"
-                    value={stats.totalAmount}
-                    prefix={<DollarOutlined />}
-                    suffix="Rs."
-                    precision={2}
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={8}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow">
-                  <Statistic
-                    title="Average Amount"
-                    value={stats.averageAmount}
-                    prefix={<DollarOutlined />}
-                    suffix="Rs."
-                    precision={2}
-                  />
-                </Card>
-              </Col>
-            </Row>
-
-            {/* Search and Filter Section */}
-            <Card className="mb-8 shadow-md">
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="flex-1 w-full">
-                  <Input
-                    placeholder="Search by product name or category"
-                    prefix={<SearchOutlined />}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full"
-                />
-              </div>
-                <div className="flex gap-4 w-full md:w-auto">
-                  <RangePicker
-                    onChange={handleDateRangeChange}
-                    className="w-full md:w-auto"
-                  />
-                  <Button
-                    type="primary"
-                    icon={<DownloadOutlined />}
-                    onClick={handleExport}
-                    className="w-full md:w-auto"
-                  >
-                    Export
-                  </Button>
+        <div className="bg-white shadow-xl rounded-lg overflow-hidden">
+          {/* Header */}
+          <div className="bg-green-500 px-6 py-4">
+            <h2 className="text-xl font-semibold text-white">Driver Information</h2>
           </div>
-              </div>
-            </Card>
 
-            {/* Payments Table */}
-            <Card className="shadow-md">
-              {loading ? (
-                <div className="flex justify-center items-center h-64">
-                  <Spin size="large" />
-              </div>
-              ) : filteredPayments.length > 0 ? (
-                <Table
-                  columns={columns}
-                  dataSource={filteredPayments}
-                  rowKey="key"
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Total ${total} payments`,
-                  }}
-                  scroll={{ x: 1000 }}
+          {/* Driver Info */}
+          <div className="px-6 py-5 border-b border-gray-200">
+            <div className="flex items-center space-x-4">
+              <div className="flex-shrink-0">
+                <img 
+                  className="h-16 w-16 rounded-full object-cover" 
+                  src={driver.profilePic || 'https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg'} 
+                  alt={driver.name}
                 />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-                  <ShoppingCartOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
-                  <p className="text-lg">No payment records found</p>
-                  <p className="text-sm">Try adjusting your search or date filters</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-gray-900">{driver.name}</h3>
+                <p className="text-sm text-gray-500">Driver ID: {id.substring(0, 8)}</p>
+                <p className="text-sm text-gray-500">Email: {driver.email}</p>
+                <p className="text-sm text-gray-500">Phone: {driver.phone}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Salary Details */}
+          <div className="px-6 py-5 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Salary Details</h3>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Basic Salary:</span>
+                <span className="font-medium">Rs. {basicSalary.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Completed Deliveries:</span>
+                <span className="font-medium">{completedDeliveries}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Bonus Deliveries:</span>
+                <span className="font-medium">{bonusDeliveries}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Delivery Bonus:</span>
+                <span className="font-medium">Rs. {(bonusDeliveries * deliveryBonus).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-gray-200">
+                <span className="text-lg font-semibold text-gray-900">Total Salary:</span>
+                <span className="text-lg font-bold text-green-600">Rs. {totalSalary.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="px-6 py-4 bg-red-50 border-b border-red-200">
+              <p className="text-red-600">{error}</p>
             </div>
           )}
-            </Card>
+
+          {/* Payment Button */}
+          <div className="px-6 py-4 bg-gray-50 text-right">
+            <button
+              onClick={handlePay}
+              disabled={isProcessing}
+              className={`px-6 py-3 rounded-md text-white font-medium shadow-sm ${isProcessing ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors`}
+            >
+              {isProcessing ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Processing...
+                </>
+              ) : 'Proceed to Payment'}
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => navigate('/driver')}
+            className="text-green-600 hover:text-green-800 font-medium"
+          >
+            ← Back to driver list
+          </button>
         </div>
       </div>
     </div>
