@@ -3,8 +3,9 @@ import Cart from "../models/Cart.js";
 //  Insert Item to cart
 export const addToCart = async (req, res) => {
   try {
-    const { userId, wasteId, description, price, deliveryCost, quantity } = req.body;
+    const { userId, wasteId, farmerId, description, price, deliveryCost, quantity } = req.body;
     let cart = await Cart.findOne({ userId });
+
     if (!cart) {
       cart = new Cart({ userId, items: [], totalPrice: 0 });
     }
@@ -14,7 +15,7 @@ export const addToCart = async (req, res) => {
     if (itemIndex > -1) {
       cart.items[itemIndex].quantity += quantity;
     } else {
-      cart.items.push({ wasteId, description, price, quantity, deliveryCost });
+      cart.items.push({ wasteId, farmerId, description, price, quantity, deliveryCost });
     }
     cart.totalPrice = cart.items.reduce(
       (total, item) => total + item.price * item.quantity + item.deliveryCost,
@@ -94,5 +95,27 @@ export const removeCartItem = async (req, res) => {
     res.status(200).json(cart);
   } catch (error) {
     res.status(500).json({ error: "Failed to remove item from cart" });
+  }
+};
+
+// Clear cart for a user
+export const clearCart = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const cart = await Cart.findOne({ userId });
+    
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    // Clear all items from the cart
+    cart.items = [];
+    cart.totalPrice = 0;
+    
+    await cart.save();
+    res.status(200).json({ message: "Cart cleared successfully" });
+  } catch (error) {
+    console.error("Error clearing cart:", error);
+    res.status(500).json({ error: "Failed to clear cart" });
   }
 };

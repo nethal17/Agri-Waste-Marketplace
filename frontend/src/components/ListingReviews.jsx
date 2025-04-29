@@ -38,26 +38,26 @@ export const ListingReviews = ({ productId }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="w-12 h-12 border-t-2 border-b-2 border-green-500 rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
     <div className="w-full p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Product Reviews</h2>
+      <h2 className="mb-6 text-2xl font-bold text-gray-800">Product Reviews</h2>
       
-      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+      <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-md">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gradient-to-r from-green-500 to-green-600">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">No</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Rating</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Review</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Buyer</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">No</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Product</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Rating</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Review</th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Buyer</th>
               </tr>
             </thead>
 
@@ -68,11 +68,11 @@ export const ListingReviews = ({ productId }) => {
                     key={review._id} 
                     className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
                       {index + 1}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
-                      {review.productId?.wasteItem || "Unknown Product"}
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
+                      {review.productName || "Unknown Product"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -92,14 +92,14 @@ export const ListingReviews = ({ productId }) => {
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {review.review}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                    <td className="px-6 py-4 text-sm font-medium text-blue-600 whitespace-nowrap">
                       {review.buyerId?.name || "Unknown Buyer"}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan="5" className="px-6 py-4 text-sm text-center text-gray-500">
                     <div className="flex flex-col items-center justify-center py-8">
                       <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>

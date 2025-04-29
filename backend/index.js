@@ -30,7 +30,12 @@ import buyerAddressRoutes from "./routes/buyerAddressRoutes.js";
 
 import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
 
+
 import refundRoutes from './routes/refund.routes.js';
+import reportRoutes from "./routes/reportRoutes.js";
+import vehicleRegRoutes from "./routes/VehicleReg.routes.js";
+import deliveryHistoryRoutes from "./routes/deliveryHistoryRoutes.js";
+
 
 dotenv.config();
 
@@ -59,6 +64,9 @@ app.use('/api', driverPaymentsRoutes);
 app.use('/api', driverPaymentRoutes);
 app.use('/api/refunds', refundRoutes);
 
+// Reports & Analytics
+app.use('/api/reports', reportRoutes);
+
 
 //Ricky
 app.use('/api/inventory', inventoryRoutes);
@@ -77,6 +85,8 @@ app.use("/api/order-history", orderHistoryRoutes);
 
 // yuwani
 app.use('/api/deliveryReq', deliveryReqRoutes);
+app.use("/api/vehicle-reg", vehicleRegRoutes);
+app.use("/api/delivery-history", deliveryHistoryRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
@@ -88,3 +98,10 @@ connect(process.env.MONGO_URI, {
   .catch(err => console.log(err));
 
 
+  
+ 
+  
+  
+
+  
+  export default router;

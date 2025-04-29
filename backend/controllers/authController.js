@@ -40,7 +40,8 @@ export const verifyEmail = async (req, res) => {
         user.verificationToken = undefined;
         await user.save();
 
-        res.json({ msg: "Email verified successfully. You can now login." });
+        // Redirect to the success page
+        res.redirect('http://localhost:5173/email-verification-success');
         
     } catch (err) {
         console.log(err);
@@ -107,8 +108,35 @@ export const registerUser = async (req, res) => {
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USER,
-            subject: "Email Verification",
-            text: `Click the link to verify your email: ${verificationURL}`
+            subject: "Welcome to Agri-Waste Marketplace - Verify Your Email",
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #2c3e50; margin-bottom: 10px;">Welcome to Agri-Waste Marketplace!</h1>
+                        <p style="color: #7f8c8d; font-size: 16px;">Thank you for registering with us. We're excited to have you on board!</p>
+                    </div>
+                    
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+                        <p style="color: #34495e; margin-bottom: 20px;">To complete your registration and start using our platform, please verify your email address by clicking the button below:</p>
+                        
+                        <div style="text-align: center;">
+                            <a href="${verificationURL}" style="display: inline-block; background-color: #27ae60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 20px 0;">Verify Email Address</a>
+                        </div>
+                        
+                        <p style="color: #7f8c8d; font-size: 14px; margin-top: 20px;">If the button above doesn't work, you can also copy and paste the following link into your browser:</p>
+                        <p style="word-break: break-all; color: #3498db; font-size: 14px;">${verificationURL}</p>
+                    </div>
+                    
+                    <div style="text-align: center; color: #7f8c8d; font-size: 14px;">
+                        <p>This verification link will expire in 24 hours.</p>
+                        <p>If you didn't create an account with us, please ignore this email.</p>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+                        <p style="color: #7f8c8d; font-size: 12px;">© 2024 Agri-Waste Marketplace. All rights reserved.</p>
+                    </div>
+                </div>
+            `
         };
 
         await transporter.sendMail(mailOptions);
