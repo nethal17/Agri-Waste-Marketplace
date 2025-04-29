@@ -25,6 +25,7 @@ import { NonOrganicWaste, CategoryProducts as NonOrganicCategoryProducts } from 
 import { Cart } from './pages/Cart';
 import { Checkout } from './pages/Checkout';
 import { BuyerAddressForm } from './pages/BuyerAddressForm';
+import { AboutUs } from './pages/AboutUs';
 
 import Success from './pages/Success';
 
@@ -93,6 +94,7 @@ function App() {
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/buyer-address-form" element={<BuyerAddressForm />} />
+      <Route path="/about-us" element={<AboutUs />} />
 
       <Route path="/driver" element={<DriverList />} />
       <Route path="/farmer-list" element={<FarmerList />} />
