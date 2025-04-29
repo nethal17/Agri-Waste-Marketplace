@@ -1,6 +1,16 @@
 import express from 'express';
-import { getWasteTypes, getWasteItems, getDistricts,createProductListing } from '../controllers/ProductListingController.js';
-import {getAllProductListings,approveProductListing,deleteProductListing,} from '../controllers/ProductListingController.js';
+import { 
+  getWasteTypes, 
+  getWasteItems, 
+  getDistricts,
+  createProductListing,
+  getAllProductListings,
+  approveProductListing,
+  deleteProductListing,
+  getApprovedProductListings,
+  getRandomApprovedProduct,
+  getRandomApprovedProductListings
+} from '../controllers/ProductListingController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
 
@@ -13,6 +23,13 @@ router.get('/districts/:province', getDistricts);
 
 // Route for creating a product listing
 router.post('/create', authMiddleware, createProductListing);
+
+// Route for getting only approved product listings
+router.get('/listings/approved', getApprovedProductListings);
+
+
+router.get('/random-approved', getRandomApprovedProduct);
+router.get('/random-approved-listings', getRandomApprovedProductListings);
 
 // Admin routes
 router.get('/admin/listings',authMiddleware, getAllProductListings);

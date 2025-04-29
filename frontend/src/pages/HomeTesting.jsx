@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useRef } from "react"
 import { motion, useAnimation, useInView } from "framer-motion"
 import { useNavigate } from "react-router-dom"; // For navigation
 import { Navbar } from "../components/Navbar"
@@ -232,51 +232,53 @@ const HeroSection = () => {
 }
 
 const FeaturesSection = () => {
+  // Add a more creative and visually attractive features section
   const features = [
     {
-      icon: <Recycle />,
+      icon: <Recycle className="text-green-500 w-10 h-10 drop-shadow-lg" />,
       title: "Sustainable Recycling",
       description: "Transform agricultural waste into valuable resources through our innovative recycling processes.",
     },
     {
-      icon: <ShoppingBag />,
+      icon: <ShoppingBag className="text-yellow-500 w-10 h-10 drop-shadow-lg" />,
       title: "Marketplace",
       description: "Buy and sell agriwaste products in our secure and transparent digital marketplace.",
     },
     {
-      icon: <Leaf />,
+      icon: <Leaf className="text-lime-500 w-10 h-10 drop-shadow-lg" />,
       title: "Eco-Friendly Solutions",
       description: "Reduce environmental impact while creating economic opportunities for farmers and businesses.",
     },
     {
-      icon: <TrendingUp />,
+      icon: <TrendingUp className="text-blue-500 w-10 h-10 drop-shadow-lg" />,
       title: "Growth Opportunities",
       description: "Expand your business with sustainable practices and access to new markets.",
     },
   ]
 
   return (
-    <section className="bg-gradient-to-br from-green-50 to-green-100 py-20">
+    <section className="relative py-20 bg-gradient-to-br from-green-100 via-lime-50 to-emerald-100 overflow-hidden">
+      <div className="absolute top-0 left-0 w-72 h-72 bg-green-200 rounded-full opacity-30 blur-3xl animate-pulse -z-10" style={{filter:'blur(80px)', top:'-100px', left:'-100px'}}/>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full opacity-20 blur-3xl animate-pulse -z-10" style={{filter:'blur(120px)', bottom:'-120px', right:'-120px'}}/>
       <div className="container mx-auto px-4">
         <FadeInSection>
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">Why Choose Our Platform</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-              We provide innovative solutions for agricultural waste management and recycling
+            <h2 className="text-4xl md:text-5xl font-extrabold text-green-900 tracking-tight drop-shadow-xl mb-2">Why Choose Our Platform?</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-green-700 font-medium">
+              Transforming agri-waste into opportunity: innovation, sustainability, and growth for all stakeholders.
             </p>
           </div>
         </FadeInSection>
-
-        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => (
-            <FadeInSection key={index} delay={index * 0.1}>
-              <Card className="h-full border-none shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-green-100">
-                <CardContent className="flex h-full flex-col items-center p-6 text-center">
-                  <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="mb-4 rounded-full bg-green-50 p-4">
+            <FadeInSection key={index} delay={index * 0.12}>
+              <Card className="h-full border-0 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 bg-gradient-to-br from-white via-green-50 to-lime-50 group">
+                <CardContent className="flex h-full flex-col items-center p-8 text-center">
+                  <motion.div whileHover={{ scale: 1.15, rotate: 8 }} className="mb-6 rounded-full bg-gradient-to-tr from-green-100 via-white to-lime-100 p-6 shadow-inner group-hover:shadow-lg">
                     {feature.icon}
                   </motion.div>
-                  <h3 className="mb-2 text-xl font-semibold text-gray-900">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <h3 className="mb-2 text-2xl font-bold text-green-900 drop-shadow-sm group-hover:text-emerald-700 transition-colors">{feature.title}</h3>
+                  <p className="text-green-700 group-hover:text-green-900 transition-colors text-base font-medium">{feature.description}</p>
                 </CardContent>
               </Card>
             </FadeInSection>
@@ -310,9 +312,6 @@ const EnhancedMainSection = () => {
                   efficient.
                 </p>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button size="lg" className="bg-green-600 hover:bg-green-700" onClick={() => navigate('/organic-waste')}>
-                Explore the MarketPlace <ArrowRight />
-                </Button>
                 </motion.div>
               </div>
             </FadeInSection>
@@ -431,33 +430,41 @@ const HowItWorksSection = () => {
   )
 }
 
+import axios from "axios";
+import { useState, useEffect } from "react";
+
 const MarketplacePreview = () => {
-  const products = [
-    {
-      title: "Organic Compost",
-      category: "Fertilizer",
-      price: "$29.99",
-      image: "/product1.jpg", // Update with your actual image path
-    },
-    {
-      title: "Rice Husk Biomass",
-      category: "Energy",
-      price: "$19.99",
-      image: "/product2.jpg", // Update with your actual image path
-    },
-    {
-      title: "Coconut Coir",
-      category: "Growing Medium",
-      price: "$24.99",
-      image: "/product3.jpg", // Update with your actual image path
-    },
-    {
-      title: "Sugarcane Bagasse",
-      category: "Packaging",
-      price: "$15.99",
-      image: "/product4.jpg", // Update with your actual image path
-    },
-  ]
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchRandomProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("http://localhost:3000/api/product-listing/random-approved-listings");
+        
+        // Format the data to match your UI requirements
+        const formattedProducts = response.data.map(product => ({
+          ...product,
+          title: product.wasteItem,
+          category: product.wasteType,
+          price: product.price,
+          image: product.image 
+        }));
+        
+        setProducts(formattedProducts);
+      } catch (err) {
+        console.error("Error fetching random products:", err);
+        setError("Failed to load featured products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRandomProducts();
+  }, []);
 
   return (
     <section className="bg-gradient-to-br from-green-50 to-white py-20">
@@ -471,135 +478,202 @@ const MarketplacePreview = () => {
           </div>
         </FadeInSection>
 
-        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((product, index) => (
-            <FadeInSection key={index} delay={index * 0.1}>
-              <motion.div
-                whileHover={{ y: -10 }}
-                className="overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={product.image || "/placeholder.jpg"}
-                    alt={product.title}
-                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
-                  />
-                  <div className="absolute top-4 right-4 rounded-full bg-green-600 px-3 py-1 text-xs font-medium text-white">
-                    {product.category}
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500 font-semibold py-8">{error}</div>
+        ) : (
+          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {products.map((product, index) => (
+              <FadeInSection key={product._id || index} delay={index * 0.1}>
+                <motion.div
+                  whileHover={{ y: -10, scale: 1.03 }}
+                  className="overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl border border-green-100"
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={product.image}
+                      className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+                    />
+                    <div className="absolute top-4 right-4 rounded-full bg-green-600 px-3 py-1 text-xs font-medium text-white shadow">
+                      {product.category}
+                    </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-900">{product.title}</h3>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-lg font-bold text-green-600">{product.price}</span>
-                    <Button size="sm" variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
-                      View Details
-                    </Button>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 truncate">{product.title}</h3>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-lg font-bold text-green-600">
+                        Rs. {product.price}.00
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            </FadeInSection>
-          ))}
-        </div>
+                </motion.div>
+              </FadeInSection>
+            ))}
+          </div>
+        )}
 
         <FadeInSection delay={0.4}>
           <div className="mt-12 text-center">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700" onClick={() => navigate('/organic-waste')}>
+            <Button 
+              size="lg" 
+              className="bg-green-600 hover:bg-green-700" 
+              onClick={() => navigate('/organic-waste')}
+            >
               View All Products <ArrowRight />
             </Button>
           </div>
         </FadeInSection>
       </div>
     </section>
-  )
-}
+  );
+};
+
+
+
 
 const TestimonialsSection = () => {
-  const testimonials = [
-    {
-      quote:
-        "This platform has transformed how we handle agricultural waste. We've turned what was once a cost center into a revenue stream.",
-      author: "Maria Rodriguez",
-      role: "Organic Farmer",
-      avatar: "/avatar1.jpg", // Update with your actual image path
-    },
-    {
-      quote:
-        "As a manufacturer, finding sustainable raw materials was always challenging. This marketplace has made sourcing easy and reliable.",
-      author: "James Chen",
-      role: "Product Developer",
-      avatar: "/avatar2.jpg", // Update with your actual image path
-    },
-    {
-      quote:
-        "The transparency and ease of use on this platform has helped us meet our sustainability goals while reducing costs.",
-      author: "Sarah Johnson",
-      role: "Sustainability Director",
-      avatar: "/avatar3.jpg", // Update with your actual image path
-    },
-  ]
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get("http://localhost:3000/api/reviews/random-top-reviews");
+        setTestimonials(res.data);
+      } catch (err) {
+        setError("Failed to load testimonials");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTestimonials();
+  }, []);
 
   return (
-    <section className="bg-white py-20">
+    <section className="bg-gradient-to-b from-white to-green-50 py-20">
       <div className="container mx-auto px-4">
         <FadeInSection>
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">What Our Users Say</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 md:text-5xl mb-4">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-green-400">
+                What Our Users Say
+              </span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-xl text-gray-600">
               Hear from farmers, businesses, and recyclers who are already making a difference
             </p>
           </div>
         </FadeInSection>
-
-        <div className="mt-16 grid gap-8 md:grid-cols-3">
-          {testimonials.map((testimonial, index) => (
-            <FadeInSection key={index} delay={index * 0.1}>
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                className="flex h-full flex-col rounded-xl bg-green-50 p-6 shadow-lg"
-              >
-                <div className="mb-4 text-green-600">
-                  <svg width="45" height="36" className="fill-current">
-                    <path d="M13.415.43c-2.523 0-4.75 1.173-6.682 3.52C4.8 6.298 3.756 9.38 3.756 12.89c0 6.498 3.442 11.728 10.325 15.68 1.311.75 2.675 1.173 4.09 1.173 2.214 0 4.068-1.024 5.563-3.072 1.495-2.048 2.242-4.395 2.242-7.04 0-4.2-1.7-7.63-5.102-10.292-1.65-1.3-3.382-1.95-5.196-1.95-.742 0-1.32.15-1.732.448-.413.299-.62.748-.62 1.347 0 .523.15.973.448 1.347.299.374.747.56 1.346.56.224 0 .448-.037.672-.112.523-.15.972-.15 1.346 0 .374.15.673.448.897.897.224.523.336 1.121.336 1.795 0 1.496-.56 2.767-1.682 3.815-1.121 1.048-2.47 1.571-4.04 1.571-1.122 0-2.092-.185-2.915-.56-3.962-1.869-5.944-5.832-5.944-11.888 0-2.842.673-5.16 2.019-6.955 1.346-1.794 3.029-2.691 5.047-2.691 1.795 0 3.327.748 4.597 2.242 1.271 1.496 1.906 3.328 1.906 5.498 0 .523.15.936.448 1.234.374.299.785.448 1.234.448.523 0 .973-.15 1.347-.448.374-.298.56-.71.56-1.234 0-3.29-1.048-6.054-3.143-8.295C19.532 1.61 16.76.43 13.414.43zm21.457 0c-2.523 0-4.75 1.173-6.681 3.52-1.934 2.347-2.9 5.43-2.9 9.24 0 6.498 3.442 11.728 10.325 15.68 1.31.75 2.674 1.173 4.09 1.173 2.214 0 4.067-1.024 5.562-3.072 1.496-2.048 2.243-4.395 2.243-7.04 0-4.2-1.7-7.63-5.102-10.292-1.65-1.3-3.382-1.95-5.196-1.95-.742 0-1.32.15-1.732.448-.412.299-.62.748-.62 1.347 0 .523.15.973.449 1.347.299.374.747.56 1.346.56.224 0 .448-.037.672-.112.523-.15.972-.15 1.346 0 .374.15.674.448.897.897.224.523.336 1.121.336 1.795 0 1.496-.56 2.767-1.681 3.815-1.122 1.048-2.47 1.571-4.04 1.571-1.122 0-2.092-.185-2.916-.56-3.961-1.869-5.943-5.832-5.943-11.888 0-2.842.672-5.16 2.018-6.955 1.346-1.794 3.03-2.691 5.048-2.691 1.795 0 3.327.748 4.597 2.242 1.27 1.496 1.906 3.328 1.906 5.498 0 .523.149.936.448 1.234.374.299.784.448 1.234.448.523 0 .972-.15 1.347-.448.373-.298.56-.71.56-1.234 0-3.29-1.048-6.054-3.144-8.295C40.99 1.61 38.218.43 34.872.43z"></path>
-                  </svg>
-                </div>
-                <p className="mb-6 flex-1 text-gray-700">{testimonial.quote}</p>
-                <div className="mt-auto flex items-center">
-                  <div className="h-12 w-12 overflow-hidden rounded-full">
-                    <img
-                      src={testimonial.avatar || "/placeholder.jpg"}
-                      alt={testimonial.author}
-                      className="h-full w-full object-cover"
-                    />
+        
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500 font-semibold py-8">{error}</div>
+        ) : (
+          <div className="mt-8 grid gap-8 md:grid-cols-3">
+            {testimonials.map((review, index) => (
+              <FadeInSection key={review._id || index} delay={index * 0.1}>
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  className="flex h-full flex-col rounded-xl bg-white p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
+                >
+                  {/* Product Name Highlight */}
+                  <div className="mb-6">
+                    <span className="inline-block px-3 py-1 text-xs font-semibold tracking-wider text-green-800 uppercase bg-green-100 rounded-full">
+                      {review.productName || "Our Product"}
+                    </span>
                   </div>
-                  <div className="ml-4">
-                    <h4 className="font-semibold text-gray-900">{testimonial.author}</h4>
-                    <p className="text-sm text-gray-600">{testimonial.role}</p>
+                  
+                  {/* Review Content */}
+                  <div className="relative flex-1 mb-8">
+                    <svg
+                      className="absolute -top-4 -left-4 h-12 w-12 text-green-100 opacity-70"
+                      fill="currentColor"
+                      viewBox="0 0 32 32"
+                    >
+                      <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
+                    </svg>
+                    <p className="relative z-10 text-lg italic text-gray-700 pl-6">
+                      "{review.review}"
+                    </p>
                   </div>
-                </div>
-              </motion.div>
-            </FadeInSection>
-          ))}
-        </div>
+                  
+                  {/* Rating */}
+                  <div className="flex items-center gap-1 mb-6">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className={
+                        i < review.rating
+                          ? "text-yellow-400 text-2xl"
+                          : "text-gray-200 text-2xl"
+                      }>
+                        ★
+                      </span>
+                    ))}
+                    <span className="ml-2 text-sm font-medium text-gray-500">
+                      {review.rating}/5
+                    </span>
+                  </div>
+                  
+                  {/* Buyer Info */}
+                  <div className="flex items-center pt-4 border-t border-gray-100">
+                    <div className="relative h-14 w-14 overflow-hidden rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                      <span className="text-white font-bold text-xl">
+                        {review.buyer?.name?.charAt(0) || "U"}
+                      </span>
+                      <div className="absolute inset-0 rounded-full border-2 border-white/30">
+                      </div>
+                    </div>
+                    <div className="ml-4">
+                      <h4 className="font-bold text-gray-900">{review.buyer?.name || "User"}</h4>
+                      <p className="text-sm text-gray-500">Verified Buyer</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </FadeInSection>
+            ))}
+          </div>
+        )}
       </div>
     </section>
-  )
-}
+  );
+};
 
-const CtaSection = () => {
+
+
+
+
+
+export const CtaSection = () => {
+  const navigate = useNavigate();
+
   return (
-    <section className="bg-green-600 py-20 text-white">
-      <div className="container mx-auto px-4">
-        <div className="mx-auto max-w-4xl text-center">
+    <section className="bg-gradient-to-r from-green-500 via-green-450 to-green-500 py-20 text-white">
+      <div className="container mx-auto px-6">
+        <div className="max-w-3xl mx-auto text-center">
           <FadeInSection>
-            <h2 className="text-3xl font-bold md:text-4xl">Ready to Join the Agriwaste Revolution?</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-green-100">
-              Start buying, selling, and recycling agricultural waste today and be part of the sustainable future.
+            <h2 className="text-4xl font-extrabold md:text-5xl leading-tight tracking-tight">
+              Ready to Join the Agriwaste Revolution?
+            </h2>
+            <p className="mt-4 text-lg text-slate-100 md:text-xl">
+              Start buying, selling, and recycling agricultural waste today and lead the way toward a greener tomorrow.
             </p>
-            <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <div className="mt-8 flex justify-center">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button size="lg" variant="secondary" className="bg-white text-green-600 hover:bg-green-50" onclick={() => navigate('/login')}>
-                  Sign Up Now <ArrowRight />
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="bg-white text-lime-700 hover:bg-lime-100 transition-colors"
+                  onClick={() => navigate('/register')}
+                >
+                  Sign Up Now
+                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </motion.div>
             </div>
@@ -607,8 +681,11 @@ const CtaSection = () => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
+
+
+
 
 
 

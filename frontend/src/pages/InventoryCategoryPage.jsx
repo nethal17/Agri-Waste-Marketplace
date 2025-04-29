@@ -2,33 +2,20 @@ import { useState, useEffect } from "react";
 import { FiBell, FiSearch } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const WASTE_CATEGORIES = {
   'Organic Waste': ['Crop Residues', 'Fruit & Vegetable Waste', 'Plantation Waste', 'Nut & Seed Waste', 'Livestock & Dairy Waste', 'Forestry Waste'],
   'Inorganic Waste': ['Chemical Waste', 'Plastic Waste', 'Metal Waste', 'Fabric & Textile Waste', 'Glass & Ceramic Waste', 'Rubber Waste']
 };
 
-const WASTE_TYPES = {
-    'Crop Residues': ['Wheat straw', 'Rice husk', 'Corn stalks', 'Lentil husks', 'Chickpea stalks', 'Pea pods','Mustard stalks', 'Sunflower husks', 'Groundnut shells'],
-    'Fruit & Vegetable Waste': ['Banana peels', 'Orange pulp', 'Mango peels', 'Tomato skins', 'Potato peels', 'Carrot tops','Rotten tomatoes', 'Overripe bananas'],
-    'Plantation Waste': ['Tea leaves', 'Coffee husk', 'Coffee pulp', 'Bagasse', 'Molasses', 'Cane tops','Coconut husks', 'Shells', 'Leaves'],
-    'Nut & Seed Waste': ['Peanut Shells', 'Almond & Cashew Husks','Sesame & Flaxseed Waste'],
-    'Livestock & Dairy Waste': ['Cow dung', 'Poultry droppings', 'Goat manure', 'Abattoir Waste (Bones, Blood, Skin leftovers)','Whey', 'Spoiled milk', 'Butter residue'],
-    'Forestry Waste': ['Sawdust & Wood Chips', 'Bamboo Waste', 'Leaf & Bark Residue'],
-    'Chemical Waste': ['Expired Pesticides & Herbicides','Fertilizer Residues','Disinfectants & Cleaning Agents'],
-    'Plastic Waste': ['Pesticide & Fertilizer Packaging (Plastic bags, bottles, sachets)','Mulching Films & Plastic Sheets','Drip Irrigation Pipes & Tubes','Greenhouse Plastic Covers'],
-    'Metal Waste': ['Rusty Farm Equipment & Tools (Plows, Harrows, Blades)','Wire Fencing & Metal Posts','Discarded Machinery Parts (Tractor parts, Gears, Bearings)'],
-    'Fabric & Textile Waste': ['Burlap Sacks & Jute Bags','Tarpaulins & Netting Materials','Old Protective Gear (Gloves, Aprons, Coveralls)'],
-    'Glass & Ceramic Waste': ['Chemical Containers','Pesticide Bottles','Damaged Ceramic Pots & Storage Jars'],
-    'Rubber Waste': ['Used Tires from Tractors & Farm Vehicles','Rubber Seals & Hoses','Discarded Conveyor Belts']
-};
-  
 export const InventoryCategoryPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [quantities, setQuantities] = useState({});
+  const [approvedListings, setApprovedListings] = useState([]);
 
   // Authentication check
   useEffect(() => {
@@ -46,19 +33,47 @@ export const InventoryCategoryPage = () => {
       toast.error("Only Admin can view this page");
       navigate("/");
     }
-    setLoading(false);
   }, [navigate]);
 
-  // Mock quantity data - replace with actual API call
+  // Fetch approved product listings
   useEffect(() => {
-    const mockQuantities = {};
-    Object.keys(WASTE_TYPES).forEach(type => {
-      mockQuantities[type] = {
-        totalItems: WASTE_TYPES[type].length,
-        totalQuantity: Math.floor(Math.random() * 1000) + 100 // Random quantity between 100-1100
-      };
-    });
-    setQuantities(mockQuantities);
+    const fetchApprovedListings = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`http://localhost:3000/api/product-listing/listings/approved`);
+        setApprovedListings(response.data);
+        
+        // Calculate quantities
+        const calculatedQuantities = {};
+        
+        // Initialize all waste types with zero quantities
+        Object.keys(WASTE_CATEGORIES).forEach(category => {
+          WASTE_CATEGORIES[category].forEach(type => {
+            calculatedQuantities[type] = {
+              totalItems: 0,
+              totalQuantity: 0
+            };
+          });
+        });
+        
+        // Calculate actual quantities from approved listings
+        response.data.forEach(listing => {
+          if (calculatedQuantities[listing.wasteType]) {
+            calculatedQuantities[listing.wasteType].totalItems += 1;
+            calculatedQuantities[listing.wasteType].totalQuantity += listing.quantity || 0;
+          }
+        });
+        
+        setQuantities(calculatedQuantities);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch inventory data");
+        setLoading(false);
+      }
+    };
+
+    fetchApprovedListings();
   }, []);
 
   if (loading) return <div className="flex justify-center items-center h-screen text-xl">Loading...</div>;
@@ -72,10 +87,11 @@ export const InventoryCategoryPage = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Waste Inventory Dashboard</h1>
             <p className="text-gray-600">Manage and track waste categories</p>
+            <p className="text-sm text-green-600 mt-1">
+              Showing data for {approvedListings.length} approved listings
+            </p>
           </div>
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <FiBell className="text-xl text-gray-600 cursor-pointer hover:text-gray-900 transition" />
-          </div>
+          
         </div>
 
         {/* Organic Waste Section */}
@@ -94,7 +110,7 @@ export const InventoryCategoryPage = () => {
                 <h3 className="text-md font-semibold text-gray-800 mb-3">{type}</h3>
                 <div className="mt-auto space-y-2">
                   <div>
-                    <p className="text-xs text-gray-600">Total Items</p>
+                    <p className="text-xs text-gray-600">Total Listings</p>
                     <p className="text-xl font-bold text-gray-800">
                       {quantities[type]?.totalItems || 0}
                     </p>
@@ -127,7 +143,7 @@ export const InventoryCategoryPage = () => {
                 <h3 className="text-md font-semibold text-gray-800 mb-3">{type}</h3>
                 <div className="mt-auto space-y-2">
                   <div>
-                    <p className="text-xs text-gray-600">Total Items</p>
+                    <p className="text-xs text-gray-600">Total Listings</p>
                     <p className="text-xl font-bold text-gray-800">
                       {quantities[type]?.totalItems || 0}
                     </p>
@@ -152,7 +168,7 @@ export const InventoryCategoryPage = () => {
               <h3 className="font-medium text-green-800 mb-3">Organic Waste Totals</h3>
               <div className="flex justify-between">
                 <div>
-                  <p className="text-xs text-green-700">Total Items</p>
+                  <p className="text-xs text-green-700">Total Listings</p>
                   <p className="text-2xl font-bold text-green-600">
                     {WASTE_CATEGORIES['Organic Waste'].reduce((sum, type) => sum + (quantities[type]?.totalItems || 0), 0)}
                   </p>
@@ -170,7 +186,7 @@ export const InventoryCategoryPage = () => {
               <h3 className="font-medium text-blue-800 mb-3">Inorganic Waste Totals</h3>
               <div className="flex justify-between">
                 <div>
-                  <p className="text-xs text-blue-700">Total Items</p>
+                  <p className="text-xs text-blue-700">Total Listings</p>
                   <p className="text-2xl font-bold text-blue-600">
                     {WASTE_CATEGORIES['Inorganic Waste'].reduce((sum, type) => sum + (quantities[type]?.totalItems || 0), 0)}
                   </p>
