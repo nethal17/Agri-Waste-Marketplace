@@ -1,6 +1,5 @@
 import express from "express";
-import { addOrderHistory, getOrderHistory, cancelOrder, deleteOrder, getAllOrderHistory } from "../controllers/orderHistory.controller.js";
-import { addOrderHistory, getOrderHistory, cancelOrder, processOrderAfterPayment } from "../controllers/orderHistory.controller.js";
+import { addOrderHistory, getOrderHistory, cancelOrder, deleteOrder, getAllOrderHistory, processOrderAfterPayment } from "../controllers/orderHistory.controller.js";
 
 const router = express.Router();
 
