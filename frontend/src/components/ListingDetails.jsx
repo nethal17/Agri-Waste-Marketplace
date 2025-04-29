@@ -98,7 +98,7 @@ export const ListingDetails = () => {
 
       {/* Stats Cards */}
       {listings.length > 0 && (
-        <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2">
           <div className="p-6 bg-white rounded-xl shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="flex items-center">
               <div className="p-3 mr-4 rounded-full bg-green-100 text-green-600">
@@ -107,20 +107,6 @@ export const ListingDetails = () => {
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Listings</p>
                 <p className="text-2xl font-semibold text-gray-800">{listings.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 bg-white rounded-xl shadow-sm transition-all duration-300 hover:shadow-md">
-            <div className="flex items-center">
-              <div className="p-3 mr-4 rounded-full bg-blue-100 text-blue-600">
-                <FiDollarSign className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Average Price</p>
-                <p className="text-2xl font-semibold text-gray-800">
-                  ${(listings.reduce((sum, listing) => sum + listing.price, 0) / listings.length || 0).toFixed(2)}
-                </p>
               </div>
             </div>
           </div>
@@ -233,132 +219,137 @@ export const ListingDetails = () => {
       {/* Details Modal */}
       {showDetailsModal && selectedListing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 to-green-600"></div>
-            
-            <div className="flex items-center justify-between p-6">
+          <div className="relative w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between p-6 bg-white border-b">
               <div>
-                <h3 className="text-2xl font-bold text-gray-800 font-poppins">Listing Details</h3>
-                <p className="text-gray-500">Complete information about your product</p>
+                <h3 className="text-xl font-bold text-gray-800 font-poppins">
+                  {selectedListing.wasteItem}
+                </h3>
+                <p className="text-sm text-gray-500">Product Details</p>
               </div>
               <button 
                 onClick={() => setShowDetailsModal(false)}
-                className="p-2 text-gray-400 transition-colors rounded-full hover:text-gray-600 hover:bg-gray-100"
+                className="p-1.5 text-gray-400 transition-colors rounded-full hover:bg-gray-100 hover:text-gray-600"
               >
-                <FiX className="w-6 h-6" />
+                <FiX className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 pt-0 space-y-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <div className="flex items-center mb-3">
-                    <FiPackage className="w-5 h-5 mr-2 text-green-600" />
-                    <h4 className="font-medium text-gray-800">Product Information</h4>
+            {/* Modal Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* Image Section - Now with more space */}
+              {selectedListing.image && (
+                <div className="bg-gray-50 rounded-xl overflow-hidden">
+                  <div className="p-4">
+                    <h4 className="flex items-center text-lg font-medium text-gray-800 mb-3">
+                      <FiPackage className="w-5 h-5 mr-2 text-green-600" />
+                      Product Image
+                    </h4>
                   </div>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Name</p>
-                      <p className="text-gray-800 capitalize">{selectedListing.wasteItem}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Category</p>
-                      <p className="text-gray-800 capitalize">{selectedListing.wasteCategory}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Description</p>
-                      <p className="text-gray-800">{selectedListing.description}</p>
-                    </div>
+                  <div className="flex justify-center p-2 bg-gray-100">
+                    <img 
+                      src={selectedListing.image} 
+                      alt={selectedListing.wasteItem}
+                      className="max-h-64 w-auto object-contain rounded-lg"
+                    />
                   </div>
                 </div>
+              )}
 
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <div className="flex items-center mb-3">
-                    <FiDollarSign className="w-5 h-5 mr-2 text-green-600" />
-                    <h4 className="font-medium text-gray-800">Pricing & Quantity</h4>
-                  </div>
+              {/* Product Information Card - Perfectly aligned */}
+              <div className="bg-gray-50 p-5 rounded-xl">
+                <h4 className="flex items-center text-lg font-medium text-gray-800 mb-4">
+                  <FiPackage className="w-5 h-5 mr-2 text-green-600" />
+                  Product Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Price</p>
-                      <p className="font-semibold text-green-600">${selectedListing.price.toFixed(2)}</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Category</p>
+                      <p className="text-sm text-gray-800 capitalize mt-1">{selectedListing.wasteCategory}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Quantity</p>
-                      <p className="font-medium text-blue-600">{selectedListing.quantity} kg</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Type</p>
+                      <p className="text-sm text-gray-800 capitalize mt-1">{selectedListing.wasteType}</p>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Status</p>
-                      <p className="px-2 py-1 text-xs font-semibold text-white bg-green-500 rounded-full capitalize inline-block">
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Description</p>
+                    <p className="text-sm text-gray-800 mt-1 whitespace-pre-line">
+                      {selectedListing.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing & Status Card - Perfectly aligned */}
+              <div className="bg-gray-50 p-5 rounded-xl">
+                <h4 className="flex items-center text-lg font-medium text-gray-800 mb-4">
+                  <FiDollarSign className="w-5 h-5 mr-2 text-green-600" />
+                  Pricing & Status
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Price</p>
+                    <p className="text-lg font-semibold text-green-600">${selectedListing.price.toFixed(2)}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</p>
+                    <p className="text-lg font-semibold text-blue-600">{selectedListing.quantity} kg</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</p>
+                    <div className="flex items-center">
+                      <span className={`px-3 py-1 text-xs font-semibold rounded-full capitalize 
+                        ${selectedListing.status === 'Approved' ? 'bg-green-100 text-green-800' : 
+                          selectedListing.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-red-100 text-red-800'}`}>
                         {selectedListing.status}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <div className="flex items-center mb-3">
-                    <FiMapPin className="w-5 h-5 mr-2 text-green-600" />
-                    <h4 className="font-medium text-gray-800">Location</h4>
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">City</p>
-                      <p className="text-gray-800 capitalize">{selectedListing.city}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">District</p>
-                      <p className="text-gray-800 capitalize">{selectedListing.district}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Province</p>
-                      <p className="text-gray-800 capitalize">{selectedListing.province}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <div className="flex items-center mb-3">
-                    <FiCalendar className="w-5 h-5 mr-2 text-green-600" />
-                    <h4 className="font-medium text-gray-800">Dates</h4>
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Expiry Date</p>
-                      <p className="text-gray-800">
-                        {new Date(selectedListing.expireDate).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Created At</p>
-                      <p className="text-gray-800">
-                        {new Date(selectedListing.createdAt).toLocaleDateString()}
-                      </p>
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {selectedListing.image && (
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <div className="flex items-center mb-3">
-                    <FiPackage className="w-5 h-5 mr-2 text-green-600" />
-                    <h4 className="font-medium text-gray-800">Product Image</h4>
+              {/* Dates Card - Perfectly aligned */}
+              <div className="bg-gray-50 p-5 rounded-xl">
+                <h4 className="flex items-center text-lg font-medium text-gray-800 mb-4">
+                  <FiCalendar className="w-5 h-5 mr-2 text-green-600" />
+                  Important Dates
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Created</p>
+                    <p className="text-sm text-gray-800">
+                      {new Date(selectedListing.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
                   </div>
-                  <img 
-                    src={selectedListing.image} 
-                    alt={selectedListing.wasteItem}
-                    className="h-auto max-w-full mx-auto border border-gray-200 rounded-lg shadow-sm max-h-60"
-                  />
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</p>
+                    <p className="text-sm text-gray-800">
+                      {new Date(selectedListing.expireDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
-            <div className="flex justify-end p-6 border-t">
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-white border-t p-4 flex justify-end">
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="px-6 py-2 font-medium text-white transition-all duration-200 bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 hover:shadow-md"
+                className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-sm"
               >
-                Close Details
+                Close
               </button>
             </div>
           </div>
