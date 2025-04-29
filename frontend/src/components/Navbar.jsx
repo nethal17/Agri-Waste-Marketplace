@@ -62,7 +62,7 @@ export const Navbar = () => {
                 }
                 
                 const userData = JSON.parse(localStorage.getItem("user") || "{}");
-                const userId = userData?._id;  // ✅ Use optional chaining to prevent errors
+                const userId = userData?._id;
                 
                 if (!userId) {
                     toast.error("User not found, please login again.");
@@ -100,134 +100,200 @@ export const Navbar = () => {
     }, [isAuthenticated]);
 
     return (
-        <nav className="h-16 bg-green-100 shadow-lg">
-            <div className="flex items-center justify-between h-full px-5">
-                {/* Logo */}
-                <div className="text-2xl font-bold text-zinc-900">
-                    Waste2Wealth
-                </div>
+        <>
+            {/* Navbar Spacer - pushes content down */}
+            <div className="h-16"></div>
+            
+            {/* Fixed Navbar */}
+            <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-green-100 shadow-lg">
+                <div className="flex items-center justify-between h-full px-5 max-w-7xl mx-auto">
+                    {/* Logo */}
+                    <div className="text-2xl font-bold text-zinc-900">
+                        Waste2Wealth
+                    </div>
 
-                {/* Desktop Navigation Links */}
-                <div className="items-center hidden space-x-6 md:flex text-zinc-900">
-                    <Link to="/" className="hover:text-green-600">
-                        Home
-                    </Link>
+                    {/* Desktop Navigation Links */}
+                    <div className="items-center hidden space-x-6 md:flex text-zinc-900">
+                        <Link to="/" className="hover:text-green-600">
+                            Home
+                        </Link>
 
-                    {/* Services Dropdown */}
-                    <div className="relative" ref={serviceDropdownRef}>
-                        <button
-                            onClick={() => {
-                                setServiceDropdownOpen(!serviceDropdownOpen);
-                                setUserDropdownOpen(false);
-                            }}
-                            className="hover:text-green-600 focus:outline-none"
-                        >
-                            <div className="flex items-center hover:text-green-600">
-                                Our Services
-                                <RiArrowDropDownLine size={30} />
+                        {/* Services Dropdown */}
+                        <div className="relative" ref={serviceDropdownRef}>
+                            <button
+                                onClick={() => {
+                                    setServiceDropdownOpen(!serviceDropdownOpen);
+                                    setUserDropdownOpen(false);
+                                }}
+                                className="hover:text-green-600 focus:outline-none"
+                            >
+                                <div className="flex items-center hover:text-green-600">
+                                    Our Services
+                                    <RiArrowDropDownLine size={30} />
+                                </div>
+                            </button>
+
+                            {serviceDropdownOpen && (
+                                <div className="absolute left-0 w-48 bg-white border rounded-lg shadow-lg top-12">
+                                    <ul className="flex flex-col p-2">
+                                        <li>
+                                            <Link to="/organic-waste" className="block px-4 py-2 hover:bg-gray-100">
+                                                Buy Products
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link to="/product-listing-form" className="block px-4 py-2 hover:bg-gray-100">
+                                                List Products
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link to="/transport-service" className="block px-4 py-2 hover:bg-gray-100">
+                                                Transport Service
+                                            </Link>
+                                        </li>
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+
+                        <Link to="/contactus" className="hover:text-green-600">
+                            Contact Us
+                        </Link>
+                        <Link to="/about" className="hover:text-green-600">
+                            About Us
+                        </Link>
+                    </div>
+
+                    {/* User Profile */}
+                    <div className="relative" ref={userDropdownRef}>
+                        {isAuthenticated ? (
+                            <button
+                                onClick={() => {
+                                    setUserDropdownOpen(!userDropdownOpen);
+                                    setServiceDropdownOpen(false);
+                                }}
+                                className="flex items-center gap-3 hover:text-green-600 focus:outline-none"
+                            >
+                                <span className="hidden lg:inline">
+                                    {loading ? "Loading..." : user?.email || "No Email"}
+                                </span>
+                                <img
+                                    className="object-cover w-10 h-10 border-2 border-green-600 rounded-full shadow-md"
+                                    src={user.profilePic || "https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg"}
+                                    alt="Profile"
+                                />
+                            </button>
+                        ) : (
+                            <div className="flex items-center space-x-3">
+                                <Link
+                                    to="/login"
+                                    className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    to="/register"
+                                    className="px-4 py-2 text-green-600 border border-green-600 rounded-lg hover:bg-green-50"
+                                >
+                                    Register
+                                </Link>
                             </div>
-                        </button>
+                        )}
 
-                        {serviceDropdownOpen && (
-                            <div className="absolute left-0 w-48 bg-white border rounded-lg shadow-lg top-12">
+                        {userDropdownOpen && (
+                            <div className="absolute right-0 w-48 bg-white border rounded-lg shadow-lg top-12">
                                 <ul className="flex flex-col p-2">
                                     <li>
-                                        <Link to="/organic-waste" className="block px-4 py-2 hover:bg-gray-100">
-                                            Buy Products
+                                        <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100 rounded-md">
+                                            Profile Settings
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to="/product-listing-form" className="block px-4 py-2 hover:bg-gray-100">
-                                            List Products
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/transport-service" className="block px-4 py-2 hover:bg-gray-100">
-                                            Transport Service
-                                        </Link>
+                                        <button
+                                            onClick={handleLogout}
+                                            className="w-full px-4 py-2 text-left hover:bg-gray-100 rounded-md"
+                                        >
+                                            Logout
+                                        </button>
                                     </li>
                                 </ul>
                             </div>
                         )}
                     </div>
 
-                    <Link to="/contactus" className="hover:text-green-600">
-                        Contact Us
-                    </Link>
-                    <Link to="/about" className="hover:text-green-600">
-                        About Us
-                    </Link>
+                    {/* Mobile Menu Button */}
+                    <button
+                        className="z-50 block md:hidden"
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                    >
+                        {sidebarOpen ? (
+                            <RiCloseLine size={28} className="text-zinc-900" />
+                        ) : (
+                            <RiMenu3Line size={28} className="text-zinc-900" />
+                        )}
+                    </button>
                 </div>
 
-                {/* User Profile */}
-                <div className="relative" ref={userDropdownRef}>
-                    {isAuthenticated ? (
-                        <button
-                            onClick={() => {
-                                setUserDropdownOpen(!userDropdownOpen);
-                                setServiceDropdownOpen(false);
-                            }}
-                            className="flex items-center gap-3 hover:text-green-600 focus:outline-none"
-                        >
-                            <span className="hidden lg:inline">
-                                {loading ? "Loading..." : user?.email || "No Email"}
-                            </span>
-                            <img
-                                className="object-cover w-10 h-10 border-2 border-green-600 rounded-full shadow-md"
-                                src={user.profilePic || "https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg"}
-                                alt="Profile"
-                            />
-                        </button>
-                    ) : (
-                        <div className="flex items-center space-x-3">
-                            <Link
-                                to="/login"
-                                className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
-                            >
-                                Login
+                {/* Mobile Sidebar */}
+                {sidebarOpen && (
+                    <div className="absolute top-16 left-0 right-0 bg-white shadow-lg md:hidden">
+                        <div className="flex flex-col p-4 space-y-4">
+                            <Link to="/" className="px-4 py-2 hover:bg-gray-100 rounded-md" onClick={() => setSidebarOpen(false)}>
+                                Home
                             </Link>
-                            <Link
-                                to="/register"
-                                className="px-4 py-2 text-green-600 border border-green-600 rounded-lg hover:bg-green-50"
-                            >
-                                Register
-                            </Link>
-                        </div>
-                    )}
+                            
+                            <div className="px-4 py-2">
+                                <button 
+                                    onClick={() => setServiceDropdownOpen(!serviceDropdownOpen)}
+                                    className="flex items-center w-full hover:text-green-600"
+                                >
+                                    Our Services
+                                    <RiArrowDropDownLine size={30} className={`transition-transform ${serviceDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {serviceDropdownOpen && (
+                                    <div className="mt-2 ml-4 space-y-2">
+                                        <Link to="/organic-waste" className="block px-4 py-2 hover:bg-gray-100 rounded-md" onClick={() => setSidebarOpen(false)}>
+                                            Buy Products
+                                        </Link>
+                                        <Link to="/product-listing-form" className="block px-4 py-2 hover:bg-gray-100 rounded-md" onClick={() => setSidebarOpen(false)}>
+                                            List Products
+                                        </Link>
+                                        <Link to="/transport-service" className="block px-4 py-2 hover:bg-gray-100 rounded-md" onClick={() => setSidebarOpen(false)}>
+                                            Transport Service
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
 
-                    {userDropdownOpen && (
-                        <div className="absolute right-0 w-48 bg-white border rounded-lg shadow-lg top-12">
-                            <ul className="flex flex-col p-2">
-                                <li>
-                                    <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100 rounded-md">
-                                        Profile Settings
-                                    </Link>
-                                </li>
-                                <li>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="w-full px-4 py-2 text-left hover:bg-gray-100 rounded-md"
+                            <Link to="/contactus" className="px-4 py-2 hover:bg-gray-100 rounded-md" onClick={() => setSidebarOpen(false)}>
+                                Contact Us
+                            </Link>
+                            <Link to="/about" className="px-4 py-2 hover:bg-gray-100 rounded-md" onClick={() => setSidebarOpen(false)}>
+                                About Us
+                            </Link>
+
+                            {!isAuthenticated && (
+                                <div className="flex flex-col space-y-3 mt-4">
+                                    <Link
+                                        to="/login"
+                                        className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 text-center"
+                                        onClick={() => setSidebarOpen(false)}
                                     >
-                                        Logout
-                                    </button>
-                                </li>
-                            </ul>
+                                        Login
+                                    </Link>
+                                    <Link
+                                        to="/register"
+                                        className="px-4 py-2 text-green-600 border border-green-600 rounded-lg hover:bg-green-50 text-center"
+                                        onClick={() => setSidebarOpen(false)}
+                                    >
+                                        Register
+                                    </Link>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
-
-                {/* Mobile Menu Button */}
-                <button
-                    className="z-50 block md:hidden"
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                    {sidebarOpen ? (
-                        <RiCloseLine size={28} className="text-zinc-900" />
-                    ) : (
-                        <RiMenu3Line size={28} className="text-zinc-900" />
-                    )}
-                </button>
-            </div>
-        </nav>
+                    </div>
+                )}
+            </nav>
+        </>
     );
 };

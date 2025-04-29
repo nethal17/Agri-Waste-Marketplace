@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-hot-toast"
@@ -36,9 +34,8 @@ export const Cart = () => {
     }
 
     fetchCartItems()
-  }, [navigate])
+  }, [navigate, userId])
 
-  // Function to update item quantity
   const updateQuantity = async (wasteId, change) => {
     try {
       if (!userId) {
@@ -74,7 +71,6 @@ export const Cart = () => {
     }
   }
 
-  // Function to remove item from cart
   const removeItem = async (wasteId) => {
     try {
       if (!userId) {
@@ -97,21 +93,18 @@ export const Cart = () => {
     }
   }
 
-  // Calculate total price
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => {
       return total + (item.price * item.quantity + item.deliveryCost)
     }, 0)
   }
 
-  // Calculate subtotal (without delivery)
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
       return total + item.price * item.quantity
     }, 0)
   }
 
-  // Calculate total delivery cost
   const calculateDelivery = () => {
     return cartItems.reduce((total, item) => {
       return total + item.deliveryCost
@@ -123,9 +116,9 @@ export const Cart = () => {
       <>
         <Navbar />
         <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-          <div className="container px-4 py-16 mx-auto max-w-6xl">
+          <div className="container max-w-6xl px-4 py-16 mx-auto">
             <div className="flex flex-col items-center justify-center h-64 space-y-6">
-              <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-16 h-16 border-4 border-green-600 rounded-full border-t-transparent animate-spin"></div>
               <p className="text-lg font-medium text-green-700">Loading your cart...</p>
             </div>
           </div>
@@ -138,7 +131,7 @@ export const Cart = () => {
     <>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-        <div className="container px-4 py-12 mx-auto max-w-6xl">
+        <div className="container max-w-6xl px-4 py-12 mx-auto">
           <div className="flex items-center mb-8 space-x-2">
             <button
               onClick={() => navigate("/organic-waste")}
@@ -153,7 +146,7 @@ export const Cart = () => {
           {cartItems.length > 0 ? (
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
               <div className="lg:col-span-2">
-                <div className="overflow-hidden bg-white rounded-2xl shadow-md">
+                <div className="overflow-hidden bg-white shadow-md rounded-2xl">
                   <div className="p-6 border-b border-gray-100">
                     <div className="flex items-center justify-between">
                       <h2 className="text-xl font-semibold text-gray-800">Shopping Cart</h2>
@@ -168,15 +161,15 @@ export const Cart = () => {
                       <div key={item.wasteId} className="p-6 transition-all duration-300 hover:bg-green-50">
                         <div className="flex flex-col gap-4 sm:flex-row">
                           <div className="flex-shrink-0">
-                            <div className="relative h-24 w-24 sm:h-28 sm:w-28 overflow-hidden rounded-xl bg-gray-100">
+                            <div className="relative w-24 h-24 overflow-hidden bg-gray-100 sm:h-28 sm:w-28 rounded-xl">
                               {item.image ? (
                                 <img
                                   className="object-cover w-full h-full"
-                                  src={item.image || "/placeholder.svg"}
+                                  src={item.image}
                                   alt={item.wasteItem || "Product"}
                                   onError={(e) => {
                                     e.target.onerror = null
-                                    e.target.src = "/images/no-image.png" // Fallback image
+                                    e.target.src = "/images/no-image.png"
                                   }}
                                 />
                               ) : (
@@ -187,7 +180,7 @@ export const Cart = () => {
                             </div>
                           </div>
 
-                          <div className="flex flex-col flex-grow justify-between">
+                          <div className="flex flex-col justify-between flex-grow">
                             <div>
                               <div className="flex items-start justify-between">
                                 <h3 className="text-lg font-semibold text-gray-800">{item.wasteItem}</h3>
@@ -199,8 +192,23 @@ export const Cart = () => {
                             </div>
 
                             <div className="flex flex-wrap items-end justify-between mt-4 gap-y-3">
-                              <div className="px-3 py-1.5 bg-gray-50 rounded-lg">
-                                <span className="font-medium text-gray-700">Quantity: {item.quantity}</span>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => updateQuantity(item.wasteId, -1)}
+                                  className="px-2 py-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
+                                  disabled={item.quantity <= 1}
+                                >
+                                  -
+                                </button>
+                                <span className="px-3 py-1 font-medium text-gray-700 rounded-lg bg-gray-50">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  onClick={() => updateQuantity(item.wasteId, 1)}
+                                  className="px-2 py-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
+                                >
+                                  +
+                                </button>
                               </div>
 
                               <div className="flex items-center space-x-4">
@@ -228,7 +236,7 @@ export const Cart = () => {
 
               <div className="lg:col-span-1">
                 <div className="sticky top-8">
-                  <div className="p-6 bg-white rounded-2xl shadow-md">
+                  <div className="p-6 bg-white shadow-md rounded-2xl">
                     <h2 className="mb-4 text-xl font-semibold text-gray-800">Order Summary</h2>
                     <div className="space-y-3 text-gray-600">
                       <div className="flex justify-between">
@@ -239,7 +247,7 @@ export const Cart = () => {
                         <span>Delivery</span>
                         <span className="font-medium">Rs. {calculateDelivery().toFixed(2)}</span>
                       </div>
-                      <div className="pt-3 mt-3 border-t border-dashed border-gray-200">
+                      <div className="pt-3 mt-3 border-t border-gray-200 border-dashed">
                         <div className="flex justify-between text-lg font-bold text-gray-800">
                           <span>Total</span>
                           <span className="text-green-600">Rs. {calculateTotal().toFixed(2)}</span>
@@ -271,7 +279,7 @@ export const Cart = () => {
               </div>
             </div>
           ) : (
-            <div className="p-12 text-center bg-white rounded-2xl shadow-md">
+            <div className="p-12 text-center bg-white shadow-md rounded-2xl">
               <div className="inline-flex items-center justify-center w-20 h-20 mb-6 text-green-500 bg-green-100 rounded-full">
                 <ShoppingCart className="w-10 h-10" />
               </div>

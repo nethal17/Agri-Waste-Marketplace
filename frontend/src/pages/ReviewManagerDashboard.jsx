@@ -31,14 +31,15 @@ export const ReviewManagerDashboard = () => {
     try {
       const response = await axios.put(`http://localhost:3000/api/reviews/publish/${reviewId}`);
       if (response.status === 200) {
-        toast.success('Review published successfully!');
+        toast.success(response.data?.message || 'Review published successfully!');
         fetchPendingReviews(); // Refresh the list of pending reviews
       } else {
-        toast.error('Failed to publish review. Please try again.');
+        toast.error(response.data?.message || 'Failed to publish review. Please try again.');
       }
     } catch (error) {
       console.error('Error publishing review:', error);
-      toast.error('Failed to publish review. Please try again.');
+      const errorMsg = error?.response?.data?.message || 'Failed to publish review. Please try again.';
+      toast.error(errorMsg);
     }
   };
 
@@ -53,7 +54,7 @@ export const ReviewManagerDashboard = () => {
     }
   };
 
-  /*const handlePreviewReview = async (reviewId) => {
+const handlePreviewReview = async (reviewId) => {
     try {
       const response = await axios.get(`http://localhost:3000/api/reviews/details/${reviewId}`);
       setSelectedReview(response.data); // Set the selected review
@@ -62,7 +63,7 @@ export const ReviewManagerDashboard = () => {
       console.error('Error fetching review details:', error);
       toast.error('Failed to fetch review details. Please try again.');
     }
-  };*/
+}
 
   console.log(pendingReviews);
 

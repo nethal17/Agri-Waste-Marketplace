@@ -3,8 +3,9 @@ import Cart from "../models/Cart.js";
 //  Insert Item to cart
 export const addToCart = async (req, res) => {
   try {
-    const { userId, wasteId, description, price, deliveryCost, quantity } = req.body;
+    const { userId, wasteId, farmerId, description, price, deliveryCost, quantity } = req.body;
     let cart = await Cart.findOne({ userId });
+
     if (!cart) {
       cart = new Cart({ userId, items: [], totalPrice: 0 });
     }
@@ -14,7 +15,7 @@ export const addToCart = async (req, res) => {
     if (itemIndex > -1) {
       cart.items[itemIndex].quantity += quantity;
     } else {
-      cart.items.push({ wasteId, description, price, quantity, deliveryCost });
+      cart.items.push({ wasteId, farmerId, description, price, quantity, deliveryCost });
     }
     cart.totalPrice = cart.items.reduce(
       (total, item) => total + item.price * item.quantity + item.deliveryCost,

@@ -26,6 +26,7 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
       await onSubmit({
         productName: order.productName,
         orderId: order._id,
+        farmerId: order.farmerId,
         rating,
         review: reviewText
       });
@@ -41,9 +42,9 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
 
   return (
 
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium">Review Product</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <FiX size={24} />
@@ -51,13 +52,13 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
         </div>
         
         <div className="mb-4">
-          <p className="font-medium mb-2">{order.productName}</p>
+          <p className="mb-2 font-medium">{order.productName}</p>
           <div className="flex items-center">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
                 onClick={() => setRating(star)}
-                className="text-2xl mr-1 focus:outline-none"
+                className="mr-1 text-2xl focus:outline-none"
               >
                 {star <= rating ? (
                   <FaStar className="text-yellow-400" />
@@ -70,7 +71,7 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
         </div>
         
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-gray-700">
             Your Review
           </label>
           <textarea
@@ -83,21 +84,21 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
         </div>
         
         {error && (
-          <div className="mb-4 text-red-500 text-sm">{error}</div>
+          <div className="mb-4 text-sm text-red-500">{error}</div>
         )}
         
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+            className="px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
           >
             {isSubmitting ? "Submitting..." : "Submit Review"}
           </button>
@@ -238,6 +239,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
         
         buyerId: userId,
         orderId: reviewData.orderId,
+        farmerId: reviewData.farmerId,
         productName: reviewData.productName,
         rating: reviewData.rating,
         review: reviewData.review
@@ -263,9 +265,9 @@ export const OrderHistoryPage = ({ checkoutData }) => {
   return (
     <>
           <Navbar />
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div className="min-h-screen px-4 py-8 bg-gray-50 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-col mb-8 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Order History</h1>
             <p className="mt-2 text-sm text-gray-600">
@@ -276,17 +278,17 @@ export const OrderHistoryPage = ({ checkoutData }) => {
           {checkoutData && (
             <button
               onClick={handleProceedToPayment}
-              className="mt-4 md:mt-0 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center px-6 py-3 mt-4 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm md:mt-0 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Proceed to Payment
             </button>
           )}
         </div>
 
-        <div className="bg-white shadow rounded-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div className="p-6 mb-8 bg-white rounded-lg shadow">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="w-full md:w-auto">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+              <label className="block mb-2 text-sm font-medium text-gray-700">Filter by Status</label>
               <div className="flex flex-wrap gap-2">
                 {statusOptions.map((option) => (
                   <button
@@ -302,41 +304,41 @@ export const OrderHistoryPage = ({ checkoutData }) => {
             </div>
 
             <div className="w-full md:w-auto">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Date Range</label>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <label className="block mb-2 text-sm font-medium text-gray-700">Filter by Date Range</label>
+              <div className="flex flex-col gap-4 sm:flex-row">
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <FiCalendar className="text-gray-400" />
                   </div>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <FiCalendar className="text-gray-400" />
                   </div>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={handleDateFilter}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     <FiFilter className="mr-2" />
                     Apply
                   </button>
                   <button
                     onClick={handleResetFilters}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     <FiX className="mr-2" />
                     Reset
@@ -347,11 +349,11 @@ export const OrderHistoryPage = ({ checkoutData }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white shadow rounded-lg p-6">
+        <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-indigo-100 text-indigo-600">
-                <FiShoppingBag className="h-6 w-6" />
+              <div className="p-3 text-indigo-600 bg-indigo-100 rounded-full">
+                <FiShoppingBag className="w-6 h-6" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Orders</p>
@@ -359,10 +361,10 @@ export const OrderHistoryPage = ({ checkoutData }) => {
               </div>
             </div>
           </div>
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-                <FiTruck className="h-6 w-6" />
+              <div className="p-3 text-blue-600 bg-blue-100 rounded-full">
+                <FiTruck className="w-6 h-6" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">To Deliver</p>
@@ -372,10 +374,10 @@ export const OrderHistoryPage = ({ checkoutData }) => {
               </div>
             </div>
           </div>
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-100 text-purple-600">
-                <FiCheck className="h-6 w-6" />
+              <div className="p-3 text-purple-600 bg-purple-100 rounded-full">
+                <FiCheck className="w-6 h-6" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">To Receive</p>
@@ -385,10 +387,10 @@ export const OrderHistoryPage = ({ checkoutData }) => {
               </div>
             </div>
           </div>
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-amber-100 text-amber-600">
-                <FiStar className="h-6 w-6" />
+                <FiStar className="w-6 h-6" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">To Review</p>
@@ -400,15 +402,15 @@ export const OrderHistoryPage = ({ checkoutData }) => {
           </div>
         </div>
 
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="overflow-hidden bg-white shadow sm:rounded-lg">
           {isLoading ? (
             <div className="p-8 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+              <div className="w-12 h-12 mx-auto border-t-2 border-b-2 border-indigo-500 rounded-full animate-spin"></div>
               <p className="mt-4 text-gray-600">Loading your orders...</p>
             </div>
           ) : filteredOrders.length === 0 ? (
             <div className="p-8 text-center">
-              <FiShoppingBag className="mx-auto h-12 w-12 text-gray-400" />
+              <FiShoppingBag className="w-12 h-12 mx-auto text-gray-400" />
               <h3 className="mt-2 text-lg font-medium text-gray-900">No orders found</h3>
               <p className="mt-1 text-sm text-gray-500">
                 {activeStatus === "all" 
@@ -418,7 +420,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
               {(startDate || endDate || activeStatus !== "all") && (
                 <button
                   onClick={handleResetFilters}
-                  className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Reset filters
                 </button>
@@ -429,22 +431,22 @@ export const OrderHistoryPage = ({ checkoutData }) => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                       Product
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                       Quantity
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                       Total Price
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                       Order Date
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                       Status
                     </th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
                       Actions
                     </th>
                   </tr>
@@ -454,8 +456,8 @@ export const OrderHistoryPage = ({ checkoutData }) => {
                     <tr key={order._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-md flex items-center justify-center">
-                            <FiShoppingBag className="h-6 w-6 text-indigo-600" />
+                          <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 bg-indigo-100 rounded-md">
+                            <FiShoppingBag className="w-6 h-6 text-indigo-600" />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{order.productName}</div>
@@ -478,11 +480,11 @@ export const OrderHistoryPage = ({ checkoutData }) => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(order.orderStatus)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
                         {order.orderStatus !== 'cancelled' && (
                           <button
                             onClick={() => handleCancelOrder(order._id)}
-                            className="text-red-600 hover:text-red-900 mr-4"
+                            className="mr-4 text-red-600 hover:text-red-900"
                           >
                             Cancel
                           </button>
