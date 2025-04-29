@@ -3,6 +3,7 @@ import OrderHistory from '../models/orderHistory.model.js';
 import { User } from '../models/user.js';
 import mongoose from 'mongoose';
 
+
 // Add a review (Buyer)
 export const addReview = async (req, res) => {
   try {
@@ -104,6 +105,38 @@ export const getPendingReviews = async (req, res) => {
 
     res.status(200).json(pendingReviews);
   
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get 3 random published reviews with rating 4 or 5
+export const getTopRandomReviews = async (req, res) => {
+  try {
+    // Only published reviews with rating 4 or 5
+    const pipeline = [
+      { $match: { status: 'published', rating: { $in: [4, 5] } } },
+      { $sample: { size: 3 } },
+      { $lookup: {
+          from: 'users',
+          localField: 'buyerId',
+          foreignField: '_id',
+          as: 'buyerInfo'
+        }
+      },
+      { $unwind: '$buyerInfo' },
+      { $project: {
+          _id: 1,
+          productName: 1,
+          rating: 1,
+          review: 1,
+          createdAt: 1,
+          buyer: { name: '$buyerInfo.name', _id: '$buyerInfo._id' }
+        }
+      }
+    ];
+    const reviews = await Review.aggregate(pipeline);
+    res.status(200).json(reviews);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
