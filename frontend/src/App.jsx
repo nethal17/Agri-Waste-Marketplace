@@ -61,6 +61,8 @@ import HomeTesting from './pages/HomeTesting';
 import Delivery from './pages/Delivery';
 import TruckDriverDashboard from './pages/TruckDriverDashboard';
 import FarmerReqForm from './pages/FarmerReqForm';
+import Sidebar from './components/Sidebar';
+import Refund from './components/refund';
 import VehicleRegPage from './pages/VehicleReg';
 import DeliveryHistoryPage from './pages/DeliveryHistoryDashboard';
 
@@ -103,7 +105,7 @@ function App() {
       <Route path="/driver/:id/payment" element={<PaymentDetails />} />
       <Route path="/payment" element={<StripePayment />} /> 
       <Route path="/success" element={<Success />} /> 
-      <Route path="/pay-history" element={<PaymentDetails />} />
+      <Route path="/pay-history" element={<PayHistory />} />
       <Route path="/high-payments" element={<HighPayments />} />
       <Route path="/final-summary" element={<Final />} />
 
@@ -123,12 +125,14 @@ function App() {
       <Route path="/product-listing-form" element={<ProductListingForm />} />
       <Route path="/farmer-listings" element={<DisplayFarmerListings />} /> 
       <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 
+      <Route path="/refunds" element={<Refund />} />
 
       <Route path="/home-testing" element={<HomeTesting />} />
       
 
       <Route path="/vehicle-registration" element={<VehicleRegPage />} />
       <Route path="/delivery-history" element={<DeliveryHistoryPage />} />
+        
     </Routes>
   )
 }
