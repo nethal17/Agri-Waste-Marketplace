@@ -61,36 +61,36 @@ const PayHistory = () => {
     fetchPayments();
   }, []);
 
-  const fetchPayments = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/api/stripe-payments');
-      console.log('Full API Response:', response.data);
-      
-      if (!response.data || !Array.isArray(response.data)) {
-        throw new Error('Invalid data format received from API');
-      }
+    const fetchPayments = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/stripe-payments');
+        console.log('Full API Response:', response.data);
+        
+        if (!response.data || !Array.isArray(response.data)) {
+          throw new Error('Invalid data format received from API');
+        }
+         
+        const excludedNames = [
+          'yuwani perera',
+          'pasan perera',
+          'bobee perera'
+        ];
 
-      const excludedNames = [
-        'yuwani perera',
-        'pasan perera',
-        'bobee perera'
-      ];
+        const filteredPayments = response.data.filter(payment => {
+          if (!payment.driverName) return true;
+          const lowerCaseName = payment.driverName.toLowerCase();
+          return !excludedNames.some(name => lowerCaseName.includes(name));
+        });
 
-      const filteredPayments = response.data.filter(payment => {
-        if (!payment.driverName) return true;
-        const lowerCaseName = payment.driverName.toLowerCase();
-        return !excludedNames.some(name => lowerCaseName.includes(name));
-      });
-
-      setPayments(filteredPayments);
+        setPayments(filteredPayments);
       setFilteredPayments(filteredPayments);
-    } catch (error) {
-      console.error('Error fetching payments:', error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      } catch (error) {
+        console.error('Error fetching payments:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const handleSearch = (value) => {
     setSearchText(value);
@@ -234,7 +234,7 @@ const PayHistory = () => {
             <div className="text-center">
               <p className="text-red-500 text-xl mb-4">{error}</p>
               <Button type="primary" onClick={() => window.location.reload()}>
-                Retry
+            Retry
               </Button>
             </div>
           </div>
@@ -245,14 +245,14 @@ const PayHistory = () => {
 
   return (
     <>
-      <Navbar />
+    <Navbar />
       <div className="flex h-screen">
         <Sidebar />
         <div className="flex-1 overflow-auto bg-gray-50 ml-64">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
               <Title level={2} className="text-3xl font-bold text-gray-800 mb-2">
-                Product Payment Transactions
+        Product Payment Transactions
               </Title>
               <Text className="text-gray-600">
                 View and manage all payment transactions
@@ -340,7 +340,7 @@ const PayHistory = () => {
                     <div className="flex items-center">
                       <PieChartOutlined className="text-purple-500 mr-2" />
                       <span>Payment Distribution</span>
-                    </div>
+        </div>
                   }
                   className="shadow-md hover:shadow-lg transition-shadow"
                 >
@@ -390,8 +390,8 @@ const PayHistory = () => {
                     onChange={handleDateRangeChange}
                     className="w-full md:w-auto"
                   />
-                </div>
-              </div>
+          </div>
+        </div>
             </Card>
 
             {/* Payments Table */}
@@ -422,30 +422,30 @@ const PayHistory = () => {
             <div className="mt-6 flex flex-wrap justify-center gap-4">
               <Button
                 type="primary"
-                onClick={() => navigate('/high-payments')}
+          onClick={() => navigate('/high-payments')}
                 className="bg-green-600 hover:bg-green-700 h-10"
                 icon={<ArrowUpOutlined />}
-              >
-                Driver Paid Salaries
+        >
+          Driver Paid Salaries
               </Button>
               <Button
-                onClick={() => navigate('/')}
+          onClick={() => navigate('/')}
                 className="bg-gray-600 hover:bg-gray-700 text-white h-10"
                 icon={<ArrowDownOutlined />}
-              >
-                Back to Driver List
+        >
+          Back to Driver List
               </Button>
               <Button
-                onClick={() => navigate('/final-summary')}
+  onClick={() => navigate('/final-summary')}
                 className="bg-purple-600 hover:bg-purple-700 text-white h-10"
                 icon={<LineChartOutlined />}
-              >
-                View Total Payments
+>
+  View Total Payments
               </Button>
             </div>
           </div>
         </div>
-      </div>
+    </div>
     </>
   );
 };

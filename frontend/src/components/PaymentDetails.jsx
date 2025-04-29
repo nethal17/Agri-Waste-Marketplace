@@ -45,7 +45,7 @@ const PaymentDetails = () => {
   }, []);
 
   const fetchPayments = async () => {
-    try {
+      try {
       setLoading(true);
       const token = localStorage.getItem('token');
 
@@ -89,7 +89,7 @@ const PaymentDetails = () => {
       }
     } finally {
       setLoading(false);
-    }
+      }
   };
 
   const handleSearch = (value) => {
@@ -193,12 +193,12 @@ const PaymentDetails = () => {
           {status.toUpperCase()}
         </Tag>
       ),
-    }
+  }
   ];
 
   return (
     <>
-      <Navbar />
+    <Navbar />
       <div className="flex h-screen bg-gray-50">
         <Sidebar />
         <div className="flex-1 overflow-auto ml-64"> {/* Added ml-64 to prevent sidebar overlay */}
@@ -206,7 +206,7 @@ const PaymentDetails = () => {
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-800 mb-2">Payment History</h1>
               <p className="text-gray-600">View and manage your payment transactions</p>
-            </div>
+        </div>
 
             {/* Statistics Cards */}
             <Row gutter={[16, 16]} className="mb-8">
@@ -252,8 +252,8 @@ const PaymentDetails = () => {
                     prefix={<SearchOutlined />}
                     onChange={(e) => handleSearch(e.target.value)}
                     className="w-full"
-                  />
-                </div>
+                />
+              </div>
                 <div className="flex gap-4 w-full md:w-auto">
                   <RangePicker
                     onChange={handleDateRangeChange}
@@ -267,7 +267,7 @@ const PaymentDetails = () => {
                   >
                     Export
                   </Button>
-                </div>
+          </div>
               </div>
             </Card>
 
@@ -276,7 +276,7 @@ const PaymentDetails = () => {
               {loading ? (
                 <div className="flex justify-center items-center h-64">
                   <Spin size="large" />
-                </div>
+              </div>
               ) : filteredPayments.length > 0 ? (
                 <Table
                   columns={columns}
@@ -294,12 +294,12 @@ const PaymentDetails = () => {
                   <ShoppingCartOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
                   <p className="text-lg">No payment records found</p>
                   <p className="text-sm">Try adjusting your search or date filters</p>
-                </div>
-              )}
+            </div>
+          )}
             </Card>
-          </div>
         </div>
       </div>
+    </div>
     </>
   );
 };
