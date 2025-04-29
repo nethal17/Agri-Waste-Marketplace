@@ -29,9 +29,13 @@ import checkoutRoutes from "./routes/checkout.routes.js";
 import buyerAddressRoutes from "./routes/buyerAddressRoutes.js";
 
 import MarketplaceRoutes from './routes/MarketplaceRoutes.js';
+
+
+import refundRoutes from './routes/refund.routes.js';
 import reportRoutes from "./routes/reportRoutes.js";
 import vehicleRegRoutes from "./routes/VehicleReg.routes.js";
 import deliveryHistoryRoutes from "./routes/deliveryHistoryRoutes.js";
+
 
 dotenv.config();
 
@@ -58,6 +62,7 @@ app.use('/api/webhook', webhookRoutes);
 app.use('/api', stripePaymentsRoutes);
 app.use('/api', driverPaymentsRoutes);
 app.use('/api', driverPaymentRoutes);
+app.use('/api/refunds', refundRoutes);
 
 // Reports & Analytics
 app.use('/api/reports', reportRoutes);
