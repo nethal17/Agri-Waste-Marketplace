@@ -38,8 +38,8 @@ export const Footer = () => {
 
   const contactInfo = [
     { icon: <MdPhone className="text-green-400" />, text: "+94 76 123 4567" },
-    { icon: <MdEmail className="text-green-400" />, text: "info@waste2wealth.lk" },
-    { icon: <MdLocationOn className="text-green-400" />, text: "123 Green Road, Colombo, Sri Lanka" }
+    { icon: <MdEmail className="text-green-400" />, text: "waste2wealth.agriwaste@gmail.com" },
+    { icon: <MdLocationOn className="text-green-400" />, text: "453 Seevali Mawatha, Malabe, Sri Lanka" }
   ];
 
   return (

@@ -13,7 +13,7 @@ export const getFarmerListings = async (req, res) => {
       }
   
       // Find all products associated with the farmer
-      const products = await Marketplace.find({ farmerId: farmerId}); // Populate farmer details
+      const products = await ProductListing.find({ farmerId: farmerId}); // Populate farmer details
   
       if (products.length === 0) {
         return res.status(404).json({ message: 'No listings found for this farmer.' });
@@ -23,7 +23,7 @@ export const getFarmerListings = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  };
+};
 
 export const getListingDetails = async (req, res) => {
     try {
@@ -35,7 +35,7 @@ export const getListingDetails = async (req, res) => {
       }
   
       // Find the listing
-      const listing = await Marketplace.findById(listingId).populate('farmerId', 'name email');
+      const listing = await ProductListing.findById(listingId).populate('farmerId', 'name email');
   
       if (!listing) {
         return res.status(404).json({ message: 'Listing not found.' });
@@ -45,7 +45,7 @@ export const getListingDetails = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  };
+};
 
 export const deleteListing = async (req, res) => {
     try {
@@ -57,7 +57,7 @@ export const deleteListing = async (req, res) => {
       }
   
       // Find and delete the listing
-      const deletedListing = await Marketplace.findByIdAndDelete(listingId);
+      const deletedListing = await ProductListing.findByIdAndDelete(listingId);
   
       if (!deletedListing) {
         return res.status(404).json({ message: 'Listing not found.' });
@@ -67,7 +67,7 @@ export const deleteListing = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  };
+};
 
 export const getProductById = async (req, res) => {
     try {
