@@ -20,7 +20,6 @@ export const InventoryManagerDashboard = () => {
     fetchListings();
   }, []);
 
-  // Format date for display
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -29,7 +28,6 @@ export const InventoryManagerDashboard = () => {
     });
   };
 
-  // Calculate days remaining until expiry
   const getDaysRemaining = (expireDate) => {
     const today = new Date();
     const expiry = new Date(expireDate);
@@ -38,7 +36,6 @@ export const InventoryManagerDashboard = () => {
     return diffDays;
   };
 
-  // Get expiry status (expired, soon, ok)
   const getExpiryStatus = (expireDate) => {
     const daysRemaining = getDaysRemaining(expireDate);
     if (daysRemaining < 0) return 'expired';
@@ -69,7 +66,6 @@ export const InventoryManagerDashboard = () => {
         },
       });
 
-      // Process listings with expiry information and sort by nearest expiry first
       const processedListings = response.data
         .map(listing => ({
           ...listing,
@@ -124,7 +120,6 @@ export const InventoryManagerDashboard = () => {
         return;
       }
 
-       // Find the listing to get farmer's email
       const listingToDelete = listings.find(listing => listing._id === productToDelete);
       if (!listingToDelete) {
         toast.error('Listing not found');
@@ -136,7 +131,6 @@ export const InventoryManagerDashboard = () => {
         toast.error('Farmer email not found');
         return;
       }
-
 
       await axios.delete(`http://localhost:3000/api/product-listing/admin/delete/${productToDelete}`, {
         headers: {
@@ -167,7 +161,6 @@ export const InventoryManagerDashboard = () => {
     setShowPreviewModal(true);
   };
 
-  // Get status color based on expiry
   const getStatusColor = (status) => {
     switch (status) {
       case 'expired': return 'bg-red-100 text-red-800';
@@ -176,7 +169,6 @@ export const InventoryManagerDashboard = () => {
     }
   };
 
-  // Get status icon based on expiry
   const getStatusIcon = (status) => {
     switch (status) {
       case 'expired': return <FiAlertTriangle className="w-4 h-4 mr-1" />;
@@ -185,7 +177,6 @@ export const InventoryManagerDashboard = () => {
     }
   };
 
-  // Get status text based on expiry
   const getStatusText = (days) => {
     if (days < 0) return 'Expired';
     if (days === 0) return 'Expires Today';
@@ -195,201 +186,155 @@ export const InventoryManagerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-sm overflow-hidden">
         {/* Dashboard Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4">
-            <FiPackage className="w-10 h-10 text-green-600" />
+        <div className="p-6 bg-gradient-to-r from-green-600 to-emerald-600 text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="p-3 rounded-lg bg-white/10 backdrop-blur-sm w-fit">
+              <FiPackage className="w-6 h-6" />
+            </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Pending Listings</h1>
-              <p className="text-gray-600 mt-1">Review and manage product listings from farmers</p>
+              <h1 className="text-2xl font-bold">Pending Listings</h1>
+              <p className="text-white/90">Review and manage product listings from farmers</p>
             </div>
           </div>
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-600 text-sm font-medium">Total Pending</h3>
-              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                Today
-              </span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 border-b">
+          {[
+            { label: 'Total Pending', value: pendingListings.length, badge: 'Today', color: 'green' },
+            { label: 'Expired', value: pendingListings.filter(l => l.expiryStatus === 'expired').length, badge: 'Urgent', color: 'red' },
+            { label: 'Expiring Soon', value: pendingListings.filter(l => l.expiryStatus === 'soon').length, badge: 'Warning', color: 'yellow' },
+            { label: 'OK', value: pendingListings.filter(l => l.expiryStatus === 'ok').length, badge: 'Good', color: 'green' }
+          ].map((stat, index) => (
+            <div key={index} className="bg-white rounded-lg border border-gray-100 p-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-gray-600 text-sm font-medium">{stat.label}</h3>
+                <span className={`bg-${stat.color}-100 text-${stat.color}-800 text-xs font-medium px-2 py-0.5 rounded-full`}>
+                  {stat.badge}
+                </span>
+              </div>
+              <p className="text-2xl font-bold text-gray-800 mt-1">{stat.value}</p>
             </div>
-            <p className="text-2xl font-bold text-gray-800 mt-2">{pendingListings.length}</p>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-600 text-sm font-medium">Expired</h3>
-              <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                Urgent
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-gray-800 mt-2">
-              {pendingListings.filter(l => l.expiryStatus === 'expired').length}
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-600 text-sm font-medium">Expiring Soon</h3>
-              <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                Warning
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-gray-800 mt-2">
-              {pendingListings.filter(l => l.expiryStatus === 'soon').length}
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-600 text-sm font-medium">OK</h3>
-              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                Good
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-gray-800 mt-2">
-              {pendingListings.filter(l => l.expiryStatus === 'ok').length}
-            </p>
-          </div>
+          ))}
         </div>
 
-        {/* Listings Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
+        {/* Listings Table Container */}
+        <div className="overflow-hidden">
+          <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
             <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr className="bg-gradient-to-r from-green-50 to-gray-50">
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
                       <FiUser className="mr-2 opacity-70" /> Farmer
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
                       <FiPackage className="mr-2 opacity-70" /> Product
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <FiFileText className="mr-2 opacity-70" /> Description
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
                       <FiDollarSign className="mr-2 opacity-70" /> Price
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
-                      <FiLayers className="mr-2 opacity-70" /> Quantity
+                      <FiLayers className="mr-2 opacity-70" /> Qty
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
                       <FiCalendar className="mr-2 opacity-70" /> Expiry
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
                       <FiSettings className="mr-2 opacity-70" /> Actions
                     </div>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="bg-white divide-y divide-gray-100">
                 {pendingListings.map((listing) => {
-                  const statusColor = getStatusColor(listing.expiryStatus);
                   const statusIcon = getStatusIcon(listing.expiryStatus);
                   const statusText = getStatusText(listing.daysUntilExpiry);
                   
                   return (
                     <tr 
                       key={listing._id} 
-                      className={`hover:bg-gray-50 transition-colors duration-150 ${
+                      className={`hover:bg-gray-50 ${
                         listing.expiryStatus === 'expired' ? 'bg-red-50/50' : 
                         listing.expiryStatus === 'soon' ? 'bg-yellow-50/50' : ''
                       }`}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center border border-green-100 shadow-sm">
-                            <span className="text-sm font-medium text-green-800">
+                          <div className="relative h-8 w-8 rounded-full bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center border border-green-100 shadow-sm">
+                            <span className="text-xs font-medium text-green-800">
                               {(listing.farmerId?.name || 'Unknown')[0]}
                             </span>
-                            <span className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-white ${
+                            <span className={`absolute -bottom-1 -right-1 h-2 w-2 rounded-full border-2 border-white ${
                               listing.expiryStatus === 'expired' ? 'bg-red-500' : 
                               listing.expiryStatus === 'soon' ? 'bg-yellow-500' : 'bg-green-500'
                             }`}></span>
                           </div>
                           <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900">{listing.farmerId?.name || 'Unknown Farmer'}</p>
-                            <p className="text-xs text-gray-500">{listing.farmerId?.email || ''}</p>
+                            <p className="text-xs font-medium text-gray-900 truncate max-w-[120px]">{listing.farmerId?.name || 'Unknown Farmer'}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className={`h-2 w-2 rounded-full mr-2 ${
                             listing.expiryStatus === 'expired' ? 'bg-red-500' : 
                             listing.expiryStatus === 'soon' ? 'bg-yellow-500' : 'bg-green-500'
                           }`}></div>
-                          <span className="text-sm font-medium text-gray-900">{listing.wasteItem}</span>
+                          <span className="text-xs font-medium text-gray-900 truncate max-w-[120px]">{listing.wasteItem}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 max-w-xs">
-                        <p className="text-sm text-gray-600 line-clamp-2">{listing.description}</p>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           Rs.{listing.price}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="relative w-16">
-                            <span className="text-xs font-medium absolute -bottom-5 left-0">
-                              {listing.quantity} units
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="text-xs text-gray-900">{listing.quantity} units</div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-medium text-gray-900">
+                            {listing.formattedExpiry}
+                          </span>
+                          {(listing.expiryStatus === 'soon' || listing.expiryStatus === 'expired') && (
+                            <span className={`text-xs ${
+                              listing.expiryStatus === 'expired' ? 'text-red-600' : 'text-yellow-600'
+                            }`}>
+                              {statusIcon} {statusText}
                             </span>
-                          </div>
+                          )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          
-                          <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900">
-                              {listing.formattedExpiry}
-                            </p>
-                            {(listing.expiryStatus === 'soon' || listing.expiryStatus === 'expired') && (
-                              <p className={`text-xs ${
-                                listing.expiryStatus === 'expired' ? 'text-red-600' : 'text-yellow-600'
-                              }`}>
-                                {statusIcon} {statusText}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           <button 
                             onClick={() => handlePreview(listing)}
-                            className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+                            className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
                             title="Preview"
                           >
-                            <FiEye className="w-4 h-4" />
+                            <FiEye className="w-3.5 h-3.5" />
                           </button>
                           <button 
                             onClick={() => handleApprove(listing._id)}
                             disabled={approving}
-                            className="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors duration-200"
+                            className="p-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors duration-200"
                             title="Approve"
                           >
-                            <FiCheck className="w-4 h-4" />
+                            <FiCheck className="w-3.5 h-3.5" />
                           </button>
                           <button 
                             onClick={() => {
@@ -397,10 +342,10 @@ export const InventoryManagerDashboard = () => {
                               setShowDeleteModal(true);
                             }}
                             disabled={deleting}
-                            className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200"
+                            className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200"
                             title="Delete"
                           >
-                            <FiTrash2 className="w-4 h-4" />
+                            <FiTrash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>
@@ -421,206 +366,201 @@ export const InventoryManagerDashboard = () => {
           </div>
         </div>
 
-        {/* Preview Modal with Expiry Information */}
+        {/* Preview Modal */}
         {showPreviewModal && selectedProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h3 className="text-2xl font-semibold text-gray-800">Product Details</h3>
-                  <p className="text-gray-500 mt-1">Review the product information before making a decision</p>
-                </div>
-                <button
-                  onClick={() => setShowPreviewModal(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Image Section */}
-                <div className="space-y-4">
-                  {selectedProduct.image ? (
-                    <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                      <img
-                        src={selectedProduct.image}
-                        alt={selectedProduct.wasteItem}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  ) : (
-                    <div className="aspect-square rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
-                      <FiPackage className="w-20 h-20 text-gray-400" />
-                      <p className="text-gray-500 mt-4">No image available</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Details Section */}
-                <div className="space-y-6">
-                  <div className="bg-gray-50 rounded-xl p-6 space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Farmer Information</label>
-                      <div className="mt-2 flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                          <span className="text-lg font-medium text-green-800">
-                            {(selectedProduct.farmerId?.name || 'Unknown')[0]}
-                          </span>
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-lg font-medium text-gray-900">{selectedProduct.farmerId?.name || 'Unknown Farmer'}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Product Details</label>
-                      <div className="mt-2 grid grid-cols-2 gap-4">
-                        <div className="bg-white p-3 rounded-lg border border-gray-100">
-                          <p className="text-sm text-gray-500">Product Type</p>
-                          <p className="text-lg font-medium text-gray-900">{selectedProduct.wasteItem}</p>
-                        </div>
-                        <div className="bg-white p-3 rounded-lg border border-gray-100">
-                          <p className="text-sm text-gray-500">Price</p>
-                          <p className="text-lg font-medium text-green-600">Rs.{selectedProduct.price}</p>
-                        </div>
-                        <div className="bg-white p-3 rounded-lg border border-gray-100">
-                          <p className="text-sm text-gray-500">Quantity</p>
-                          <p className="text-lg font-medium text-blue-600">{selectedProduct.quantity} units</p>
-                        </div>
-                        <div className="bg-white p-3 rounded-lg border border-gray-100">
-                          <p className="text-sm text-gray-500">Expiry Status</p>
-                          <div className="flex items-center">
-                            {getStatusIcon(selectedProduct.expiryStatus)}
-                            <p className={`text-lg font-medium ${
-                              selectedProduct.expiryStatus === 'expired' ? 'text-red-600' : 
-                              selectedProduct.expiryStatus === 'soon' ? 'text-yellow-600' : 'text-green-600'
-                            }`}>
-                              {getStatusText(selectedProduct.daysUntilExpiry)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Expiry Date</label>
-                      <div className="mt-2 bg-white p-3 rounded-lg border border-gray-100">
-                        <div className="flex items-center">
-                          <FiCalendar className="w-5 h-5 text-gray-400 mr-2" />
-                          <p className="text-lg font-medium text-gray-900">
-                            {selectedProduct.formattedExpiry}
-                          </p>
-                        </div>
-                        {selectedProduct.expiryStatus === 'expired' && (
-                          <p className="text-sm text-red-600 mt-2">
-                            This product has expired and should not be approved
-                          </p>
-                        )}
-                        {selectedProduct.expiryStatus === 'soon' && (
-                          <p className="text-sm text-yellow-600 mt-2">
-                            Expires in {selectedProduct.daysUntilExpiry} days
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Description</label>
-                      <p className="mt-2 text-gray-700 bg-white p-4 rounded-lg border border-gray-100">
-                        {selectedProduct.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 mt-8 pt-6 border-t">
-                <button
-                  onClick={() => setShowPreviewModal(false)}
-                  className="px-6 py-2.5 text-gray-700 font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={() => {
-                    setProductToDelete(selectedProduct._id);
-                    setShowPreviewModal(false);
-                    setShowDeleteModal(true);
-                  }}
-                  className="px-6 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors inline-flex items-center"
-                >
-                  <FiTrash2 className="w-5 h-5 mr-2" />
-                  Decline Listing
-                </button>
-                <button
-                  onClick={() => {
-                    setShowPreviewModal(false);
-                    handleApprove(selectedProduct._id);
-                  }}
-                  disabled={approving || selectedProduct.expiryStatus === 'expired'}
-                  className={`px-6 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center ${
-                    selectedProduct.expiryStatus === 'expired' ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  <FiCheck className="w-5 h-5 mr-2" />
-                  {approving ? 'Approving...' : 'Approve Listing'}
-                </button>
-              </div>
-            </div>
+  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-2xl">
+      {/* Modal Header */}
+      <div className="relative">
+        {selectedProduct.image ? (
+          <div className="h-48 w-full bg-gradient-to-r from-green-100 to-emerald-100 overflow-hidden">
+            <img
+              src={selectedProduct.image}
+              alt={selectedProduct.wasteItem}
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
+        ) : (
+          <div className="h-48 w-full bg-gradient-to-r from-green-50 to-emerald-50 flex items-center justify-center">
+            <FiPackage className="w-16 h-16 text-green-400" />
           </div>
         )}
+        <div className="absolute -bottom-4 left-4">
+          <div className="h-16 w-16 rounded-xl bg-white shadow-lg border-4 border-white overflow-hidden">
+            {selectedProduct.image ? (
+              <img
+                src={selectedProduct.image}
+                alt={selectedProduct.wasteItem}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-green-100 flex items-center justify-center">
+                <FiPackage className="w-8 h-8 text-green-600" />
+              </div>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={() => setShowPreviewModal(false)}
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm hover:bg-white transition-colors"
+        >
+          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-        {/* Delete/Decline Modal */}
+      {/* Modal Content */}
+      <div className="pt-8 px-6 pb-6">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h3 className="text-2xl font-bold text-gray-900">{selectedProduct.wasteItem}</h3>
+            <div className="flex items-center mt-1 space-x-2">
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                selectedProduct.expiryStatus === 'expired' ? 'bg-red-100 text-red-800' :
+                selectedProduct.expiryStatus === 'soon' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-green-100 text-green-800'
+              }`}>
+                {getStatusText(selectedProduct.daysUntilExpiry)}
+              </span>
+              <span className="text-sm text-gray-500">Expires: {selectedProduct.formattedExpiry}</span>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-500">Price</p>
+            <p className="text-2xl font-bold text-emerald-600">Rs.{selectedProduct.price}</p>
+          </div>
+        </div>
+
+        {/* Product Details Grid */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-gray-50 p-4 rounded-xl">
+            <p className="text-xs text-gray-500 uppercase font-medium">Quantity</p>
+            <p className="text-lg font-semibold text-gray-900">{selectedProduct.quantity} units</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-xl">
+            <p className="text-xs text-gray-500 uppercase font-medium">Farmer</p>
+            <p className="text-lg font-semibold text-gray-900 truncate">{selectedProduct.farmerId?.name || 'Unknown'}</p>
+          </div>
+        </div>
+
+        {/* Description Section */}
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-gray-500 mb-2">Description</h4>
+          <div className="bg-gray-50 p-4 rounded-xl">
+            <p className="text-gray-700">{selectedProduct.description || 'No description provided'}</p>
+          </div>
+        </div>
+
+        {/* Status Indicator */}
+        <div className="mb-6">
+          <div className="relative pt-1">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className={`inline-flex items-center text-xs font-semibold ${
+                  selectedProduct.expiryStatus === 'expired' ? 'text-red-600' :
+                  selectedProduct.expiryStatus === 'soon' ? 'text-yellow-600' :
+                  'text-green-600'
+                }`}>
+                  {getStatusIcon(selectedProduct.expiryStatus)}
+                  {getStatusText(selectedProduct.daysUntilExpiry)}
+                </span>
+              </div>
+              <div className="text-right">
+                <span className="text-xs font-semibold inline-block text-gray-500">
+                  {selectedProduct.formattedExpiry}
+                </span>
+              </div>
+            </div>
+            <div className="overflow-hidden h-2 mt-2 text-xs flex rounded-full bg-gray-200">
+              <div
+                style={{
+                  width: `${Math.min(100, Math.max(0, selectedProduct.daysUntilExpiry * 5))}%`
+                }}
+                className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${
+                  selectedProduct.expiryStatus === 'expired' ? 'bg-red-500' :
+                  selectedProduct.expiryStatus === 'soon' ? 'bg-yellow-500' :
+                  'bg-green-500'
+                }`}
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={() => {
+              setProductToDelete(selectedProduct._id);
+              setShowPreviewModal(false);
+              setShowDeleteModal(true);
+            }}
+            className="px-5 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
+          >
+            <FiTrash2 className="w-4 h-4 mr-2" />
+            Decline
+          </button>
+          <button
+            onClick={() => {
+              setShowPreviewModal(false);
+              handleApprove(selectedProduct._id);
+            }}
+            disabled={approving || selectedProduct.expiryStatus === 'expired'}
+            className={`px-5 py-2.5 rounded-xl text-white flex items-center ${
+              selectedProduct.expiryStatus === 'expired' ? 'bg-gray-400 cursor-not-allowed' :
+              'bg-emerald-600 hover:bg-emerald-700'
+            } transition-colors`}
+          >
+            <FiCheck className="w-4 h-4 mr-2" />
+            {approving ? 'Approving...' : 'Approve Listing'}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+        )}
+
+        {/* Delete Modal */}
         {showDeleteModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-              <div className="flex items-start mb-6">
-                <div className="flex-shrink-0 bg-red-100 rounded-full p-2">
-                  <FiTrash2 className="w-6 h-6 text-red-600" />
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-xl font-semibold text-gray-800">Decline Listing</h3>
-                  <p className="text-gray-600 mt-1">Please provide a reason for declining this listing. This will be sent to the farmer.</p>
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+              <div className="p-4 border-b">
+                <div className="flex items-center">
+                  <div className="p-2 rounded-full bg-red-100 text-red-600 mr-3">
+                    <FiTrash2 className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800">Decline Listing</h3>
                 </div>
               </div>
               
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="decline-reason" className="block text-sm font-medium text-gray-700 mb-2">
-                    Reason for Declining
-                  </label>
-                  <textarea
-                    id="decline-reason"
-                    value={deleteReason}
-                    onChange={(e) => setDeleteReason(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-                    rows="4"
-                    placeholder="Enter your reason for declining this listing..."
-                  />
-                </div>
+              <div className="p-6">
+                <p className="text-sm text-gray-600 mb-4">Please provide a reason for declining this listing. This will be sent to the farmer.</p>
                 
-                <div className="flex justify-end space-x-3 pt-4">
+                <textarea
+                  value={deleteReason}
+                  onChange={(e) => setDeleteReason(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                  rows="3"
+                  placeholder="Enter reason for declining..."
+                />
+                
+                <div className="flex justify-end space-x-3 mt-6">
                   <button
                     onClick={() => {
                       setShowDeleteModal(false);
                       setDeleteReason('');
-                      setProductToDelete(null);
                     }}
-                    className="px-4 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="px-4 py-2 text-sm text-gray-700 font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={() => handleDelete(productToDelete)}
+                    onClick={handleDelete}
                     disabled={!deleteReason.trim() || deleting}
-                    className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center"
+                    className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center"
                   >
-                    <FiTrash2 className="w-5 h-5 mr-2" />
-                    {deleting ? 'Declining...' : 'Decline Listing'}
+                    <FiTrash2 className="w-4 h-4 mr-2" />
+                    {deleting ? 'Declining...' : 'Confirm Decline'}
                   </button>
                 </div>
               </div>
