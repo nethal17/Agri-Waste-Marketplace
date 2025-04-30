@@ -18,6 +18,7 @@ import { TwoStepVerification } from './components/TwoStepVerification';
 import Charts from './pages/Charts';
 import PaymentDashboard from './pages/PaymentDashboard';
 import EmailVerificationSuccess from './pages/EmailVerificationSuccess';
+import VehicleList from './pages/VehicleList';
 
 import { OrganicWaste, CategoryProducts } from './pages/OrganicWaste';
 import { NonOrganicWaste, CategoryProducts as NonOrganicCategoryProducts } from './pages/NonOrganicWaste';
@@ -132,9 +133,9 @@ function App() {
       <Route path="/farmer-reviews" element={<DisplayFarmerReviews />} /> 
       <Route path="/refunds" element={<Refund />} />
 
-      
-      
-      
+      <Route path="/home-testing" element={<HomeTesting />} />
+      <Route path="/vehicle-registration" element={<VehicleRegPage />} />
+      <Route path="/vehicle-list" element={<VehicleList />} />
 
       <Route path="/vehicle-registration" element={<VehicleRegPage />} />
 

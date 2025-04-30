@@ -68,9 +68,15 @@ const FarmerReqForm = () => {
       <h2 className="text-2xl font-bold text-gray-800 mb-6">All Delivery Requests</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="p-4 bg-white shadow rounded-xl">
+        <div className="p-4 bg-red-100 shadow rounded-xl">
           <h3 className="text-sm text-gray-500">Total Farmers</h3>
           <p className="text-xl font-semibold">{farmers.length}</p>
+        </div>
+
+        <div className="p-4 bg-green-100 shadow rounded-xl">
+          <h3 className="text-sm text-gray-700">Active Frmers</h3>
+          <p className="text-xl font-semibold">{3}
+          </p>
         </div>
         
         <div className="p-4 bg-yellow-100 shadow rounded-xl">
@@ -89,7 +95,7 @@ const FarmerReqForm = () => {
 
       <div className="overflow-x-auto bg-white shadow rounded-lg">
         <table className="min-w-full table-auto">
-          <thead className="bg-gray-100 text-left text-gray-600 text-sm">
+          <thead className="bg-gray-100 text-left text-gray-600 text-l">
             <tr>
               <th className="px-4 py-3">Farmer ID</th>
               <th className="px-4 py-3">Phone</th>
@@ -98,7 +104,7 @@ const FarmerReqForm = () => {
               <th className="px-4 py-3">Action</th>
             </tr>
           </thead>
-          <tbody className="text-sm text-gray-700">
+          <tbody className="text-m text-gray-700">
             {farmers.length > 0 ? (
               farmers.map((farmer) => (
                 <tr key={farmer._id} className="border-t">
@@ -109,7 +115,7 @@ const FarmerReqForm = () => {
                   <td className="px-4 py-3">{farmer.farmerPhone}</td>
                   <td className="px-4 py-3">{farmer.district}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(farmer.status)}`}>
+                    <span className={`px-3 py-1 rounded-full text-s font-medium ${getStatusClass(farmer.status)}`}>
                       {farmer.status}
                     </span>
                   </td>
