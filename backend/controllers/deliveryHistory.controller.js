@@ -1,4 +1,4 @@
-import { DeliveryOrder } from "../models/deliveryOrder.model.js";
+import DeliveryOrder from "../models/deliveryOrder.model.js";
 
 // Get all delivery orders
 export const getAllDeliveryOrders = async (req, res) => {
@@ -10,12 +10,12 @@ export const getAllDeliveryOrders = async (req, res) => {
   }
 };
 
-// Accept an order (status stays 'toDeliver')
+// Accept an order (status changes to 'toReceive')
 export const acceptOrder = async (req, res) => {
   try {
     const order = await DeliveryOrder.findByIdAndUpdate(
       req.params.id,
-      { status: "toDeliver" },
+      { status: "toReceive" },
       { new: true }
     );
     res.json(order);
@@ -37,3 +37,17 @@ export const declineOrder = async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 };
+
+// Mark order as done
+export const markAsDone = async (req, res) => {
+  try {
+    const order = await DeliveryOrder.findByIdAndUpdate(
+      req.params.id,
+      { status: "completed" },
+      { new: true }
+    );
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+}; 

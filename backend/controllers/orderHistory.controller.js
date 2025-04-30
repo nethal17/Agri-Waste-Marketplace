@@ -127,3 +127,43 @@ export const processOrderAfterPayment = async (req, res) => {
     res.status(500).json({ message: "Failed to process order" });
   }
 };
+
+export const acceptOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await OrderHistory.findByIdAndUpdate(
+      orderId,
+      { orderStatus: "toReceive" },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.status(200).json({ message: "Order accepted successfully", order });
+  } catch (error) {
+    console.error("Error accepting order:", error);
+    res.status(500).json({ message: "Failed to accept order" });
+  }
+};
+
+export const markOrderAsDone = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await OrderHistory.findByIdAndUpdate(
+      orderId,
+      { orderStatus: "toReview" },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.status(200).json({ message: "Order marked as done successfully", order });
+  } catch (error) {
+    console.error("Error marking order as done:", error);
+    res.status(500).json({ message: "Failed to mark order as done" });
+  }
+};
