@@ -26,12 +26,6 @@ export const Profile = () => {
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [loading2FA, setLoading2FA] = useState(false);
   const [loginHistory, setLoginHistory] = useState([]);
-  const [stats, setStats] = useState({
-    listings: 0,
-    orders: 0,
-    pickups: 0,
-    rating: 0
-  });
   const [showLoginHistoryModal, setShowLoginHistoryModal] = useState(false);
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
   const [showUpdateDetailsModal, setShowUpdateDetailsModal] = useState(false);

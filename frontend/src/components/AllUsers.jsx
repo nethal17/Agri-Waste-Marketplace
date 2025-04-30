@@ -6,7 +6,9 @@ import {
   FaSearch, FaFilter, FaSort, FaChartBar,
   FaHome, FaUserCog, FaCog, FaSignOutAlt,
   FaFileExport, FaFileImport, FaHistory, FaDownload,
-  FaChevronDown, FaChevronUp, FaTimes
+  FaChevronDown, FaChevronUp, FaTimes, FaEye, FaDesktop,
+  FaGlobe, FaUser, FaEnvelope, FaPhone, FaCalendarAlt,
+  FaShieldAlt, FaCheckCircle, FaTimesCircle
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -14,24 +16,14 @@ import { useNavigate } from "react-router-dom";
 const formatTimeAgo = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
-  const seconds = Math.floor((now - date) / 1000);
+  const diffInSeconds = Math.floor((now - date) / 1000);
   
-  let interval = Math.floor(seconds / 31536000);
-  if (interval > 1) return `${interval} years ago`;
-  
-  interval = Math.floor(seconds / 2592000);
-  if (interval > 1) return `${interval} months ago`;
-  
-  interval = Math.floor(seconds / 86400);
-  if (interval > 1) return `${interval} days ago`;
-  
-  interval = Math.floor(seconds / 3600);
-  if (interval > 1) return `${interval} hours ago`;
-  
-  interval = Math.floor(seconds / 60);
-  if (interval > 1) return `${interval} minutes ago`;
-  
-  return 'just now';
+  if (diffInSeconds < 60) return 'just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+  return `${Math.floor(diffInSeconds / 31536000)} years ago`;
 };
 
 export const AllUsers = () => {
@@ -46,7 +38,8 @@ export const AllUsers = () => {
   const [showSidebar, setShowSidebar] = useState(true);
   const [showActivityLog, setShowActivityLog] = useState(false);
   const [userActivityLogs, setUserActivityLogs] = useState([]);
-  const [expandedFilters, setExpandedFilters] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewUser, setPreviewUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -128,17 +121,6 @@ export const AllUsers = () => {
     }
   };
 
-  const handleUserActivityLog = async (userId) => {
-    try {
-      const response = await axios.get(`http://localhost:3000/api/auth/userActivity/${userId}`);
-      setUserActivityLogs(response.data.data);
-      setShowActivityLog(true);
-    } catch (error) {
-      toast.error("Failed to fetch user activity logs");
-      console.error("Error fetching user activity logs:", error);
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -146,20 +128,44 @@ export const AllUsers = () => {
     window.location.reload();
   };
 
+  const handleUserPreview = (user) => {
+    setPreviewUser(user);
+    setShowPreviewModal(true);
+  };
+
+  const formatDeviceInfo = (deviceInfo) => {
+    if (!deviceInfo) return "Unknown";
+    
+    if (deviceInfo.includes("Windows")) return "Windows";
+    if (deviceInfo.includes("Mac")) return "Mac";
+    if (deviceInfo.includes("Linux")) return "Linux";
+    if (deviceInfo.includes("Android")) return "Android";
+    if (deviceInfo.includes("iOS")) return "iOS";
+    
+    return "Other";
+  };
+
+  const formatIPAddress = (ip) => {
+    if (!ip) return "Unknown";
+    
+    if (ip === "::1") return "127.0.0.1";
+    return ip;
+  };
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Sidebar - Now with Green Color Scheme */}
-      <div className={`${showSidebar ? 'w-64' : 'w-0'} fixed left-0 top-0 h-full bg-gradient-to-b from-green-700 to-green-800 shadow-xl transition-all duration-300 z-20 overflow-hidden`}>
+      <div className={`${showSidebar ? 'w-64' : 'w-0'} fixed left-0 top-0 h-full bg-green-300 shadow-xl transition-all duration-300 z-20 overflow-hidden`}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b border-green-600">
+          <div className="p-6 border-b border-green-400">
             <h2 className="text-xl font-bold text-white">Admin Dashboard</h2>
           </div>
           <nav className="flex-1 p-4 space-y-2">
-            <a href="/admin-dashboard" className="flex items-center p-3 text-green-100 transition-colors rounded-lg hover:bg-green-600">
+            <a href="/admin-dashboard" className="flex items-center p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
               <FaHome className="w-5 h-5 mr-3" />
               <span>Dashboard</span>
             </a>
-            <a href="/all-users" className="flex items-center p-3 text-white bg-green-600 rounded-lg">
+            <a href="/all-users" className="flex items-center p-3 text-black-800 bg-green-100 rounded-lg">
               <FaUsers className="w-5 h-5 mr-3" />
               <span>Users</span>
             </a>
@@ -168,7 +174,7 @@ export const AllUsers = () => {
             
             <button
             onClick={handleLogout} 
-            className="flex items-center w-full p-3 text-green-100 transition-colors rounded-lg hover:bg-green-600">
+            className="flex items-center w-full p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
               <FaSignOutAlt className="w-5 h-5 mr-3" />
               <span>Logout</span>
             </button>
@@ -240,89 +246,71 @@ export const AllUsers = () => {
 
           {/* Enhanced Filters and Search */}
           <div className="p-6 mb-8 bg-white shadow-md rounded-xl">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h3 className="text-lg font-medium text-gray-800">Filters</h3>
-              <button 
-                onClick={() => setExpandedFilters(!expandedFilters)}
-                className="flex items-center text-green-600 hover:text-green-800"
-              >
-                {expandedFilters ? (
-                  <>
-                    <FaChevronUp className="mr-1" />
-                    Hide Filters
-                  </>
-                ) : (
-                  <>
-                    <FaChevronDown className="mr-1" />
-                    Show Filters
-                  </>
-                )}
-              </button>
             </div>
             
-            <div className={`${expandedFilters ? 'block' : 'hidden'} transition-all duration-200`}>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Search</label>
-                  <div className="relative">
-                    <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-                    <input
-                      type="text"
-                      placeholder="Search users..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full py-2 pl-10 pr-4 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
-                    {searchTerm && (
-                      <button
-                        onClick={() => setSearchTerm("")}
-                        className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
-                      >
-                        <FaTimes />
-                      </button>
-                    )}
-                  </div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Search</label>
+                <div className="relative">
+                  <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search users..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full py-2 pl-10 pr-4 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
+                    >
+                      <FaTimes />
+                    </button>
+                  )}
                 </div>
-                
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Role</label>
-                  <select
-                    value={filterRole}
-                    onChange={(e) => setFilterRole(e.target.value)}
-                    className="w-full px-4 py-2 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="all">All Roles</option>
-                    <option value="farmers">Farmers</option>
-                    <option value="buyers">Buyers</option>
-                    <option value="drivers">Drivers</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Status</label>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="w-full px-4 py-2 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="verified">Verified</option>
-                    <option value="unverified">Unverified</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Sort By</label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full px-4 py-2 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="name">Name</option>
-                    <option value="date">Registration Date</option>
-                    <option value="lastLogin">Last Login</option>
-                  </select>
-                </div>
+              </div>
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Role</label>
+                <select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  className="w-full px-4 py-2 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="farmers">Farmers</option>
+                  <option value="buyers">Buyers</option>
+                  <option value="drivers">Drivers</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Status</label>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="w-full px-4 py-2 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="all">All Status</option>
+                  <option value="verified">Verified</option>
+                  <option value="unverified">Unverified</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Sort By</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full px-4 py-2 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="name">Name</option>
+                  <option value="date">Registration Date</option>
+                  <option value="lastLogin">Last Login</option>
+                </select>
               </div>
             </div>
           </div>
@@ -366,7 +354,7 @@ export const AllUsers = () => {
                     </tr>
                   ) : sortedUsers.length > 0 ? (
                     sortedUsers.map((user) => (
-                      <tr key={user._id} className="transition-colors hover:bg-gray-50">
+                      <tr key={user._id} className="transition-colors hover:bg-green-200">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 w-10 h-10">
@@ -409,12 +397,13 @@ export const AllUsers = () => {
                         <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                           <div className="flex items-center space-x-4">
                             <button
-                              onClick={() => handleUserActivityLog(user._id)}
-                              className="p-2 text-green-600 transition-colors rounded-full hover:bg-green-50"
-                              title="View Activity"
+                              onClick={() => handleUserPreview(user)}
+                              className="p-2 text-green-600 transition-colors rounded-full hover:bg-blue-50"
+                              title="Preview User"
                             >
-                              <FaHistory className="w-5 h-5" />
+                              <FaEye className="w-5 h-5" />
                             </button>
+                            
                             <button
                               onClick={() => {
                                 setSelectedUser(user);
@@ -488,6 +477,147 @@ export const AllUsers = () => {
                   <p className="text-gray-500">No activity logs found for this user</p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Preview Modal */}
+      {showPreviewModal && previewUser && (
+        <div className="fixed inset-0 z-30 flex items-end justify-center bg-black bg-opacity-50 backdrop-blur-sm pb-8">
+          <div className="w-full max-w-2xl overflow-hidden transition-all duration-300 ease-in-out transform bg-white shadow-2xl rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-600 to-green-700">
+              <div className="flex items-center space-x-2">
+                <FaUser className="w-5 h-5 text-white" />
+                <h3 className="text-lg font-bold text-white">User Profile</h3>
+              </div>
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="p-1.5 text-white transition-colors rounded-full hover:bg-green-800"
+              >
+                <FaTimes className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto">
+              <div className="p-4 space-y-4">
+                {/* Profile Section */}
+                <div className="flex flex-col items-center p-4 shadow-sm bg-gradient-to-b from-green-50 to-white rounded-xl">
+                  <div className="relative">
+                    <img 
+                      className="object-cover w-24 h-24 border-4 border-green-500 rounded-full shadow-lg" 
+                      src={previewUser.profilePic || "https://ui-avatars.com/api/?name="+encodeURIComponent(previewUser.name)+"&background=random"} 
+                      alt={previewUser.name} 
+                    />
+                    <div className="absolute bottom-0 right-0 p-1.5 text-white bg-green-500 rounded-full shadow-md">
+                      {previewUser.isVerified ? (
+                        <FaCheckCircle className="w-4 h-4" />
+                      ) : (
+                        <FaTimesCircle className="w-4 h-4" />
+                      )}
+                    </div>
+                  </div>
+                  <h2 className="mt-3 text-xl font-bold text-gray-800">{previewUser.name}</h2>
+                  <div className="flex flex-wrap justify-center gap-2 mt-2">
+                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                      previewUser.role === "farmer" ? "bg-green-100 text-green-800" :
+                      previewUser.role === "buyer" ? "bg-blue-100 text-blue-800" :
+                      "bg-purple-100 text-purple-800"
+                    }`}>
+                      {previewUser.role === "farmer" ? "Farmer" : previewUser.role === "buyer" ? "Buyer" : "Driver"}
+                    </span>
+                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                      previewUser.isVerified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                    }`}>
+                      {previewUser.isVerified ? "Verified" : "Unverified"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* User Information Section */}
+                <div className="p-4 bg-white border border-green-100 shadow-sm rounded-xl">
+                  <div className="flex items-center mb-3">
+                    <h3 className="text-base font-bold text-green-600">User Information</h3>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaUser className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Full Name</p>
+                        <p className="text-sm font-semibold text-gray-800">{previewUser.name}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaEnvelope className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Email</p>
+                        <p className="text-sm font-semibold text-gray-800">{previewUser.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaPhone className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Phone</p>
+                        <p className="text-sm font-semibold text-gray-800">{previewUser.phone}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaCalendarAlt className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Created</p>
+                        <p className="text-sm font-semibold text-gray-800">{formatTimeAgo(previewUser.createdAt)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaShieldAlt className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Account Status</p>
+                        <p className="text-sm font-semibold text-gray-800">{previewUser.isVerified ? "Verified" : "Unverified"}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Login History Section */}
+                <div className="p-4 bg-white border border-green-100 shadow-sm rounded-xl">
+                  <div className="flex items-center mb-3">
+                    <h3 className="text-base font-bold text-green-600">Login Information</h3>
+                  </div>
+                  {previewUser.loginHistory && previewUser.loginHistory.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                        <FaCalendarAlt className="w-4 h-4 mr-2 text-green-600" />
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Last Login</p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {formatTimeAgo(previewUser.loginHistory[previewUser.loginHistory.length - 1].timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                        <FaDesktop className="w-4 h-4 mr-2 text-green-600" />
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Device</p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {formatDeviceInfo(previewUser.loginHistory[previewUser.loginHistory.length - 1].deviceInfo)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="py-2 text-center">
+                      <p className="text-sm text-gray-500">No login history available</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end p-3 border-t border-green-100">
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="px-3 py-1.5 text-sm text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
