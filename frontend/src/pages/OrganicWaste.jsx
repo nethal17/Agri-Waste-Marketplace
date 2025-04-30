@@ -9,10 +9,10 @@ import { MapPin, Calendar, User, ShoppingCart, ArrowLeft, Search, ImageIcon } fr
 
 const organicWastes = [
   { name: "Crop Residues", image: "/images/crop_residues.jpg", value: "Crop Residues" },
-  { name: "Fruit & Vegetable", image: "/images/fruit_vegetable.jpg", value: "Fruit Vegetable" },
+  { name: "Fruit & Vegetable", image: "/images/fruit_vegetable.jpg", value: "Fruit & Vegetable" },
   { name: "Plantation Waste", image: "/images/plantation_waste.jpg", value: "Plantation Waste" },
-  { name: "Nut & Seed Waste", image: "/images/nut_seed_waste.jpg", value: "Nut Seed Waste" },
-  { name: "Livestock & Dairy Waste", image: "/images/livestock_dairy.jpg", value: "Livestock Dairy Waste" },
+  { name: "Nut & Seed Waste", image: "/images/nut_seed_waste.jpg", value: "Nut & Seed Waste" },
+  { name: "Livestock & Dairy Waste", image: "/images/livestock_dairy.jpg", value: "Livestock & Dairy Waste" },
   { name: "Forestry Waste", image: "/images/forestry_waste.jpg", value: "Forestry Waste" },
 ]
 

@@ -16,27 +16,29 @@ export const Cart = () => {
   const userId = userData._id
 
   useEffect(() => {
-    const fetchCartItems = async () => {
-      try {
-        if (!userId) {
-          toast.error("Please login to view your cart")
-          navigate("/login")
-          return
-        }
-        const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
-        if (response.data) {
-          setCartItems(response.data.items)
-        }
-      } catch (error) {
-        console.error("Error fetching cart items:", error)
-        toast.error("Failed to load cart items")
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchCartItems()
+    
   }, [navigate, userId])
+
+  const fetchCartItems = async () => {
+    try {
+      if (!userId) {
+        toast.error("Please login to view your cart")
+        navigate("/login")
+        return
+      }
+      const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
+      
+      if (response.data) {
+        setCartItems(response.data.items)
+      }
+    } catch (error) {
+      console.error("Error fetching cart items:", error)
+      toast.error("Failed to load cart items")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const updateQuantity = async (wasteId, change) => {
     try {

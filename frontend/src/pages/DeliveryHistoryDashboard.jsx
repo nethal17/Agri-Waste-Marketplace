@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Navbar } from "../components/Navbar"
+import { Navbar } from "../components/Navbar";
 
 const DeliveryHistoryDashboard = () => {
   const [orders, setOrders] = useState([]);
+  const [address, setAddress] = useState([]);
   const userData = JSON.parse(localStorage.getItem("user"));
   const userId = userData?._id;
   const navigate = useNavigate();
 
+  // Add navigation handlers
+  const handleDeliveryRequestClick = () => {
+    navigate("/delivery-history");
+  };
+
+  const handlePickupRequestClick = () => {
+    navigate("/truck-dashboard");
+  }
+
   useEffect(() => {
     if (userId) {
       fetchOrders();
+      fetchAddress();
     }
   }, [userId]);
 
@@ -20,6 +31,13 @@ const DeliveryHistoryDashboard = () => {
       .get(`http://localhost:3000/api/order-history`)
       .then((res) => setOrders(res.data))
       .catch((err) => console.error("Error fetching delivery orders:", err));
+  };
+
+  const fetchAddress = (userId) => {
+    axios
+      .get(`http://localhost:3000/api/address/get-address/${userId}`)
+      .then((res) => setAddress(res.data))
+      .catch((err) => console.error("Error fetching address:", err));
   };
 
   const handleAccept = async (orderId) => {
@@ -62,31 +80,30 @@ const DeliveryHistoryDashboard = () => {
     }
   };
 
-  const handlePickupRequestClick = () => {
-    navigate("/truck-dashboard");
-  };
+
 
   return (
     <>
-            <Navbar />
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex space-x-4 mb-6">
-          <button
-            className="px-6 py-2 rounded-lg font-medium transition-colors bg-green-600 text-white"
-          >
-            Delivery Requests
-          </button>
-          <button
-            onClick={handlePickupRequestClick}
-            className="px-6 py-2 rounded-lg font-medium transition-colors bg-white border border-green-600 text-green-600 hover:bg-green-50"
-          >
-            Pickup Requests
-          </button>
-        </div>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex space-x-4 mb-6">
+            <button
+              onClick={handleDeliveryRequestClick}
+              className="px-6 py-2 rounded-lg font-medium transition-colors bg-green-600 text-white hover:bg-green-700"
+            >
+              Delivery Requests
+            </button>
+            <button
+              onClick={handlePickupRequestClick}
+              className="px-6 py-2 rounded-lg font-medium transition-colors bg-white border border-green-600 text-green-600 hover:bg-green-50"
+            >
+              Pickup Requests
+            </button>
+          </div>
         
         <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <div className="px-9 py-5 sm:px-6 border-b border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900">Delivery History Dashboard</h2>
           </div>
           
@@ -94,19 +111,19 @@ const DeliveryHistoryDashboard = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-m font-medium text-blue-500 uppercase tracking-wider">
                     User ID
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-m font-medium text-blue-500 uppercase tracking-wider">
                     Product Name
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-m font-medium text-blue-500 uppercase tracking-wider">
                     Quantity
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-m font-medium text-blue-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-m font-medium text-blue-500 uppercase tracking-wider">
                     Action
                   </th>
                 </tr>

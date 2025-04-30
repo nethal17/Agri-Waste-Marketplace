@@ -11,8 +11,8 @@ const nonOrganics = [
   { name: "Chemical Waste", image: "/images/Chemical_Waste.jpg", value: "Chemical Waste" },
   { name: "Plastic Waste", image: "/images/Plastic_Waste.jpg", value: "Plastic Waste" },
   { name: "Metal Waste", image: "/images/Metal_Waste.jpg", value: "Metal Waste" },
-  { name: "Fabric & Textile", image: "/images/Fabric_Textile_Waste.jpg", value: "Fabric Textile" },
-  { name: "Glass & Ceramic", image: "/images/Glass_Ceramic_Waste.jpg", value: "Glass Ceramic" },
+  { name: "Fabric & Textile", image: "/images/Fabric_Textile_Waste.jpg", value: "Fabric & Textile" },
+  { name: "Glass & Ceramic", image: "/images/Glass_Ceramic_Waste.jpg", value: "Glass & Ceramic" },
   { name: "Rubber Waste", image: "/images/Rubber_Waste.jpg", value: "Rubber Waste" },
 ]
 
@@ -111,11 +111,11 @@ const CategoryProducts = () => {
         const userData = JSON.parse(localStorage.getItem("user") || "{}")
         const userId = userData._id
 
-        if (!token) {
+        /*if (!token) {
           toast.error("No token found, please login again.")
           navigate("/login")
           return
-        }
+        }*/
 
         if (userId) {
           const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
@@ -373,11 +373,11 @@ export const NonOrganicWaste = () => {
         const userData = JSON.parse(localStorage.getItem("user") || "{}")
         const userId = userData._id
 
-        if (!token) {
+        /*if (!token) {
           toast.error("No token found, please login again.")
           navigate("/login")
           return
-        }
+        }*/
 
         if (userId) {
           const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
