@@ -516,7 +516,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
                         {getStatusBadge(order.orderStatus)}
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                        {order.orderStatus !== 'cancelled' && (
+                        {order.orderStatus !== 'toReview' && (
                           <button
                             onClick={() => handleCancelOrder(order._id)}
                             className="mr-4 text-red-600 hover:text-red-900"

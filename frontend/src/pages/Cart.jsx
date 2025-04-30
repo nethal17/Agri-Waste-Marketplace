@@ -164,15 +164,11 @@ export const Cart = () => {
                         <div className="flex flex-col gap-4 sm:flex-row">
                           <div className="flex-shrink-0">
                             <div className="relative w-24 h-24 overflow-hidden bg-gray-100 sm:h-28 sm:w-28 rounded-xl">
-                              {item.image ? (
+                              {item.productImage ? (
                                 <img
                                   className="object-cover w-full h-full"
-                                  src={item.image || "/placeholder.svg"}
-                                  alt={item.wasteItem || "Product"}
-                                  onError={(e) => {
-                                    e.target.onerror = null
-                                    e.target.src = "/images/no-image.png"
-                                  }}
+                                  src={item.productImage || "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fimage&psig=AOvVaw0EpofGXa2hnQAqEatLDhnU&ust=1746074298883000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJD26rT4_owDFQAAAAAdAAAAABAI"}
+                                  alt={"Product Image"}
                                 />
                               ) : (
                                 <div className="flex items-center justify-center w-full h-full">

@@ -1,5 +1,5 @@
 import OrderHistory from '../models/orderHistory.model.js';
-import { Delivery } from '../models/Delivery.js';
+import Delivery from '../models/Delivery.js';
 import { User } from '../models/user.js';
 import mongoose from 'mongoose';
 
@@ -8,7 +8,7 @@ export const addDelivery = async (req, res) => {
         const { userId, productId, farmerId, productName, quantity } = req.body;
 
         // Validate IDs
-        if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(farmerId)) {
+       if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(farmerId)) {
             return res.status(400).json({ message: 'Invalid IDs provided.' });
         }
 
@@ -39,11 +39,22 @@ export const addDelivery = async (req, res) => {
 // Get completed deliveries
 export const getCompletedDeliveries = async (req, res) => {
     try {
-        const deliveries = await Delivery.find({ deliveryStatus: 'completed' }).populate('userId', 'name email').populate('productId', 'productName');
+        console.log('Fetching completed deliveries');
+        const deliveries = await Delivery.find({ 
+            deliveryStatus: 'completed'
+        })
+        .populate('userId', 'name email _id')
+        .populate('productId', 'productName')
+        .populate('farmerId', 'name email');
+        
+        console.log('Found deliveries:', deliveries);
         res.status(200).json(deliveries);
     } catch (error) {
-        console.error('Error fetching completed deliveries:', error);
-        res.status(500).json({ message: 'Failed to fetch completed deliveries.', error: error.message });
+        console.error('Error in getCompletedDeliveries:', error);
+        res.status(500).json({ 
+            message: 'Failed to fetch completed deliveries.', 
+            error: error.message 
+        });
     }
 }
 

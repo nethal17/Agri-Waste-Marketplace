@@ -14,12 +14,26 @@ const PaymentDetails = () => {
   useEffect(() => {
     const fetchDriverData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${id}`);
-        setDriver(response.data);
-        // Set a default value for completed deliveries if not available
-        setCompletedDeliveries(response.data.deliveryCount || 0);
+        console.log('Fetching driver data for ID:', id);
+        // Fetch driver details
+        const driverResponse = await axios.get(`http://localhost:3000/api/auth/searchUser/${id}`);
+        console.log('Driver response:', driverResponse.data);
+        setDriver(driverResponse.data);
+
+        // Fetch completed deliveries for this driver
+        console.log('Fetching completed deliveries');
+        const deliveriesResponse = await axios.get(`http://localhost:3000/api/delivery/completed`);
+        console.log('Deliveries response:', deliveriesResponse.data);
+        
+        // Filter deliveries for this driver
+        const driverDeliveries = deliveriesResponse.data.filter(
+          delivery => delivery.userId._id === id && delivery.deliveryStatus === 'completed'
+        );
+        console.log('Filtered deliveries for driver:', driverDeliveries);
+        setCompletedDeliveries(driverDeliveries.length);
       } catch (error) {
-        console.error('Error fetching driver data:', error);
+        console.error('Error fetching data:', error);
+        console.error('Error details:', error.response?.data);
         setError('Failed to load driver information');
       }
     };
@@ -43,7 +57,6 @@ const PaymentDetails = () => {
         driverName: driver.name
       });
       
-      // Use the new driver payment endpoint
       const response = await axios.post('http://localhost:3000/api/driver-payment', {
         totalSalary,
         driverId: id,
@@ -53,7 +66,6 @@ const PaymentDetails = () => {
       console.log('Payment response:', response.data);
       
       if (response.data.success && response.data.url) {
-        // Redirect to Stripe checkout
         window.location.href = response.data.url;
       } else {
         throw new Error('Invalid response from payment server');
