@@ -4,7 +4,8 @@ import {
     getCompletedDeliveries, 
     getAllDeliveries, 
     getDeliveryById, 
-    updateDeliveryStatus 
+    updateDeliveryStatus,
+    getDeliveriesByUserId
 } from "../controllers/DeliveryController.js";
 
 const router = express.Router();
@@ -23,5 +24,7 @@ router.get("/:deliveryId", getDeliveryById);
 
 // Update delivery status
 router.patch("/:deliveryId/status", updateDeliveryStatus);
+
+router.get("/getDeliveries/:userId", getDeliveriesByUserId);
 
 export default router; 
