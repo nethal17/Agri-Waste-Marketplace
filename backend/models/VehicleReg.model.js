@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-const vehicleRegSchema  = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+const vehicleRegSchema = new mongoose.Schema({
   nic: { type: String, required: true },
   licenseNumber: { type: String, required: true },
   licenseExpiry: { type: Date, required: true },
@@ -9,7 +8,8 @@ const vehicleRegSchema  = new mongoose.Schema({
   preferredDistrict: { type: String, required: true },
   vehicleType: { type: String, required: true },
   vehicleNumber: { type: String, required: true },
-  licenseCopyUrl: { type: String }, // Optional: for file upload
-}, { timestamps: true });
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
 
 export const VehicleReg = mongoose.model("VehicleReg", vehicleRegSchema);

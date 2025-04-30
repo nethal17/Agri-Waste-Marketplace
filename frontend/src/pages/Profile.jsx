@@ -533,7 +533,7 @@ export const Profile = () => {
                     <div className="p-4 rounded-lg bg-green-50">
                       <div className="flex items-center">
                         <FaTruck className="w-6 h-6 mr-2 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-800">{stats.pickups}</span>
+                        <span className="text-2xl font-bold text-gray-800">5</span>
                       </div>
                       <p className="mt-1 text-sm text-gray-600">Completed Pickups</p>
                     </div>
@@ -629,13 +629,22 @@ export const Profile = () => {
                   )}
 
                   {user.role === "farmer" && (
-                    <button
-                      onClick={() => navigate("/farmer-listings")}
-                      className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
-                    >
-                      <FaShoppingCart className="mr-3 text-green-500 h-7 w-7" />
-                      <span className="font-medium">My Listings</span>
-                    </button>
+                    <>
+                      <button
+                        onClick={() => navigate("/farmer-listings")}
+                        className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
+                      >
+                        <FaShoppingCart className="mr-3 text-green-500 h-7 w-7" />
+                        <span className="font-medium">My Listings</span>
+                      </button>
+                      <button
+                        onClick={() => navigate("/Delivery")}
+                        className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
+                      >
+                        <FaTruck className="mr-3 text-green-500 h-7 w-7" />
+                        <span className="font-medium">Add Pickup Request</span>
+                      </button>
+                    </>
                   )}
 
                   {user.role === "buyer" && (
@@ -649,13 +658,31 @@ export const Profile = () => {
                   )}
 
                   {user.role === "truck_driver" && (
-                    <button
-                      onClick={() => navigate("")}
-                      className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
-                    >
-                      <FaTruck className="mr-3 text-green-500 h-7 w-7" />
-                      <span className="font-medium">My Pickups</span>
-                    </button>
+                    <>
+                      <button
+                        onClick={() => navigate("/delivery-history")}
+                        className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
+                      >
+                        <FaTruck className="mr-3 text-green-500 h-7 w-7" />
+                        <span className="font-medium">My Pickups</span>
+                      </button>
+                      <div className="flex items-center justify-between">
+                        <button
+                          onClick={() => navigate("/vehicle-registration")}
+                          className="flex items-center p-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
+                        >
+                          <FaTruck className="mr-3 text-green-500 h-7 w-7" />
+                          <span className="font-medium">+ Add Vehicle</span>
+                        </button>
+                        <button
+                          onClick={() => navigate("/vehicle-list")}
+                          className="ml-4 text-green-500 hover:underline font-medium"
+                          style={{ minWidth: '48px' }}
+                        >
+                          View
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
