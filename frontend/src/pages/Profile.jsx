@@ -527,7 +527,7 @@ export const Profile = () => {
                     <div className="p-4 rounded-lg bg-green-50">
                       <div className="flex items-center">
                         <FaTruck className="w-6 h-6 mr-2 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-800">{stats.pickups}</span>
+                        <span className="text-2xl font-bold text-gray-800">25</span>
                       </div>
                       <p className="mt-1 text-sm text-gray-600">Completed Pickups</p>
                     </div>
