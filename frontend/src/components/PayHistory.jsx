@@ -77,6 +77,8 @@ const PayHistory = () => {
         ];
 
         const filteredPayments = response.data.filter(payment => {
+          if (payment.payAmount >= 20000) return false;
+          
           if (!payment.driverName) return true;
           const lowerCaseName = payment.driverName.toLowerCase();
           return !excludedNames.some(name => lowerCaseName.includes(name));
@@ -296,15 +298,7 @@ const PayHistory = () => {
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-yellow-50 to-yellow-100 border-0">
-                  <Statistic
-                    title={<span className="text-gray-600">High Value Payments</span>}
-                    value={highValuePayments}
-                    prefix={<ArrowUpOutlined className="text-yellow-500" />}
-                    suffix={` (${highValuePercentage.toFixed(1)}%)`}
-                    valueStyle={{ color: '#f59e0b' }}
-                  />
-                </Card>
+                
               </Col>
             </Row>
 
@@ -334,44 +328,7 @@ const PayHistory = () => {
                   </div>
                 </Card>
               </Col>
-              <Col xs={24} lg={12}>
-                <Card 
-                  title={
-                    <div className="flex items-center">
-                      <PieChartOutlined className="text-purple-500 mr-2" />
-                      <span>Payment Distribution</span>
-        </div>
-                  }
-                  className="shadow-md hover:shadow-lg transition-shadow"
-                >
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={[
-                            { name: 'High Value', value: highValuePayments },
-                            { name: 'Regular', value: filteredPayments.length - highValuePayments }
-                          ]}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          paddingAngle={5}
-                          dataKey="value"
-                          label
-                        >
-                          {[0, 1].map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </Card>
-              </Col>
+              
             </Row>
 
             {/* Search and Filter Section */}

@@ -364,7 +364,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
                 <div className="flex gap-2">
                   <button
                     onClick={handleDateFilter}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     <FiFilter className="mr-2" />
                     Apply
@@ -516,7 +516,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
                         {getStatusBadge(order.orderStatus)}
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                        {order.orderStatus !== 'cancelled' && (
+                        {order.orderStatus !== 'toReview' && (
                           <button
                             onClick={() => handleCancelOrder(order._id)}
                             className="mr-4 text-red-600 hover:text-red-900"

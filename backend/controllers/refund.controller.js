@@ -89,3 +89,22 @@ export const updateRefundStatus = async (req, res) => {
     res.status(500).json({ message: "Error updating refund status" });
   }
 }; 
+
+export const deleteRefund = async (req, res) => {
+  try {
+    const { refundId } = req.params;
+    const refund = await Refund.findByIdAndDelete(refundId);
+
+    if (!refund) {
+      return res.status(404).json({ message: "Refund not found" });
+    }
+
+    res.status(200).json({
+      message: "Refund deleted successfully",
+      refund
+    });
+  } catch (error) {
+    console.error("Error deleting refund:", error);
+    res.status(500).json({ message: "Error deleting refund" });
+  }
+}; 

@@ -188,6 +188,31 @@ export const getAllProductListings = async (req, res) => {
   }
 };
 
+// Get only approved product listings
+export const getApprovedProductListings = async (req, res) => {
+  try {
+    const listings = await ProductListing.find({ status: 'Approved' })
+      .populate('farmerId', 'name email');
+    res.status(200).json(listings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get random approved product listings
+export const getRandomApprovedProductListings = async (req, res) => {
+  try {
+    const count = parseInt(req.query.count) || 4;
+    const listings = await ProductListing.aggregate([
+      { $match: { status: 'Approved' } },
+      { $sample: { size: count } }
+    ]);
+    res.status(200).json(listings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const approveProductListing = async (req, res) => {
   try {
     const { listingId } = req.params;
@@ -363,4 +388,49 @@ export const getProductById = async (req, res) => {
       });
   }
 };
+
+// Get random approved product listing
+export const getRandomApprovedProduct = async (req, res) => {
+  try {
+    // Get count of all approved products
+    const count = await ProductListing.countDocuments({ status: 'Approved' });
+    
+    if (count === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No approved products found'
+      });
+    }
+
+    // Get a random skip value
+    const random = Math.floor(Math.random() * count);
+    
+    // Find one random approved product
+    const product = await ProductListing.findOne({ status: 'Approved' })
+      .skip(random)
+      .populate('farmerId', 'name email phone')
+      .lean();
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'No approved products found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: product
+    });
+
+  } catch (error) {
+    console.error('Error fetching random approved product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching random product',
+      error: error.message
+    });
+  }
+};
+
 

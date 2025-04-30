@@ -175,45 +175,8 @@ const PaymentDashboard = () => {
               </Col>
             </Row>
             
-            {/* Payment Summary Card */}
-            <Row className="mt-8">
-              <Col span={24}>
-                <Card className="shadow-lg border-0">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-gradient-to-r from-purple-100 to-purple-200 p-3 rounded-full mr-4 shadow-md">
-                      <WalletOutlined className="text-3xl text-purple-600" />
-                    </div>
-                    <h2 className="text-xl font-semibold text-gray-800">Payment Summary</h2>
-                  </div>
-                  
-                  <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={8}>
-                      <Statistic 
-                        title="Total Payments" 
-                        value="Rs. 125,000" 
-                        prefix={<DollarOutlined />} 
-                      />
-                    </Col>
-                    <Col xs={24} sm={8}>
-                      <Statistic 
-                        title="Pending Payments" 
-                        value="Rs. 25,000" 
-                        prefix={<DollarOutlined />} 
-                        valueStyle={{ color: '#faad14' }}
-                      />
-                    </Col>
-                    <Col xs={24} sm={8}>
-                      <Statistic 
-                        title="Completed Payments" 
-                        value="Rs. 100,000" 
-                        prefix={<DollarOutlined />} 
-                        valueStyle={{ color: '#52c41a' }}
-                      />
-                    </Col>
-                  </Row>
-                </Card>
-              </Col>
-            </Row>
+            
+            
           </div>
         </div>
       </div>

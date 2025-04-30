@@ -5,32 +5,51 @@ import {
   FaUsers, FaUserShield, FaUserCheck, FaUserTimes, 
   FaSearch, FaFilter, FaSort, FaChartBar,
   FaHome, FaUserCog, FaCog, FaSignOutAlt,
-  FaFileExport, FaFileImport, FaHistory, FaDownload
+  FaFileExport, FaFileImport, FaHistory, FaDownload,
+  FaChevronDown, FaChevronUp, FaTimes, FaEye, FaDesktop,
+  FaGlobe, FaUser, FaEnvelope, FaPhone, FaCalendarAlt,
+  FaShieldAlt, FaCheckCircle, FaTimesCircle
 } from "react-icons/fa";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Pie, Line, Bar } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const formatTimeAgo = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
-  const seconds = Math.floor((now - date) / 1000);
+  const diffInSeconds = Math.floor((now - date) / 1000);
   
-  let interval = Math.floor(seconds / 31536000);
-  if (interval > 1) return `${interval} years ago`;
-  
-  interval = Math.floor(seconds / 2592000);
-  if (interval > 1) return `${interval} months ago`;
-  
-  interval = Math.floor(seconds / 86400);
-  if (interval > 1) return `${interval} days ago`;
-  
-  interval = Math.floor(seconds / 3600);
-  if (interval > 1) return `${interval} hours ago`;
-  
-  interval = Math.floor(seconds / 60);
-  if (interval > 1) return `${interval} minutes ago`;
-  
-  return 'just now';
+  if (diffInSeconds < 60) return 'just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+  return `${Math.floor(diffInSeconds / 31536000)} years ago`;
 };
 
 export const AllUsers = () => {
@@ -45,6 +64,14 @@ export const AllUsers = () => {
   const [showSidebar, setShowSidebar] = useState(true);
   const [showActivityLog, setShowActivityLog] = useState(false);
   const [userActivityLogs, setUserActivityLogs] = useState([]);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewUser, setPreviewUser] = useState(null);
+  const [chartData, setChartData] = useState({
+    roleDistribution: null,
+    userGrowth: null,
+    verificationStatus: null
+  });
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -52,6 +79,7 @@ export const AllUsers = () => {
       .get(`http://localhost:3000/api/auth/getAllUsers`)
       .then((response) => {
         setAllUsers(response.data.data);
+        prepareChartData(response.data.data);
       })
       .catch((error) => {
         console.error("Error fetching users:", error);
@@ -118,43 +146,153 @@ export const AllUsers = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      toast.success("Export successful!");
     } catch (error) {
       toast.error("Failed to export users");
       console.error("Error exporting users:", error);
     }
   };
 
-  const handleUserActivityLog = async (userId) => {
-    try {
-      const response = await axios.get(`http://localhost:3000/api/auth/userActivity/${userId}`);
-      setUserActivityLogs(response.data.data);
-      setShowActivityLog(true);
-    } catch (error) {
-      toast.error("Failed to fetch user activity logs");
-      console.error("Error fetching user activity logs:", error);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+    window.location.reload();
+  };
+
+  const handleUserPreview = (user) => {
+    setPreviewUser(user);
+    setShowPreviewModal(true);
+  };
+
+  const formatDeviceInfo = (deviceInfo) => {
+    if (!deviceInfo) return "Unknown";
+    
+    if (deviceInfo.includes("Windows")) return "Windows";
+    if (deviceInfo.includes("Mac")) return "Mac";
+    if (deviceInfo.includes("Linux")) return "Linux";
+    if (deviceInfo.includes("Android")) return "Android";
+    if (deviceInfo.includes("iOS")) return "iOS";
+    
+    return "Other";
+  };
+
+  const formatIPAddress = (ip) => {
+    if (!ip) return "Unknown";
+    
+    if (ip === "::1") return "127.0.0.1";
+    return ip;
+  };
+
+  const prepareChartData = (users) => {
+    // Role Distribution Pie Chart
+    const roleCounts = users.reduce((acc, user) => {
+      acc[user.role] = (acc[user.role] || 0) + 1;
+      return acc;
+    }, {});
+
+    const roleDistributionData = {
+      labels: Object.keys(roleCounts).map(role => 
+        role === "farmer" ? "Farmers" : 
+        role === "buyer" ? "Buyers" : 
+        "Drivers"
+      ),
+      datasets: [{
+        data: Object.values(roleCounts),
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.6)',
+          'rgba(54, 162, 235, 0.6)',
+          'rgba(153, 102, 255, 0.6)'
+        ],
+        borderColor: [
+          'rgba(75, 192, 192, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(153, 102, 255, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    // User Growth Line Chart
+    const sortedByDate = [...users].sort((a, b) => 
+      new Date(a.createdAt) - new Date(b.createdAt)
+    );
+    
+    const monthlyGrowth = sortedByDate.reduce((acc, user) => {
+      const date = new Date(user.createdAt);
+      const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`;
+      acc[monthYear] = (acc[monthYear] || 0) + 1;
+      return acc;
+    }, {});
+
+    const userGrowthData = {
+      labels: Object.keys(monthlyGrowth).map(date => {
+        const [year, month] = date.split('-');
+        return `${new Date(year, month - 1).toLocaleString('default', { month: 'short' })} ${year}`;
+      }),
+      datasets: [{
+        label: 'User Growth',
+        data: Object.values(monthlyGrowth),
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }]
+    };
+
+    // Verification Status Bar Chart
+    const verificationData = {
+      labels: ['Verified', 'Unverified'],
+      datasets: [{
+        label: 'Users',
+        data: [
+          users.filter(u => u.isVerified).length,
+          users.filter(u => !u.isVerified).length
+        ],
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.6)',
+          'rgba(255, 99, 132, 0.6)'
+        ],
+        borderColor: [
+          'rgba(75, 192, 192, 1)',
+          'rgba(255, 99, 132, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    setChartData({
+      roleDistribution: roleDistributionData,
+      userGrowth: userGrowthData,
+      verificationStatus: verificationData
+    });
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className={`${showSidebar ? 'w-64' : 'w-0 hidden'} fixed left-0 top-0 h-full bg-white shadow-lg transition-all duration-300`}>
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Sidebar - Now with Green Color Scheme */}
+      <div className={`${showSidebar ? 'w-64' : 'w-0'} fixed left-0 top-0 h-full bg-green-300 shadow-xl transition-all duration-300 z-20 overflow-hidden`}>
         <div className="flex flex-col h-full">
-          <div className="p-4 border-b">
-            <h2 className="text-xl font-bold text-gray-800">Admin Dashboard</h2>
+          <div className="p-6 border-b border-green-400">
+            <h2 className="text-xl font-bold text-white">Admin Dashboard</h2>
           </div>
           <nav className="flex-1 p-4 space-y-2">
-            <a href="/admin-dashboard" className="flex items-center p-2 text-gray-700 rounded-lg hover:bg-gray-100">
+            <Link to="/admin-dashboard" className="flex items-center p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
               <FaHome className="w-5 h-5 mr-3" />
               <span>Dashboard</span>
-            </a>
-            <a href="/all-users" className="flex items-center p-2 text-gray-700 rounded-lg hover:bg-gray-100">
+            </Link>
+            <Link to="/all-users" className="flex items-center p-3 text-black-800 bg-green-100 rounded-lg">
               <FaUsers className="w-5 h-5 mr-3" />
               <span>Users</span>
-            </a>
+            </Link>
+            <Link to="/analysis" className="flex items-center p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
+              <FaChartBar className="w-5 h-5 mr-3" />
+              <span>Analysis</span>
+            </Link>
           </nav>
-          <div className="p-4 border-t">
-            <button className="flex items-center w-full p-2 text-gray-700 rounded-lg hover:bg-gray-100">
+          <div className="p-4 border-t border-green-600">
+            <button
+              onClick={handleLogout} 
+              className="flex items-center w-full p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
               <FaSignOutAlt className="w-5 h-5 mr-3" />
               <span>Logout</span>
             </button>
@@ -173,17 +311,23 @@ export const AllUsers = () => {
             </div>
             <button 
               onClick={() => setShowSidebar(!showSidebar)}
-              className="p-2 text-gray-600 rounded-lg hover:bg-gray-200"
+              className="p-2 text-gray-600 transition-colors rounded-lg hover:bg-gray-200"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              {showSidebar ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
             </button>
           </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
-            <div className="p-6 bg-white shadow-sm rounded-xl">
+            <div className="p-6 transition-shadow bg-white shadow-md rounded-xl hover:shadow-lg">
               <div className="flex items-center">
                 <div className="p-3 bg-blue-100 rounded-lg">
                   <FaUsers className="w-6 h-6 text-blue-600" />
@@ -194,7 +338,7 @@ export const AllUsers = () => {
                 </div>
               </div>
             </div>
-            <div className="p-6 bg-white shadow-sm rounded-xl">
+            <div className="p-6 transition-shadow bg-white shadow-md rounded-xl hover:shadow-lg">
               <div className="flex items-center">
                 <div className="p-3 bg-green-100 rounded-lg">
                   <FaUserCheck className="w-6 h-6 text-green-600" />
@@ -205,7 +349,7 @@ export const AllUsers = () => {
                 </div>
               </div>
             </div>
-            <div className="p-6 bg-white shadow-sm rounded-xl">
+            <div className="p-6 transition-shadow bg-white shadow-md rounded-xl hover:shadow-lg">
               <div className="flex items-center">
                 <div className="p-3 bg-red-100 rounded-lg">
                   <FaUserTimes className="w-6 h-6 text-red-600" />
@@ -219,70 +363,91 @@ export const AllUsers = () => {
           </div>
 
           {/* Enhanced Filters and Search */}
-          <div className="p-6 mb-8 bg-white shadow-sm rounded-xl">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-4 md:flex-row">
-                <div className="flex-1">
-                  <div className="relative">
-                    <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-                    <input
-                      type="text"
-                      placeholder="Search users..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
+          <div className="p-6 mb-8 bg-white shadow-md rounded-xl">
+            <div className="mb-4">
+              <h3 className="text-lg font-medium text-gray-800">Filters</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Search</label>
+                <div className="relative">
+                  <FaSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search users..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full py-2 pl-10 pr-4 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
+                    >
+                      <FaTimes />
+                    </button>
+                  )}
                 </div>
-                <div className="flex gap-4">
-                  <select
-                    value={filterRole}
-                    onChange={(e) => setFilterRole(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="all">All Roles</option>
-                    <option value="farmers">Farmers</option>
-                    <option value="buyers">Buyers</option>
-                    <option value="drivers">Drivers</option>
-                  </select>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="verified">Verified</option>
-                    <option value="unverified">Unverified</option>
-                  </select>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="name">Sort by Name</option>
-                    <option value="date">Sort by Date</option>
-                    <option value="lastLogin">Sort by Last Login</option>
-                  </select>
-                </div>
+              </div>
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Role</label>
+                <select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  className="w-full px-4 py-2 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="farmers">Farmers</option>
+                  <option value="buyers">Buyers</option>
+                  <option value="drivers">Drivers</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Status</label>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="w-full px-4 py-2 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="all">All Status</option>
+                  <option value="verified">Verified</option>
+                  <option value="unverified">Unverified</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Sort By</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full px-4 py-2 transition-all border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="name">Name</option>
+                  <option value="date">Registration Date</option>
+                  <option value="lastLogin">Last Login</option>
+                </select>
               </div>
             </div>
           </div>
 
-          {/* Bulk Actions */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex gap-2">
-            </div>
-            <button
-              onClick={handleExportUsers}
-              className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-            >
-              <FaFileExport className="mr-2" />
-              Export Users
-            </button>
-          </div>
-
           {/* Users Table */}
-          <div className="overflow-hidden bg-white shadow-sm rounded-xl">
+          <div className="overflow-hidden bg-white shadow-md rounded-xl">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-medium text-gray-800">
+                {filteredUsers.length} {filteredUsers.length === 1 ? 'User' : 'Users'} Found
+              </h3>
+              <button
+                onClick={handleExportUsers}
+                className="flex items-center px-4 py-2 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                <FaFileExport className="mr-2" />
+                Export User Details
+              </button>
+            </div>
+            
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -291,26 +456,31 @@ export const AllUsers = () => {
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Role</th>
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Created</th>
-                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Last Logged In</th>
+                    <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Last Login</th>
                     <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan="6" className="px-6 py-4 text-center">
-                        <div className="flex justify-center">
-                          <div className="w-8 h-8 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+                      <td colSpan="6" className="px-6 py-8 text-center">
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="w-12 h-12 border-4 border-green-500 rounded-full border-t-transparent animate-spin"></div>
+                          <p className="mt-4 text-gray-600">Loading users...</p>
                         </div>
                       </td>
                     </tr>
                   ) : sortedUsers.length > 0 ? (
                     sortedUsers.map((user) => (
-                      <tr key={user._id} className="hover:bg-gray-50">
+                      <tr key={user._id} className="transition-colors hover:bg-green-200">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 w-10 h-10">
-                              <img className="w-10 h-10 rounded-full" src={user.profilePic || "https://via.placeholder.com/40"} alt="" />
+                              <img 
+                                className="object-cover w-10 h-10 border border-gray-200 rounded-full" 
+                                src={user.profilePic || "https://ui-avatars.com/api/?name="+encodeURIComponent(user.name)+"&background=random"} 
+                                alt={user.name} 
+                              />
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -319,12 +489,16 @@ export const AllUsers = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">
+                          <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${
+                            user.role === "farmer" ? "bg-green-100 text-green-800" :
+                            user.role === "buyer" ? "bg-blue-100 text-blue-800" :
+                            "bg-purple-100 text-purple-800"
+                          }`}>
                             {user.role === "farmer" ? "Farmer" : user.role === "buyer" ? "Buyer" : "Driver"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${
                             user.isVerified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
                           }`}>
                             {user.isVerified ? "Verified" : "Unverified"}
@@ -338,20 +512,22 @@ export const AllUsers = () => {
                             ? formatTimeAgo(user.loginHistory[user.loginHistory.length - 1].timestamp)
                             : 'Never'}
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end space-x-2">
+                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                          <div className="flex items-center space-x-4">
                             <button
-                              onClick={() => handleUserActivityLog(user._id)}
-                              className="text-blue-600 hover:text-blue-900"
+                              onClick={() => handleUserPreview(user)}
+                              className="p-2 text-green-600 transition-colors rounded-full hover:bg-blue-50"
+                              title="Preview User"
                             >
-                              <FaHistory className="w-5 h-5" />
+                              <FaEye className="w-5 h-5" />
                             </button>
+                            
                             <button
                               onClick={() => {
                                 setSelectedUser(user);
                                 setShowModal(true);
                               }}
-                              className="text-red-600 hover:text-red-900"
+                              className="px-3 py-1 text-sm text-red-600 transition-colors border border-red-200 rounded-lg hover:bg-red-50"
                             >
                               Deactivate
                             </button>
@@ -361,8 +537,21 @@ export const AllUsers = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                        No users found
+                      <td colSpan="6" className="px-6 py-8 text-center">
+                        <div className="flex flex-col items-center justify-center">
+                          <FaUsers className="w-12 h-12 mb-4 text-gray-400" />
+                          <p className="text-gray-600">No users found matching your criteria</p>
+                          <button 
+                            onClick={() => {
+                              setSearchTerm("");
+                              setFilterRole("all");
+                              setFilterStatus("all");
+                            }}
+                            className="mt-4 text-green-600 hover:text-green-800"
+                          >
+                            Clear all filters
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -375,29 +564,178 @@ export const AllUsers = () => {
 
       {/* Activity Log Modal */}
       {showActivityLog && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="p-6 bg-white shadow-xl rounded-xl w-3/4 max-h-[80vh] overflow-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">User Activity Log</h3>
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-4xl max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-green-600 to-green-700">
+              <h3 className="text-xl font-semibold text-white">User Activity Log</h3>
               <button
                 onClick={() => setShowActivityLog(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="p-2 text-white transition-colors rounded-full hover:bg-green-800"
               >
-                ✕
+                <FaTimes />
               </button>
             </div>
-            <div className="space-y-4">
-              {userActivityLogs.map((log, index) => (
-                <div key={index} className="p-4 border rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{log.action}</span>
-                    <span className="text-sm text-gray-500">
-                      {new Date(log.timestamp).toLocaleString()}
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+              {userActivityLogs.length > 0 ? (
+                <div className="space-y-4">
+                  {userActivityLogs.map((log, index) => (
+                    <div key={index} className="p-4 transition-shadow border rounded-lg hover:shadow-md">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-gray-800">{log.action}</span>
+                        <span className="text-sm text-gray-500">
+                          {new Date(log.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-600">{log.details}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-gray-500">No activity logs found for this user</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Preview Modal */}
+      {showPreviewModal && previewUser && (
+        <div className="fixed inset-0 z-30 flex items-end justify-center bg-black bg-opacity-50 backdrop-blur-sm pb-8">
+          <div className="w-full max-w-2xl overflow-hidden transition-all duration-300 ease-in-out transform bg-white shadow-2xl rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-600 to-green-700">
+              <div className="flex items-center space-x-2">
+                <FaUser className="w-5 h-5 text-white" />
+                <h3 className="text-lg font-bold text-white">User Profile</h3>
+              </div>
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="p-1.5 text-white transition-colors rounded-full hover:bg-green-800"
+              >
+                <FaTimes className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto">
+              <div className="p-4 space-y-4">
+                {/* Profile Section */}
+                <div className="flex flex-col items-center p-4 shadow-sm bg-gradient-to-b from-green-50 to-white rounded-xl">
+                  <div className="relative">
+                    <img 
+                      className="object-cover w-24 h-24 border-4 border-green-500 rounded-full shadow-lg" 
+                      src={previewUser.profilePic || "https://ui-avatars.com/api/?name="+encodeURIComponent(previewUser.name)+"&background=random"} 
+                      alt={previewUser.name} 
+                    />
+                    <div className="absolute bottom-0 right-0 p-1.5 text-white bg-green-500 rounded-full shadow-md">
+                      {previewUser.isVerified ? (
+                        <FaCheckCircle className="w-4 h-4" />
+                      ) : (
+                        <FaTimesCircle className="w-4 h-4" />
+                      )}
+                    </div>
+                  </div>
+                  <h2 className="mt-3 text-xl font-bold text-gray-800">{previewUser.name}</h2>
+                  <div className="flex flex-wrap justify-center gap-2 mt-2">
+                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                      previewUser.role === "farmer" ? "bg-green-100 text-green-800" :
+                      previewUser.role === "buyer" ? "bg-blue-100 text-blue-800" :
+                      "bg-purple-100 text-purple-800"
+                    }`}>
+                      {previewUser.role === "farmer" ? "Farmer" : previewUser.role === "buyer" ? "Buyer" : "Driver"}
+                    </span>
+                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                      previewUser.isVerified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                    }`}>
+                      {previewUser.isVerified ? "Verified" : "Unverified"}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm text-gray-600">{log.details}</p>
                 </div>
-              ))}
+
+                {/* User Information Section */}
+                <div className="p-4 bg-white border border-green-100 shadow-sm rounded-xl">
+                  <div className="flex items-center mb-3">
+                    <h3 className="text-base font-bold text-green-600">User Information</h3>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaUser className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Full Name</p>
+                        <p className="text-sm font-semibold text-gray-800">{previewUser.name}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaEnvelope className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Email</p>
+                        <p className="text-sm font-semibold text-gray-800">{previewUser.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaPhone className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Phone</p>
+                        <p className="text-sm font-semibold text-gray-800">{previewUser.phone}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaCalendarAlt className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Created</p>
+                        <p className="text-sm font-semibold text-gray-800">{formatTimeAgo(previewUser.createdAt)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                      <FaShieldAlt className="w-4 h-4 mr-2 text-green-600" />
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">Account Status</p>
+                        <p className="text-sm font-semibold text-gray-800">{previewUser.isVerified ? "Verified" : "Unverified"}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Login History Section */}
+                <div className="p-4 bg-white border border-green-100 shadow-sm rounded-xl">
+                  <div className="flex items-center mb-3">
+                    <h3 className="text-base font-bold text-green-600">Login Information</h3>
+                  </div>
+                  {previewUser.loginHistory && previewUser.loginHistory.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                        <FaCalendarAlt className="w-4 h-4 mr-2 text-green-600" />
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Last Login</p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {formatTimeAgo(previewUser.loginHistory[previewUser.loginHistory.length - 1].timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center p-2 transition-colors rounded-lg hover:bg-green-50">
+                        <FaDesktop className="w-4 h-4 mr-2 text-green-600" />
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Device</p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {formatDeviceInfo(previewUser.loginHistory[previewUser.loginHistory.length - 1].deviceInfo)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="py-2 text-center">
+                      <p className="text-sm text-gray-500">No login history available</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end p-3 border-t border-green-100">
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="px-3 py-1.5 text-sm text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
@@ -405,31 +743,43 @@ export const AllUsers = () => {
 
       {/* Delete Confirmation Modal */}
       {showModal && selectedUser && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="p-6 bg-white shadow-xl rounded-xl w-96">
-            <div className="flex items-center mb-4">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <FaUserShield className="w-6 h-6 text-red-600" />
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md overflow-hidden bg-white shadow-xl rounded-xl">
+            <div className="p-6 bg-gradient-to-r from-red-600 to-red-700">
+              <div className="flex items-center">
+                <FaUserShield className="w-6 h-6 mr-3 text-white" />
+                <h3 className="text-xl font-semibold text-white">Confirm Deactivation</h3>
               </div>
-              <h3 className="ml-3 text-xl font-semibold text-gray-900">Confirm Deactivation</h3>
             </div>
-            <p className="mb-6 text-gray-600">
-              Are you sure you want to deactivate <span className="font-bold">{selectedUser.name}</span>? This action cannot be undone.
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUserDelete}
-                disabled={loading}
-                className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50"
-              >
-                {loading ? "Deactivating..." : "Confirm Deactivation"}
-              </button>
+            <div className="p-6">
+              <p className="mb-6 text-gray-700">
+                Are you sure you want to deactivate <span className="font-bold">{selectedUser.name}</span>? This action cannot be undone.
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUserDelete}
+                  disabled={loading}
+                  className={`px-4 py-2 text-white rounded-lg transition-colors ${
+                    loading ? 'bg-red-400' : 'bg-red-600 hover:bg-red-700'
+                  }`}
+                >
+                  {loading ? (
+                    <span className="flex items-center">
+                      <svg className="w-4 h-4 mr-2 animate-spin" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : 'Confirm Deactivation'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

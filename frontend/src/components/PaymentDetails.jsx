@@ -1,305 +1,235 @@
-import React, { useState, useEffect } from 'react';
-import { Navbar } from "./Navbar";
-import Sidebar from "./Sidebar";
-import { 
-  Table, 
-  Card, 
-  Input, 
-  Button, 
-  DatePicker, 
-  Space, 
-  Tag, 
-  Statistic, 
-  Row, 
-  Col, 
-  Spin,
-  message
-} from 'antd';
-import { 
-  SearchOutlined, 
-  DownloadOutlined,
-  DollarOutlined,
-  ShoppingCartOutlined,
-  CheckCircleOutlined
-} from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
-const { RangePicker } = DatePicker;
+import { useParams, useNavigate } from 'react-router-dom';
+import { Navbar } from "../components/Navbar";
+import { Card, Statistic, Progress, Tag, Button, Spin, message } from 'antd';
+import { 
+  UserOutlined, 
+  DollarOutlined, 
+  CheckCircleOutlined,
+  ArrowRightOutlined,
+  LoadingOutlined
+} from '@ant-design/icons';
 
 const PaymentDetails = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [payments, setPayments] = useState([]);
-  const [filteredPayments, setFilteredPayments] = useState([]);
-  const [searchText, setSearchText] = useState('');
-  const [dateRange, setDateRange] = useState(null);
-  const [stats, setStats] = useState({
-    totalPayments: 0,
-    totalAmount: 0,
-    averageAmount: 0
-  });
+  const [driver, setDriver] = useState(null);
+  const [completedDeliveries, setCompletedDeliveries] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchPayments();
-  }, []);
-
-  const fetchPayments = async () => {
+    const fetchDriverData = async () => {
       try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
+        console.log('Fetching driver data for ID:', id);
+        const driverResponse = await axios.get(`http://localhost:3000/api/auth/searchUser/${id}`);
+        console.log('Driver response:', driverResponse.data);
+        setDriver(driverResponse.data);
 
-      // Fetch all payments from Stripe
-      const response = await axios.get('http://localhost:3000/api/stripe-payments', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        const deliveriesResponse = await axios.get(`http://localhost:3000/api/delivery/completed`);
+        console.log('Deliveries response:', deliveriesResponse.data);
+        
+        const driverDeliveries = deliveriesResponse.data.filter(
+          delivery => delivery.userId._id === id && delivery.deliveryStatus === 'completed'
+        );
+        console.log('Filtered deliveries for driver:', driverDeliveries);
+        setCompletedDeliveries(driverDeliveries.length);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        console.error('Error details:', error.response?.data);
+        setError('Failed to load driver information');
+      }
+    };
+
+    fetchDriverData();
+  }, [id]);
+
+  const basicSalary = 20000.00;
+  const deliveryBonus = 500.00;
+  const bonusDeliveries = Math.max(0, completedDeliveries - 15);
+  const totalSalary = basicSalary + (bonusDeliveries * deliveryBonus);
+
+  const handlePay = async () => {
+    setIsProcessing(true);
+    setError(null);
+    
+    try {
+      const response = await axios.post('http://localhost:3000/api/driver-payment', {
+        totalSalary,
+        driverId: id,
+        driverName: driver.name
       });
       
-      // Transform the data to match our table structure
-      const transformedPayments = response.data.map(payment => ({
-        key: payment._id || payment.id, // Use as key for table rows
-        productName: payment.productName || 'Unknown Product',
-        category: payment.category || 'Unknown Category',
-        quantity: payment.quantity || 1,
-        amount: payment.payAmount || 0,
-        createdAt: payment.createdAt || new Date().toISOString(),
-        status: payment.status || 'completed'
-      }));
-
-      console.log('Transformed payments:', transformedPayments); // Debug log
-
-      setPayments(transformedPayments);
-      setFilteredPayments(transformedPayments);
-      
-      // Calculate statistics
-      const totalAmount = transformedPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
-      setStats({
-        totalPayments: transformedPayments.length,
-        totalAmount: totalAmount,
-        averageAmount: totalAmount / (transformedPayments.length || 1)
-      });
-    } catch (error) {
-      console.error('Error fetching payments:', error);
-      if (error.response?.status === 401) {
-        message.error('Session expired. Please login again');
-        navigate('/login');
+      if (response.data.success && response.data.url) {
+        window.location.href = response.data.url;
       } else {
-        message.error('Failed to fetch payment data');
+        throw new Error('Invalid response from payment server');
       }
-    } finally {
-      setLoading(false);
-      }
-  };
-
-  const handleSearch = (value) => {
-    setSearchText(value);
-    filterPayments(value, dateRange);
-  };
-
-  const handleDateRangeChange = (dates) => {
-    setDateRange(dates);
-    filterPayments(searchText, dates);
-  };
-
-  const filterPayments = (searchValue, dates) => {
-    let filtered = [...payments];
-
-    // Filter by search text
-    if (searchValue) {
-      filtered = filtered.filter(payment => 
-        payment.productName?.toLowerCase().includes(searchValue.toLowerCase()) ||
-        payment.category?.toLowerCase().includes(searchValue.toLowerCase())
-      );
+    } catch (error) {
+      console.error('Payment error:', error);
+      setError(error.response?.data?.message || 'Failed to process payment. Please try again.');
+      setIsProcessing(false);
     }
-
-    // Filter by date range
-    if (dates && dates[0] && dates[1]) {
-      filtered = filtered.filter(payment => {
-        const paymentDate = new Date(payment.createdAt);
-        return paymentDate >= dates[0].startOf('day') && 
-               paymentDate <= dates[1].endOf('day');
-      });
-    }
-
-    setFilteredPayments(filtered);
   };
 
-  const handleExport = () => {
-    const csvContent = [
-      ['Product', 'Category', 'Quantity', 'Amount', 'Date', 'Status'],
-      ...filteredPayments.map(payment => [
-        payment.productName,
-        payment.category,
-        payment.quantity,
-        payment.amount,
-        new Date(payment.createdAt).toLocaleDateString(),
-        payment.status
-      ])
-    ].map(row => row.join(',')).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'payment_history.csv';
-    link.click();
-  };
-
-  const columns = [
-    {
-      title: 'Product',
-      dataIndex: 'productName',
-      key: 'productName',
-      width: 200,
-    },
-    {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      width: 150,
-      render: (category) => (
-        <Tag color={category === 'Organic' ? 'green' : 'blue'}>
-          {category}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Quantity',
-      dataIndex: 'quantity',
-      key: 'quantity',
-      width: 100,
-    },
-    {
-      title: 'Amount',
-      dataIndex: 'amount',
-      key: 'amount',
-      width: 150,
-      render: (amount) => `Rs. ${amount.toLocaleString()}`,
-    },
-    {
-      title: 'Date',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 150,
-      render: (date) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: 120,
-      render: (status) => (
-        <Tag color={status === 'completed' ? 'green' : 'orange'}>
-          {status.toUpperCase()}
-        </Tag>
-      ),
+  if (!driver) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+      </div>
+    );
   }
-  ];
 
   return (
     <>
-    <Navbar />
-      <div className="flex h-screen bg-gray-50">
-        <Sidebar />
-        <div className="flex-1 overflow-auto ml-64"> {/* Added ml-64 to prevent sidebar overlay */}
-          <div className="p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Payment History</h1>
-              <p className="text-gray-600">View and manage your payment transactions</p>
-        </div>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          
 
-            {/* Statistics Cards */}
-            <Row gutter={[16, 16]} className="mb-8">
-              <Col xs={24} sm={8}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow">
-                  <Statistic
-                    title="Total Payments"
-                    value={stats.totalPayments}
-                    prefix={<ShoppingCartOutlined />}
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={8}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow">
-                  <Statistic
-                    title="Total Amount"
-                    value={stats.totalAmount}
-                    prefix={<DollarOutlined />}
-                    suffix="Rs."
-                    precision={2}
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={8}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow">
-                  <Statistic
-                    title="Average Amount"
-                    value={stats.averageAmount}
-                    prefix={<DollarOutlined />}
-                    suffix="Rs."
-                    precision={2}
-                  />
-                </Card>
-              </Col>
-            </Row>
-
-            {/* Search and Filter Section */}
-            <Card className="mb-8 shadow-md">
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="flex-1 w-full">
-                  <Input
-                    placeholder="Search by product name or category"
-                    prefix={<SearchOutlined />}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full"
-                />
-              </div>
-                <div className="flex gap-4 w-full md:w-auto">
-                  <RangePicker
-                    onChange={handleDateRangeChange}
-                    className="w-full md:w-auto"
-                  />
-                  <Button
-                    type="primary"
-                    icon={<DownloadOutlined />}
-                    onClick={handleExport}
-                    className="w-full md:w-auto"
-                  >
-                    Export
-                  </Button>
-          </div>
-              </div>
-            </Card>
-
-            {/* Payments Table */}
-            <Card className="shadow-md">
-              {loading ? (
-                <div className="flex justify-center items-center h-64">
-                  <Spin size="large" />
-              </div>
-              ) : filteredPayments.length > 0 ? (
-                <Table
-                  columns={columns}
-                  dataSource={filteredPayments}
-                  rowKey="key"
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Total ${total} payments`,
-                  }}
-                  scroll={{ x: 1000 }}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-                  <ShoppingCartOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
-                  <p className="text-lg">No payment records found</p>
-                  <p className="text-sm">Try adjusting your search or date filters</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Driver Profile Card */}
+            <div className="lg:col-span-1">
+              <Card className="h-full shadow-lg border-0 rounded-xl overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 text-white">
+                  <h2 className="text-xl font-semibold">Driver Profile</h2>
+                </div>
+                <div className="p-6">
+                  <div className="flex flex-col items-center">
+                    <img 
+                      className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg" 
+                      src={driver.profilePic || 'https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg'} 
+                      alt={driver.name}
+                    />
+                    <h3 className="mt-4 text-xl font-semibold text-gray-900">{driver.name}</h3>
+                    <div className="mt-2 space-y-1 text-center">
+                      <p className="text-sm text-gray-500">ID: {id.substring(0, 8)}</p>
+                      <p className="text-sm text-gray-500">{driver.email}</p>
+                      <p className="text-sm text-gray-500">{driver.phone}</p>
+                    </div>
+                    <div className="mt-4">
+                      <Tag color="blue" className="text-sm">
+                        <UserOutlined className="mr-1" />
+                        Driver
+                      </Tag>
+                    </div>
+                  </div>
+                </div>
+              </Card>
             </div>
-          )}
-            </Card>
+
+            {/* Salary Details Card */}
+            <div className="lg:col-span-2">
+              <Card className="h-full shadow-lg border-0 rounded-xl overflow-hidden">
+                <div className="bg-gradient-to-r from-green-500 to-teal-600 p-4 text-white">
+                  <h2 className="text-xl font-semibold">Salary Details</h2>
+                </div>
+                <div className="p-6">
+                  <div className="space-y-6">
+                    {/* Basic Salary */}
+                    <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
+                      <div>
+                        <h4 className="text-gray-600">Basic Salary</h4>
+                        
+                      </div>
+                      <Statistic
+                        value={basicSalary}
+                        precision={2}
+                        prefix={<DollarOutlined className="text-blue-500" />}
+                        suffix="Rs."
+                        valueStyle={{ color: '#3b82f6', fontSize: '20px' }}
+                      />
+                    </div>
+
+                    {/* Delivery Performance */}
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="text-gray-600">Delivery Performance</h4>
+                        <Tag color="green" className="text-sm">
+                          {completedDeliveries} Completed
+                        </Tag>
+                      </div>
+                      <Progress 
+                        percent={(completedDeliveries / 30) * 100} 
+                        size="small" 
+                        status="active"
+                        strokeColor="#10B981"
+                      />
+                      <div className="mt-2 text-sm text-gray-500">
+                        Target: 30 deliveries/month
+                      </div>
+                    </div>
+
+                    {/* Bonus Details */}
+                    <div className="p-4 bg-purple-50 rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="text-gray-600">Bonus Details</h4>
+                        <Tag color="purple" className="text-sm">
+                          {bonusDeliveries} Extra Deliveries
+                        </Tag>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Bonus per delivery:</span>
+                        <span className="font-medium text-purple-600">Rs. {deliveryBonus.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-gray-600">Total Bonus:</span>
+                        <span className="font-medium text-purple-600">
+                          Rs. {(bonusDeliveries * deliveryBonus).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Total Salary */}
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-100">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-lg font-semibold text-gray-900">Total Salary</h4>
+                        <Statistic
+                          value={totalSalary}
+                          precision={2}
+                          prefix={<DollarOutlined className="text-green-500" />}
+                          suffix="Rs."
+                          valueStyle={{ color: '#10B981', fontSize: '24px' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Error Message */}
+                    {error && (
+                      <div className="p-4 bg-red-50 rounded-lg border border-red-100">
+                        <p className="text-red-600">{error}</p>
+                      </div>
+                    )}
+
+                    {/* Payment Button */}
+                    <Button
+                      type="primary"
+                      size="large"
+                      className="w-full h-12 text-lg"
+                      onClick={handlePay}
+                      disabled={isProcessing}
+                      icon={isProcessing ? <LoadingOutlined /> : <CheckCircleOutlined />}
+                    >
+                      {isProcessing ? 'Processing...' : 'Proceed to Payment'}
+                    </Button>
+
+                    {/* Back Button */}
+                    <Button
+                      type="link"
+                      className="w-full"
+                      onClick={() => navigate('/driver')}
+                    >
+                      <ArrowRightOutlined className="transform rotate-180 mr-2" />
+                      Back to Driver List
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

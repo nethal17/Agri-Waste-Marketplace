@@ -1,56 +1,116 @@
 import { Navbar } from "../components/Navbar"
-import { UserCircle } from "lucide-react"
+import { 
+  Users, 
+  Package, 
+  DollarSign, 
+  Truck, 
+  Boxes, 
+  Star, 
+  ChevronRight 
+} from "lucide-react"
 import { Link } from "react-router-dom"
 
 export const AdminDashboard = () => {
-
   return (
     <>
-    <Navbar />
-    <div className="min-h-screen bg-slate-50">
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        {/* Main Content */}
+        <main className="container px-4 py-12 mx-auto">
+          {/* Header Section */}
+          <div className="mb-16 text-center">
+            <h1 className="mb-4 text-5xl font-bold text-zinc-900">Admin Dashboard</h1>
+            <p className="text-lg text-zinc-600">Manage your system more efficiently</p>
+          </div>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-20">
-        {/* Title Section */}
-        <div className="text-center mb-12 mt-8">
-          <h1 className="text-4xl font-bold text-zinc-900 mb-2">Waste2Wealth Admin</h1>
-        </div>
-
-        {/* Management Options Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        
-            <Link to="/all-users">
-            <div className={"p-8 rounded-lg shadow-md flex items-center justify-center cursor-pointer bg-green-600 text-white hover:shadow-2xl hover:bg-green-800"}>
-              <h2 className="text-xl font-semibold">User Management</h2>
-            </div>
-            </Link>
-        
-            <div className={"p-8 rounded-lg shadow-md flex items-center justify-center cursor-pointer bg-green-600 text-white hover:shadow-2xl hover:bg-green-800"}>
-              <h2 className="text-xl font-semibold">Order Management</h2>
-            </div>
-
-            <Link to="/final-summary">
-            <div className={"p-8 rounded-lg shadow-md flex items-center justify-center cursor-pointer bg-green-600 text-white hover:shadow-2xl hover:bg-green-800"}>
-              <h2 className="text-xl font-semibold">Financial Management</h2>
-            </div>
+          {/* Management Options Grid */}
+          <div className="grid grid-cols-1 gap-8 mx-auto md:grid-cols-2 lg:grid-cols-3 max-w-7xl">
+            <Link to="/all-users" className="group">
+              <div className="p-8 transition-all duration-300 transform bg-white shadow-lg rounded-xl hover:shadow-2xl hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-green-100 rounded-lg">
+                      <Users className="w-6 h-6 text-green-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-zinc-800">User Management</h2>
+                  </div>
+                  <ChevronRight className="w-5 h-5 transition-colors text-zinc-400 group-hover:text-green-600" />
+                </div>
+              </div>
             </Link>
 
-            <div className={"p-8 rounded-lg shadow-md flex items-center justify-center cursor-pointer bg-green-600 text-white hover:shadow-2xl hover:bg-green-800"}>
-              <h2 className="text-xl font-semibold">Transport Management</h2>
-            </div>
-            <Link to="/inventory-management">
-            <div className={"p-8 rounded-lg shadow-md flex items-center justify-center cursor-pointer bg-green-600 text-white hover:shadow-2xl hover:bg-green-800"}>
-              <h2 className="text-xl font-semibold">Inventory Management</h2>
-            </div>
+            <Link to="/order-dashboard" className="group">
+              <div className="p-8 transition-all duration-300 transform bg-white shadow-lg rounded-xl hover:shadow-2xl hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <Package className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-zinc-800">Order Management</h2>
+                  </div>
+                  <ChevronRight className="w-5 h-5 transition-colors text-zinc-400 group-hover:text-blue-600" />
+                </div>
+              </div>
             </Link>
-            <Link to="/review-manager">
-            <div className={"p-8 rounded-lg shadow-md flex items-center justify-center cursor-pointer bg-green-600 text-white hover:shadow-2xl hover:bg-green-800"}>
-              <h2 className="text-xl font-semibold">Review Management</h2>
-            </div>
+
+            <Link to="/final-summary" className="group">
+              <div className="p-8 transition-all duration-300 transform bg-white shadow-lg rounded-xl hover:shadow-2xl hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                      <DollarSign className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-zinc-800">Financial Management</h2>
+                  </div>
+                  <ChevronRight className="w-5 h-5 transition-colors text-zinc-400 group-hover:text-purple-600" />
+                </div>
+              </div>
             </Link>
-        </div>
-      </main>
-    </div>
+
+            <div className="group">
+              <div className="p-8 transition-all duration-300 transform bg-white shadow-lg rounded-xl hover:shadow-2xl hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-orange-100 rounded-lg">
+                      <Truck className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-zinc-800">Transport Management</h2>
+                  </div>
+                  <ChevronRight className="w-5 h-5 transition-colors text-zinc-400 group-hover:text-orange-600" />
+                </div>
+              </div>
+            </div>
+
+            <Link to="/inventory-management" className="group">
+              <div className="p-8 transition-all duration-300 transform bg-white shadow-lg rounded-xl hover:shadow-2xl hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-red-100 rounded-lg">
+                      <Boxes className="w-6 h-6 text-red-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-zinc-800">Inventory Management</h2>
+                  </div>
+                  <ChevronRight className="w-5 h-5 transition-colors text-zinc-400 group-hover:text-red-600" />
+                </div>
+              </div>
+            </Link>
+
+            <Link to="/review-manager" className="group">
+              <div className="p-8 transition-all duration-300 transform bg-white shadow-lg rounded-xl hover:shadow-2xl hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-yellow-100 rounded-lg">
+                      <Star className="w-6 h-6 text-yellow-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-zinc-800">Review Management</h2>
+                  </div>
+                  <ChevronRight className="w-5 h-5 transition-colors text-zinc-400 group-hover:text-yellow-600" />
+                </div>
+              </div>
+            </Link>
+          </div>
+        </main>
+      </div>
     </>
   )
 }

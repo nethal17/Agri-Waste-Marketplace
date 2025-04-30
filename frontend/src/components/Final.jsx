@@ -87,20 +87,11 @@ const Final = () => {
         setHighTotalAmount(highTotal);
         setProductListingPayments(productListingTotal);
         
-        // Generate sample monthly data
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const monthlyData = months.map(month => ({
-          name: month,
-          amount: Math.floor(Math.random() * 50000) + 10000
-        }));
+        
+        
         setMonthlyData(monthlyData);
         
-        // Generate sample category data
-        const categoryData = [
-          { name: 'Organic', value: 65 },
-          { name: 'Non-Organic', value: 35 }
-        ];
-        setCategoryData(categoryData);
+        
         
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -284,9 +275,14 @@ const Final = () => {
                   </div>
                   
                   <div className="p-6">
+                    {/* Outcomes Section */}
+                    <div className="mb-8">
+                      <div className="flex items-center mb-4">
+                        <div className="w-2 h-8 bg-red-500 rounded mr-2"></div>
+                        <Title level={4} className="m-0 text-red-600">Outcomes</Title>
+                      </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Left Side: Driver Salary */}
-                      <div className="space-y-6">
+                        {/* Left: Driver Salary */}
                         <div className="border-b border-gray-200 pb-4">
                           <div className="flex items-center mb-2">
                             <TeamOutlined className="text-2xl text-purple-600 mr-2" />
@@ -301,42 +297,11 @@ const Final = () => {
                           </Paragraph>
                         </div>
 
-                        {/* Order History Total */}
-                        <div className="border-b border-gray-200 pb-4">
-                          <div className="flex items-center mb-2">
-                            <HistoryOutlined className="text-2xl text-indigo-600 mr-2" />
-                            <Title level={4} className="m-0">Delivary Payments</Title>
-                          </div>
-                          <div className="flex items-baseline">
-                            <Text className="text-3xl font-bold text-indigo-600">Rs. <CountUp end={orderHistoryTotal} duration={2} separator="," decimal="." /></Text>
-                            <Tag color="indigo" className="ml-2">Shipping</Tag>
-                          </div>
-                          <Paragraph className="text-gray-500 mt-2">
-                            
-                          </Paragraph>
-                        </div>
-                      </div>
-
-                      {/* Right Side: Other Payments */}
-                      <div className="space-y-6">
-                        <div className="border-b border-gray-200 pb-4">
-                          <div className="flex items-center mb-2">
-                            <DollarOutlined className="text-2xl text-green-600 mr-2" />
-                            <Title level={4} className="m-0">Total Product Sales</Title>
-                          </div>
-                          <div className="flex items-baseline">
-                            <Text className="text-3xl font-bold text-green-600">Rs. <CountUp end={totalAmount} duration={2} separator="," decimal="." /></Text>
-                            <Tag color="green" className="ml-2">Total</Tag>
-                          </div>
-                          <Paragraph className="text-gray-500 mt-2">
-                            Total revenue from all product sales in the marketplace.
-                          </Paragraph>
-                        </div>
-
+                        {/* Right: Farmer Payments */}
                         <div className="border-b border-gray-200 pb-4">
                           <div className="flex items-center mb-2">
                             <UserOutlined className="text-2xl text-blue-600 mr-2" />
-                            <Title level={4} className="m-0">Farmer Payments (80%)</Title>
+                            <Title level={4} className="m-0">Farmer Payments </Title>
                           </div>
                           <div className="flex items-baseline">
                             <Text className="text-3xl font-bold text-blue-600">Rs. <CountUp end={farmerPayment} duration={2} separator="," decimal="." /></Text>
@@ -346,11 +311,36 @@ const Final = () => {
                             Payments to farmers for their agricultural waste products.
                           </Paragraph>
                         </div>
+                        </div>
+                      </div>
 
-                        <div>
+                    {/* Incomes Section */}
+                    <div className="mb-8">
+                      <div className="flex items-center mb-4">
+                        <div className="w-2 h-8 bg-green-500 rounded mr-2"></div>
+                        <Title level={4} className="m-0 text-green-600">Incomes</Title>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Left: Delivery Payments */}
+                        <div className="border-b border-gray-200 pb-4">
+                          <div className="flex items-center mb-2">
+                            <HistoryOutlined className="text-2xl text-indigo-600 mr-2" />
+                            <Title level={4} className="m-0">Delivery Payments</Title>
+                          </div>
+                          <div className="flex items-baseline">
+                            <Text className="text-3xl font-bold text-indigo-600">Rs. <CountUp end={orderHistoryTotal} duration={2} separator="," decimal="." /></Text>
+                            <Tag color="indigo" className="ml-2">Shipping</Tag>
+                          </div>
+                          <Paragraph className="text-gray-500 mt-2">
+                            Total revenue from delivery services.
+                          </Paragraph>
+                        </div>
+
+                        {/* Right: Net Profit */}
+                        <div className="border-b border-gray-200 pb-4">
                           <div className="flex items-center mb-2">
                             <RiseOutlined className="text-2xl text-yellow-600 mr-2" />
-                            <Title level={4} className="m-0">Net Profit (20%)</Title>
+                            <Title level={4} className="m-0">Profit from selling products</Title>
                           </div>
                           <div className="flex items-baseline">
                             <Text className="text-3xl font-bold text-yellow-600">Rs. <CountUp end={profit} duration={2} separator="," decimal="." /></Text>
@@ -362,133 +352,27 @@ const Final = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
 
-                {/* Charts Section */}
-                <Card className="shadow-lg border-0 rounded-lg overflow-hidden">
-                  <div className="bg-gradient-to-r from-indigo-500 to-blue-600 p-4 text-white">
-                    <Title level={3} className="text-white m-0">Payment Analysis</Title>
-                </div>
-
-                  <div className="p-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Left: Monthly Transactions Chart */}
-                      <div>
+                    {/* Total Profit Section */}
+                    <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-lg">
                         <div className="flex items-center mb-4">
-                          <BarChartOutlined className="text-2xl text-indigo-600 mr-2" />
-                          <Title level={4} className="m-0">Monthly Transactions</Title>
+                        <div className="w-2 h-8 bg-green-600 rounded mr-2"></div>
+                        <Title level={4} className="m-0 text-green-700">Total Profit</Title>
                         </div>
-                        <div className="h-[300px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                              data={monthlyData}
-                              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                            >
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="name" />
-                              <YAxis />
-                              <Tooltip />
-                              <Bar dataKey="amount" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                          </ResponsiveContainer>
-                </div>
-              </div>
-
-                      {/* Right: Payment Distribution Chart */}
-                      <div>
-                        <div className="flex items-center mb-4">
-                          <PieChartOutlined className="text-2xl text-indigo-600 mr-2" />
-                          <Title level={4} className="m-0">Payment Distribution</Title>
-                        </div>
-                        <div className="h-[300px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      fill="#8884d8"
-                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                              <Tooltip formatter={(value) => `Rs. ${value.toLocaleString()}`} />
-                              <Legend verticalAlign="bottom" height={36}/>
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </div>
+                      <div className="flex items-baseline">
+                        <Text className="text-4xl font-bold text-green-700">Rs. <CountUp end={orderHistoryTotal + profit} duration={2} separator="," decimal="." /></Text>
+                        <Tag color="green" className="ml-2">Shipping fees & Profit from selling products</Tag>
                       </div>
+                      <Paragraph className="text-gray-600 mt-2">
+                        Combined total of Delivery Payments and Net Profit.
+                      </Paragraph>
                     </div>
                   </div>
                 </Card>
 
-                {/* Category Distribution */}
-                <Card className="shadow-lg border-0 rounded-lg overflow-hidden">
-                  <div className="bg-gradient-to-r from-green-500 to-teal-600 p-4 text-white">
-                    <Title level={3} className="text-white m-0">Waste Category Distribution</Title>
-                  </div>
-                  
-                  <div className="p-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Left: Category Pie Chart */}
-                      <div>
-                        <div className="h-[300px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie
-                                data={categoryData}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                fill="#8884d8"
-                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              >
-                                {categoryData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
-                                ))}
-                              </Pie>
-                    <Tooltip />
-                    <Legend verticalAlign="bottom" height={36}/>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+               
 
-                      {/* Right: Category Description */}
-                      <div className="flex flex-col justify-center">
-                        <Title level={4} className="mb-4">Waste Categories</Title>
-                        <div className="space-y-4">
-                          <div className="flex items-center">
-                            <div className="w-4 h-4 rounded-full bg-green-500 mr-2"></div>
-                            <div>
-                              <Text strong>Organic Waste (65%)</Text>
-                              <Paragraph className="text-gray-500 m-0">
-                                Agricultural waste, food scraps, and biodegradable materials.
-                              </Paragraph>
-                            </div>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="w-4 h-4 rounded-full bg-indigo-500 mr-2"></div>
-                            <div>
-                              <Text strong>Non-Organic Waste (35%)</Text>
-                              <Paragraph className="text-gray-500 m-0">
-                                Plastics, metals, and other non-biodegradable materials.
-                              </Paragraph>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                </div>
-                </div>
-                </Card>
+                
               </div>
             </div>
           </div>

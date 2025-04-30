@@ -137,7 +137,7 @@ export const OrderDashboard = ({ checkoutData }) => {
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3000/api/order-history/user/${userId}`);
+      const response = await axios.get("http://localhost:3000/api/order-history");
       const data = Array.isArray(response.data) ? response.data : [];
       setOrders(data);
       filterOrders(data, activeStatus, startDate, endDate);
@@ -233,34 +233,7 @@ export const OrderDashboard = ({ checkoutData }) => {
     }
   };
 
-  const handleReviewSubmit = async (reviewData) => {
-    try {
-      const response = await axios.post("http://localhost:3000/api/reviews/add", {
-        
-        buyerId: userId,
-        orderId: reviewData.orderId,
-        farmerId: reviewData.farmerId,
-        productName: reviewData.productName,
-        rating: reviewData.rating,
-        review: reviewData.review
-      });
-      
-      fetchOrders();
-      
-      /*if (response.status === 201) {
-        // Update order status to completed
-        await axios.patch(`http://localhost:3000/api/order-history/${reviewData.orderId}`, {
-          orderStatus: "completed"
-        });
-        
-        
-        
-      }*/
-    } catch (error) {
-      console.error("Error submitting review:", error);
-      throw error;
-    }
-  };
+  
 
   return (
     <>
@@ -269,9 +242,9 @@ export const OrderDashboard = ({ checkoutData }) => {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col mb-8 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Order History</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Order Details</h1>
             <p className="mt-2 text-sm text-gray-600">
-              View and manage all your past and current orders
+              View and manage all the past and current orders
             </p>
           </div>
           
@@ -331,7 +304,7 @@ export const OrderDashboard = ({ checkoutData }) => {
                 <div className="flex gap-2">
                   <button
                     onClick={handleDateFilter}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-500 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     <FiFilter className="mr-2" />
                     Apply
@@ -393,7 +366,7 @@ export const OrderDashboard = ({ checkoutData }) => {
                 <FiStar className="w-6 h-6" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">To Review</p>
+                <p className="text-sm font-medium text-gray-500">Complete</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {orders.filter(o => o.orderStatus === 'toReview').length}
                 </p>
@@ -446,9 +419,7 @@ export const OrderDashboard = ({ checkoutData }) => {
                     <th scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                       Status
                     </th>
-                    <th scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
-                      Actions
-                    </th>
+                    
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -469,7 +440,7 @@ export const OrderDashboard = ({ checkoutData }) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          ${order.totalPrice.toFixed(2)}
+                          Rs. {order.totalPrice.toFixed(2)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -480,27 +451,7 @@ export const OrderDashboard = ({ checkoutData }) => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(order.orderStatus)}
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                        {order.orderStatus !== 'cancelled' && (
-                          <button
-                            onClick={() => handleCancelOrder(order._id)}
-                            className="mr-4 text-red-600 hover:text-red-900"
-                          >
-                            Cancel
-                          </button>
-                        )}
-                        {order.orderStatus === 'toReview' && (
-                          <button
-                            onClick={() => {
-                              setSelectedOrder(order);
-                              setIsReviewModalOpen(true);
-                            }}
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            Review
-                          </button>
-                        )}
-                      </td>
+                      
                     </tr>
                   ))}
                 </tbody>
@@ -509,13 +460,6 @@ export const OrderDashboard = ({ checkoutData }) => {
           )}
         </div>
       </div>
-      
-      <ReviewModal
-        isOpen={isReviewModalOpen}
-        onClose={() => setIsReviewModalOpen(false)}
-        order={selectedOrder}
-        onSubmit={handleReviewSubmit}
-      />
     </div>
     </>
   );

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
-import { Home } from "./pages/Home";
 import { Login } from './pages/Login';
 import { SignUp } from './pages/SignUp';
 import { Profile } from './pages/Profile';
@@ -67,13 +66,14 @@ import Sidebar from './components/Sidebar';
 import Refund from './components/refund';
 import VehicleRegPage from './pages/VehicleReg';
 import DeliveryHistoryDashboard from './pages/DeliveryHistoryDashboard';
-
+import DeliveryHistoryPage from './pages/DeliveryHistoryDashboard';
+import { Analysis } from "./components/Analysis";
 
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<HomeTesting />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<SignUp />} />
       <Route path="/profile" element={<Profile />} />
@@ -136,11 +136,14 @@ function App() {
       <Route path="/home-testing" element={<HomeTesting />} />
       <Route path="/vehicle-registration" element={<VehicleRegPage />} />
       <Route path="/vehicle-list" element={<VehicleList />} />
-      
+
+      <Route path="/vehicle-registration" element={<VehicleRegPage />} />
 
       <Route path="/delivery-history" element={<DeliveryHistoryDashboard />} />
       
-        
+       
+      <Route path="/delivery-history" element={<DeliveryHistoryPage />} />
+      <Route path="/analysis" element={<Analysis />} />
     </Routes>
   )
 }

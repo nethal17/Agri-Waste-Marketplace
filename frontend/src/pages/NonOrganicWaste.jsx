@@ -142,14 +142,16 @@ const CategoryProducts = () => {
         return
       }
 
+      console.log("Farmer ID:", product.farmerId._id)
       const cartItem = {
         userId,
         wasteId: product._id,
+        farmerId: product.farmerId._id, // Add the farmerId property
         description: product.wasteItem,
         price: product.price,
         quantity: product.quantity,
-        deliveryCost: 300, // You can modify this based on your requirements
-        image: product.image || "", // Add the image URL to the cart item
+        deliveryCost: 1000, // You can modify this based on your requirements
+        productImage: product.image || "", // Add the image URL to the cart item
       }
 
       const response = await axios.post("http://localhost:3000/api/cart/add", cartItem)
@@ -289,7 +291,7 @@ const CategoryProducts = () => {
             {filteredProducts.map((product) => (
               <div
                 key={product._id}
-                className="group flex flex-col h-full overflow-hidden transition-all duration-300 transform bg-white border border-gray-100 shadow-sm rounded-2xl hover:shadow-xl hover:-translate-y-1"
+                className="flex flex-col h-full overflow-hidden transition-all duration-300 transform bg-white border border-gray-100 shadow-sm group rounded-2xl hover:shadow-xl hover:-translate-y-1"
               >
                 <div className="relative h-64 overflow-hidden bg-gray-100">
                   {product.image ? (
@@ -313,7 +315,7 @@ const CategoryProducts = () => {
                 </div>
                 <div className="flex flex-col flex-grow p-6">
                   <div className="flex-grow">
-                    <h3 className="mb-2 text-xl font-semibold text-gray-900 group-hover:text-green-700 transition-colors">
+                    <h3 className="mb-2 text-xl font-semibold text-gray-900 transition-colors group-hover:text-green-700">
                       {product.wasteItem}
                     </h3>
                     <p className="mb-4 text-gray-600 line-clamp-2 min-h-[3rem]">{product.description}</p>
@@ -455,7 +457,7 @@ export const NonOrganicWaste = () => {
             {filteredWaste.map((waste, index) => (
               <div
                 key={index}
-                className="group relative overflow-hidden transition-all duration-500 transform rounded-2xl shadow-md cursor-pointer hover:shadow-xl hover:-translate-y-1"
+                className="relative overflow-hidden transition-all duration-500 transform shadow-md cursor-pointer group rounded-2xl hover:shadow-xl hover:-translate-y-1"
                 onClick={() => navigate(`/non-organic/${waste.value}`)}
               >
                 <div className="aspect-[4/3] overflow-hidden">

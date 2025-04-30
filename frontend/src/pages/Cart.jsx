@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-hot-toast"
@@ -130,7 +132,7 @@ export const Cart = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      <div className="min-h-screen bg-gradient-to-b from-green-40 to-white">
         <div className="container max-w-6xl px-4 py-12 mx-auto">
           <div className="flex items-center mb-8 space-x-2">
             <button
@@ -162,15 +164,11 @@ export const Cart = () => {
                         <div className="flex flex-col gap-4 sm:flex-row">
                           <div className="flex-shrink-0">
                             <div className="relative w-24 h-24 overflow-hidden bg-gray-100 sm:h-28 sm:w-28 rounded-xl">
-                              {item.image ? (
+                              {item.productImage ? (
                                 <img
                                   className="object-cover w-full h-full"
-                                  src={item.image}
-                                  alt={item.wasteItem || "Product"}
-                                  onError={(e) => {
-                                    e.target.onerror = null
-                                    e.target.src = "/images/no-image.png"
-                                  }}
+                                  src={item.productImage || "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fimage&psig=AOvVaw0EpofGXa2hnQAqEatLDhnU&ust=1746074298883000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJD26rT4_owDFQAAAAAdAAAAABAI"}
+                                  alt={"Product Image"}
                                 />
                               ) : (
                                 <div className="flex items-center justify-center w-full h-full">
@@ -192,23 +190,10 @@ export const Cart = () => {
                             </div>
 
                             <div className="flex flex-wrap items-end justify-between mt-4 gap-y-3">
-                              <div className="flex items-center space-x-2">
-                                <button
-                                  onClick={() => updateQuantity(item.wasteId, -1)}
-                                  className="px-2 py-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
-                                  disabled={item.quantity <= 1}
-                                >
-                                  -
-                                </button>
+                              <div className="flex items-center">
                                 <span className="px-3 py-1 font-medium text-gray-700 rounded-lg bg-gray-50">
-                                  {item.quantity}
+                                  Quantity: {item.quantity}
                                 </span>
-                                <button
-                                  onClick={() => updateQuantity(item.wasteId, 1)}
-                                  className="px-2 py-1 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
-                                >
-                                  +
-                                </button>
                               </div>
 
                               <div className="flex items-center space-x-4">
