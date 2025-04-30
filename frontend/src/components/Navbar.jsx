@@ -36,7 +36,7 @@ export const Navbar = () => {
     const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
     const [userDropdownOpen, setUserDropdownOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [user, setUser] = useState({}); // ✅ Initialize user as an empty object
+    const [user, setUser] = useState({}); 
     const [loading, setLoading] = useState(true);
 
     const serviceDropdownRef = useRef(null);

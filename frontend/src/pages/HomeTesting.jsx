@@ -1,8 +1,10 @@
 import { useRef } from "react"
 import { motion, useAnimation, useInView } from "framer-motion"
-import { useNavigate } from "react-router-dom"; // For navigation
+import { useNavigate } from "react-router-dom"; 
 import { Navbar } from "../components/Navbar"
 import { Footer } from "../components/Footer"
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 // Custom Button component
 const Button = ({ children, className = "", variant = "default", size = "default", ...props }) => {
@@ -183,56 +185,105 @@ const FadeInSection = ({ children, delay = 0, className = "" }) => {
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const images = [
+    "/images/agro_industrial.jpg",
+    "/images/Chemical_Waste.jpg",
+    "/images/forestry_waste.jpg",
+    "/images/nut_seed_waste.jpg",
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 3000); 
+
+    return () => clearInterval(interval);
+  }, [images.length]); 
+
   return (
-    <section className="relative overflow-hidden bg-white pt-20 md:pt-0">
+    <section className="relative overflow-hidden bg-gradient-to-b from-green-50 to-white pt-20 md:pt-0">
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="grid items-center gap-12 md:grid-cols-2">
           <FadeInSection>
-            <h1 className="text-4xl font-bold leading-tight text-green-900 md:text-5xl lg:text-6xl">
-              Transforming Agriwaste into <span className="text-green-600">Sustainable Value</span>
-            </h1>
-            <p className="mt-6 text-lg text-gray-700">
-              Join our marketplace to buy, sell, and recycle agricultural waste products, creating a circular economy
-              that benefits farmers, businesses, and our planet.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button size="lg" className="bg-green-600 hover:bg-green-700" onClick={() => navigate('/organic-waste')}>
-                Explore the MarketPlace <ArrowRight />
-              </Button>
+            <div className="space-y-6">
+              <h1 className="text-4xl font-bold leading-tight text-green-900 md:text-5xl lg:text-6xl">
+                Transforming <span className="text-green-600">Agriwaste</span> into Sustainable Value
+              </h1>
+              <p className="text-lg text-gray-700 md:max-w-lg">
+                Join our marketplace to buy, sell, and recycle agricultural waste products, creating a circular economy
+                that benefits farmers, businesses, and our planet.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button 
+                  size="lg" 
+                  className="bg-green-600 hover:bg-green-700 group transition-all"
+                  onClick={() => navigate('/organic-waste')}
+                >
+                  Explore Marketplace
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </div>
             </div>
           </FadeInSection>
-
           <FadeInSection delay={0.2} className="relative h-[400px] md:h-[500px]">
-            <motion.div
-              className="absolute right-0 top-0 h-full w-full"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8, type: "spring" }}
-            >
-              {/* Replace Next.js Image with standard img */}
-              <img
-                src="/images/crop_residues.jpg" // Update with your actual image path
-                alt="Agriwaste recycling illustration"
-                className="h-full w-full rounded-lg object-cover shadow-xl"
-              />
-            </motion.div>
+            {/* Image Carousel */}
+            <div className="relative h-full w-full overflow-hidden rounded-2xl shadow-2xl">
+              {images.map((image, index) => (
+                <motion.div
+                  key={image}
+                  className="absolute inset-0 h-full w-full"
+                  initial={{ opacity: 0 }}
+                  animate={{ 
+                    opacity: index === currentImageIndex ? 1 : 0,
+                    scale: index === currentImageIndex ? 1 : 1.05
+                  }}
+                  transition={{ duration: 1.2, ease: "easeInOut" }}
+                >
+                  <img
+                    src={image}
+                    alt="Agriwaste recycling illustration"
+                    className="h-full w-full object-cover"
+                  />
+                </motion.div>
+              ))}
+              
+              {/* Image Indicators */}
+              <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 space-x-2">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`h-2 w-2 rounded-full transition-all ${index === currentImageIndex ? 'w-6 bg-green-600' : 'bg-white/50'}`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Decorative Elements */}
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-green-500/10"></div>
+            <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-green-500/10"></div>
           </FadeInSection>
         </div>
 
+        {/* Animated Scroll Indicator */}
         <motion.div
           className="absolute bottom-4 left-1/2 -translate-x-1/2"
           animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+          transition={{ duration: 2, repeat: Infinity }}
         >
-          <ChevronDown />
+          <ChevronDown className="h-8 w-8 text-green-600" />
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
 
 const FeaturesSection = () => {
-  // Add a more creative and visually attractive features section
   const features = [
     {
       icon: <Recycle className="text-green-500 w-10 h-10 drop-shadow-lg" />,
@@ -323,7 +374,7 @@ const EnhancedMainSection = () => {
                   <div className="py-3 sm:py-4">
                     <motion.div whileHover={{ scale: 1.05 }} className="overflow-hidden rounded-2xl">
                       <img
-                        src="/images/Plastic_Waste.jpg" // Update with your actual image path
+                        src="/images/Plastic_Waste.jpg" 
                         alt="Agricultural waste recycling"
                         className="w-full rounded-2xl transition-transform duration-500 hover:scale-110"
                       />
@@ -430,9 +481,6 @@ const HowItWorksSection = () => {
   )
 }
 
-import axios from "axios";
-import { useState, useEffect } from "react";
-
 const MarketplacePreview = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -445,7 +493,6 @@ const MarketplacePreview = () => {
         setLoading(true);
         const response = await axios.get("http://localhost:3000/api/product-listing/random-approved-listings");
         
-        // Format the data to match your UI requirements
         const formattedProducts = response.data.map(product => ({
           ...product,
           title: product.wasteItem,
@@ -467,13 +514,17 @@ const MarketplacePreview = () => {
   }, []);
 
   return (
-    <section className="bg-gradient-to-br from-green-50 to-white py-20">
-      <div className="container mx-auto px-4">
+    <section className="bg-gradient-to-br from-green-50 to-white py-20 px-4">
+      <div className="max-w-7xl mx-auto">
         <FadeInSection>
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">Featured Products</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-              Discover sustainable agriwaste products available on our marketplace
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 md:text-5xl mb-4">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-500">
+                Featured Products
+              </span>
+            </h2>
+            <p className="mx-auto max-w-2xl text-lg text-gray-600">
+              Discover sustainable agriwaste products transforming the circular economy
             </p>
           </div>
         </FadeInSection>
@@ -485,30 +536,35 @@ const MarketplacePreview = () => {
         ) : error ? (
           <div className="text-center text-red-500 font-semibold py-8">{error}</div>
         ) : (
-          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product, index) => (
               <FadeInSection key={product._id || index} delay={index * 0.1}>
                 <motion.div
-                  whileHover={{ y: -10, scale: 1.03 }}
-                  className="overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl border border-green-100"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="group relative overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-200 hover:shadow-xl border border-gray-100"
                 >
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-56 overflow-hidden">
                     <img
                       src={product.image}
-                      className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                    <div className="absolute top-4 right-4 rounded-full bg-green-600 px-3 py-1 text-xs font-medium text-white shadow">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute top-4 right-4 rounded-full bg-green-600 px-3 py-1 text-xs font-medium text-white shadow-md">
                       {product.category}
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 truncate">{product.title}</h3>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-lg font-bold text-green-600">
+                  <div className="p-5">
+                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 mb-2">{product.title}</h3>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl font-bold text-green-600">
                         Rs. {product.price}.00
                       </span>
                     </div>
                   </div>
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-green-400/30 rounded-2xl pointer-events-none transition-all duration-300"></div>
                 </motion.div>
               </FadeInSection>
             ))}
@@ -516,23 +572,24 @@ const MarketplacePreview = () => {
         )}
 
         <FadeInSection delay={0.4}>
-          <div className="mt-12 text-center">
-            <Button 
-              size="lg" 
-              className="bg-green-600 hover:bg-green-700" 
+          <div className="mt-16 text-center">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/organic-waste')}
+              className="relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-medium text-white transition-all duration-300 bg-gradient-to-r from-green-600 to-emerald-500 rounded-full group shadow-lg hover:shadow-green-400/30"
             >
-              View All Products <ArrowRight />
-            </Button>
+              <span className="absolute top-0 right-0 inline-block w-4 h-4 transition-all duration-500 rounded-full bg-white opacity-10 group-hover:w-56 group-hover:h-56"></span>
+              <span className="relative flex items-center gap-2">
+                Explore Marketplace <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </span>
+            </motion.button>
           </div>
         </FadeInSection>
       </div>
     </section>
   );
 };
-
-
-
 
 const TestimonialsSection = () => {
   const [testimonials, setTestimonials] = useState([]);
@@ -645,11 +702,6 @@ const TestimonialsSection = () => {
   );
 };
 
-
-
-
-
-
 export const CtaSection = () => {
   const navigate = useNavigate();
 
@@ -683,11 +735,6 @@ export const CtaSection = () => {
     </section>
   );
 };
-
-
-
-
-
 
 export default function HomePage() {
   return (
