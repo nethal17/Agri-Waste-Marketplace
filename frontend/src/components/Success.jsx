@@ -14,11 +14,11 @@ export const Success = () => {
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
 
-        if (!user._id || cartItems.length === 0) {
+        /*if (!user._id || cartItems.length === 0) {
           toast.error("Invalid order data");
           navigate("/");
           return;
-        }
+        }*/
 
         await axios.post("http://localhost:3000/api/order-history/process-payment", {
           userId: user._id,
