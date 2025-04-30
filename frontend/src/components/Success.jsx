@@ -14,11 +14,11 @@ export const Success = () => {
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
 
-        if (!user._id || cartItems.length === 0) {
+        /*if (!user._id || cartItems.length === 0) {
           toast.error("Invalid order data");
           navigate("/");
           return;
-        }
+        }*/
 
         await axios.post("http://localhost:3000/api/order-history/process-payment", {
           userId: user._id,
@@ -127,7 +127,13 @@ export const Success = () => {
           {/* Creative Footer */}
           <div className="mt-16 text-center">
             <p className="text-sm text-gray-500">
-              Need help? <a href="#" className="text-green-600 hover:underline">Contact our support team</a>
+              Need help? <a href="#" className="text-green-600 hover:underline">Contact our support team</a> | 
+              <a 
+                onClick={() => navigate("/final-summary")} 
+                className="ml-2 text-green-600 cursor-pointer hover:underline"
+              >
+                View Financial Summary
+              </a>
             </p>
             <div className="flex justify-center mt-4 space-x-4">
               <a href="#" className="text-gray-400 hover:text-green-600">
