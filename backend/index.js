@@ -18,6 +18,7 @@ import webhookRoutes from './routes/webhook.routes.js';
 import stripePaymentsRoutes from './routes/stripePayments.routes.js';
 import driverPaymentsRoutes from './routes/driverPayments.routes.js';
 import driverPaymentRoutes from './routes/driverPayment.routes.js';
+import deliveryRoutes from './routes/deliverRoutes.js';
 
 import orderHistoryRoutes from "./routes/orderHistory.routes.js";
 
@@ -64,6 +65,7 @@ app.use('/api', stripePaymentsRoutes);
 app.use('/api', driverPaymentsRoutes);
 app.use('/api', driverPaymentRoutes);
 app.use('/api/refunds', refundRoutes);
+app.use('/api/delivery', deliveryRoutes);
 
 // Reports & Analytics
 app.use('/api/reports', reportRoutes);
@@ -88,6 +90,7 @@ app.use("/api/order-history", orderHistoryRoutes);
 app.use('/api/deliveryReq', deliveryReqRoutes);
 app.use("/api/vehicle-reg", vehicleRegRoutes);
 app.use('/api/delivery-orders', deliveryHistoryRoutes);
+
 
 
 // Start the server

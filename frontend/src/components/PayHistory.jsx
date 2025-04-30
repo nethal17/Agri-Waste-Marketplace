@@ -77,6 +77,8 @@ const PayHistory = () => {
         ];
 
         const filteredPayments = response.data.filter(payment => {
+          if (payment.payAmount >= 20000) return false;
+          
           if (!payment.driverName) return true;
           const lowerCaseName = payment.driverName.toLowerCase();
           return !excludedNames.some(name => lowerCaseName.includes(name));

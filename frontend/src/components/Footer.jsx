@@ -29,7 +29,7 @@ export const Footer = () => {
   ];
 
   const supportLinks = [
-    "Contact Us",
+    "Contact Us navigate",
     "FAQs",
     "Shipping Policy",
     "Returns",
@@ -38,8 +38,8 @@ export const Footer = () => {
 
   const contactInfo = [
     { icon: <MdPhone className="text-green-400" />, text: "+94 76 123 4567" },
-    { icon: <MdEmail className="text-green-400" />, text: "info@waste2wealth.lk" },
-    { icon: <MdLocationOn className="text-green-400" />, text: "123 Green Road, Colombo, Sri Lanka" }
+    { icon: <MdEmail className="text-green-400" />, text: "waste2wealth.agriwaste@gmail.com" },
+    { icon: <MdLocationOn className="text-green-400" />, text: "453 Seevali Mawatha, Malabe, Sri Lanka" }
   ];
 
   return (
@@ -65,8 +65,6 @@ export const Footer = () => {
             <p className="text-gray-300">
               Transforming agricultural waste into sustainable wealth through innovative solutions and circular economy practices.
             </p>
-            
-            
           </motion.div>
 
           {/* Services */}
@@ -156,13 +154,15 @@ export const Footer = () => {
           viewport={{ once: true }}
           className="mt-16 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm"
         >
-          <p>
-            &copy; {new Date().getFullYear()} Waste2Wealth. All rights reserved. | 
-            <a href="#" className="hover:text-green-400 ml-1">Terms of Service</a> | 
-            <a href="#" className="hover:text-green-400 ml-1">Privacy Policy</a>
-          </p>
-          <p className="mt-2">Proudly made in Sri Lanka</p>
-        </motion.div>
+          <div className="flex flex-col items-center justify-center">
+            <p className="text-center">
+              &copy; {new Date().getFullYear()} Waste2Wealth. All rights reserved. | 
+              <a href="#" className="hover:text-green-400 ml-1">Terms of Service</a> | 
+              <a href="#" className="hover:text-green-400 ml-1">Privacy Policy</a>
+            </p>
+            <p className="mt-2 text-center">Proudly made in Sri Lanka</p>
+          </div>
+      </motion.div>
       </div>
     </footer>
   );

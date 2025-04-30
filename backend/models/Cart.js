@@ -29,7 +29,10 @@ const CartSchema = new mongoose.Schema({
       deliveryCost: { 
         type: Number, 
         required: true 
-    }
+    },
+    productImage: { 
+      type: String, 
+      default: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fimage&psig=AOvVaw0EpofGXa2hnQAqEatLDhnU&ust=1746074298883000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJD26rT4_owDFQAAAAAdAAAAABAI" },
     }
   ],
   totalPrice: { type: Number, required: true, default: 0 }

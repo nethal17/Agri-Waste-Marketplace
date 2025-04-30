@@ -135,12 +135,6 @@ const CategoryProducts = () => {
         const userData = JSON.parse(localStorage.getItem("user") || "{}")
         const userId = userData._id
 
-        if (!token) {
-          toast.error("No token found, please login again.")
-          navigate("/login")
-          return
-        }
-
         if (userId) {
           const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
           if (response.data) {
@@ -175,8 +169,8 @@ const CategoryProducts = () => {
         description: product.wasteItem,
         price: product.price,
         quantity: product.quantity,
-        deliveryCost: 300, // You can modify this based on your requirements
-        //image: product.image || "", // Add the image URL to the cart item
+        deliveryCost: 1000, // You can modify this based on your requirements
+        productImage: product.image || "", // Add the image URL to the cart item
       }
 
       const response = await axios.post("http://localhost:3000/api/cart/add", cartItem)
@@ -397,12 +391,6 @@ export const OrganicWaste = () => {
         const token = localStorage.getItem("token")
         const userData = JSON.parse(localStorage.getItem("user") || "{}")
         const userId = userData._id
-
-        if (!token) {
-          toast.error("No token found, please login again.")
-          navigate("/login")
-          return
-        }
 
         if (userId) {
           const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)

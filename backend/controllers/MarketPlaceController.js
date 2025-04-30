@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Marketplace from '../models/Marketplace.js';
 import ProductListing from '../models/ProductListing.js';
+import nodemailer from 'nodemailer';
 
 export const getFarmerListings = async (req, res) => {
     try {
@@ -12,7 +13,7 @@ export const getFarmerListings = async (req, res) => {
       }
   
       // Find all products associated with the farmer
-      const products = await Marketplace.find({ farmerId: farmerId}); // Populate farmer details
+      const products = await ProductListing.find({ farmerId: farmerId}); // Populate farmer details
   
       if (products.length === 0) {
         return res.status(404).json({ message: 'No listings found for this farmer.' });
@@ -22,7 +23,7 @@ export const getFarmerListings = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  };
+};
 
 export const getListingDetails = async (req, res) => {
     try {
@@ -34,7 +35,7 @@ export const getListingDetails = async (req, res) => {
       }
   
       // Find the listing
-      const listing = await Marketplace.findById(listingId).populate('farmerId', 'name email');
+      const listing = await ProductListing.findById(listingId).populate('farmerId', 'name email');
   
       if (!listing) {
         return res.status(404).json({ message: 'Listing not found.' });
@@ -44,7 +45,7 @@ export const getListingDetails = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  };
+};
 
 export const deleteListing = async (req, res) => {
     try {
@@ -56,7 +57,7 @@ export const deleteListing = async (req, res) => {
       }
   
       // Find and delete the listing
-      const deletedListing = await Marketplace.findByIdAndDelete(listingId);
+      const deletedListing = await ProductListing.findByIdAndDelete(listingId);
   
       if (!deletedListing) {
         return res.status(404).json({ message: 'Listing not found.' });
@@ -66,7 +67,7 @@ export const deleteListing = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  };
+};
 
 export const getProductById = async (req, res) => {
     try {
@@ -108,9 +109,78 @@ export const getProductById = async (req, res) => {
 
 export const getAllListings = async (req, res) => {
   try {
-    const listings = await ProductListing.find().populate('farmerId', 'name email');
+    // First, check for and remove expired listings
+    const now = new Date();
+    const expiredListings = await ProductListing.find({
+      expireDate: { $lte: now },
+      status: { $ne: 'Rejected' } // Don't process already rejected listings
+    }).populate('farmerId', 'name email');
+
+    // Process each expired listing
+    for (const listing of expiredListings) {
+      try {
+        // Send email notification to farmer
+        if (listing.farmerId && listing.farmerId.email) {
+          const transporter = nodemailer.createTransport({
+            service: "Gmail",
+            auth: { 
+              user: process.env.EMAIL_USER, 
+              pass: process.env.EMAIL_PASS 
+            }
+          });
+
+          const mailOptions = {
+            to: listing.farmerId.email,
+            from: process.env.EMAIL_USER,
+            subject: `Your Product Listing for ${listing.wasteItem} Has Expired`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #4CAF50;">AgriWaste Management</h2>
+                <p>Dear ${listing.farmerId.name || 'Valued Farmer'},</p>
+                
+                <p>We would like to inform you that your product listing has been removed from our marketplace because it has expired.</p>
+                
+                <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0;">
+                  <h3 style="margin-top: 0;">Product Details</h3>
+                  <p><strong>Product:</strong> ${listing.wasteItem}</p>
+                  <p><strong>Category:</strong> ${listing.wasteCategory}</p>
+                  <p><strong>Type:</strong> ${listing.wasteType}</p>
+                  <p><strong>Quantity:</strong> ${listing.quantity}</p>
+                  <p><strong>Price:</strong> ${listing.price}</p>
+                  <p><strong>Expiry Date:</strong> ${listing.expireDate.toDateString()}</p>
+                </div>
+                
+                <p>If you'd like to relist this product, please create a new listing with updated details.</p>
+                
+                <p>Best regards,<br>The AgriWaste Management Team</p>
+                
+                <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #777;">
+                  <p>This is an automated message. Please do not reply directly to this email.</p>
+                </div>
+              </div>
+            `
+          };
+
+          await transporter.sendMail(mailOptions);
+        }
+
+        // Remove the expired listing
+        await ProductListing.findByIdAndDelete(listing._id);
+      } catch (error) {
+        console.error(`Failed to process expired listing ${listing._id}:`, error);
+        // Continue with next listing even if one fails
+      }
+    }
+
+    // Now get all active listings
+    const listings = await ProductListing.find({
+      expireDate: { $gt: now },
+      status: 'Approved'
+    }).populate('farmerId', 'name email');
+    
     res.status(200).json(listings);
   } catch (error) {
+    console.error('Error in getAllListings:', error);
     res.status(500).json({ message: error.message });
   }
 };

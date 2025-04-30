@@ -119,25 +119,25 @@ export const ReportsAndAnalytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-green-400">
           <span className="text-lg font-semibold text-gray-700">Total Inventory Value</span>
-          <span className="text-2xl font-bold text-green-700 mt-2">${stats.totalValue?.toLocaleString() || 0}</span>
+          <span className="text-2xl font-bold text-green-700 mt-2">Rs.{stats.totalValue?.toLocaleString() || 0}</span>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-blue-400">
+        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-green-400">
           <span className="text-lg font-semibold text-gray-700">Total Items</span>
           <span className="text-2xl font-bold text-blue-700 mt-2">{stats.totalItems || 0}</span>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-yellow-400">
+        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-green-400">
           <span className="text-lg font-semibold text-gray-700">Total Quantity</span>
           <span className="text-2xl font-bold text-yellow-600 mt-2">{stats.totalQuantity || 0}</span>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col border-t-4 border-purple-400">
+        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col border-t-4 border-blue-400">
           <span className="text-lg font-semibold text-gray-700">Average Price per Item</span>
-          <span className="text-xl font-bold text-purple-700 mt-2">${stats.avgPrice?.toFixed(2) || 0}</span>
+          <span className="text-xl font-bold text-purple-700 mt-2">Rs.{stats.avgPrice?.toFixed(2) || 0}</span>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col border-t-4 border-pink-400">
+        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col border-t-4 border-blue-400">
           <span className="text-lg font-semibold text-gray-700">Most Valuable Item</span>
-          <span className="text-base text-pink-700 mt-2 font-bold">{stats.mostValuable ? `${stats.mostValuable.wasteItem} (${stats.mostValuable.quantity} x $${stats.mostValuable.price})` : '-'}</span>
+          <span className="text-base text-pink-700 mt-2 font-bold">{stats.mostValuable ? `${stats.mostValuable.wasteItem} (${stats.mostValuable.quantity}) ` : '-'}</span>
         </div>
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col border-t-4 border-red-400 col-span-1 md:col-span-2">
           <span className="text-lg font-semibold text-gray-700">Soonest to Expire</span>
