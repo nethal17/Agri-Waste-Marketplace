@@ -2,6 +2,7 @@ import Review from '../models/Review.js';
 import OrderHistory from '../models/orderHistory.model.js';
 import { User } from '../models/user.js';
 import mongoose from 'mongoose';
+import nodemailer from "nodemailer";
 
 
 // Add a review (Buyer)
@@ -45,6 +46,55 @@ export const addReview = async (req, res) => {
     });
 
     await newReview.save();
+
+    // Send email notification to buyer
+    try {
+      const buyer = await User.findById(buyerId);
+      if (buyer && buyer.email) {
+        const transporter = nodemailer.createTransport({
+          service: "Gmail",
+          auth: { 
+            user: process.env.EMAIL_USER, 
+            pass: process.env.EMAIL_PASS 
+          }
+        });
+
+        const mailOptions = {
+          to: buyer.email,
+          from: process.env.EMAIL_USER,
+          subject: `Your Review for ${productName} is Pending Approval`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4CAF50;">AgriWaste Management</h2>
+              <p>Dear ${buyer.name || 'Valued Customer'},</p>
+              
+              <p>Thank you for submitting your review!</p>
+              
+              <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Review Details</h3>
+                <p><strong>Product:</strong> ${productName}</p>
+                <p><strong>Rating:</strong> ${rating}/5</p>
+                <p><strong>Your Review:</strong> ${review}</p>
+                <p><strong>Status:</strong> Pending Approval</p>
+              </div>
+              
+              <p>Your review is currently being reviewed by our team. We'll notify you once it's been published.</p>
+              
+              <p>Best regards,<br>The AgriWaste Management Team</p>
+              
+              <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #777;">
+                <p>This is an automated message. Please do not reply directly to this email.</p>
+              </div>
+            </div>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+      }
+    } catch (emailError) {
+      console.error('Failed to send review submission email:', emailError);
+    }
+
     res.status(201).json({ message: 'Review submitted successfully.', review: newReview });
   } catch (error) {
     console.error('Error adding review:', error);
@@ -72,16 +122,98 @@ export const publishReview = async (req, res) => {
     review.status = 'published';
     await review.save();
 
-    
-    // Get farmerId from order history
-    const order = await OrderHistory.findById(review.orderId);
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found for this review.' });
-    }
+    // Get buyer and farmer details
     const buyer = await User.findById(review.buyerId);
-    const farmer = await User.findById(order.userId);
-    await sendNotificationEmail(buyer.email, 'Your review has been published.');
-    await sendNotificationEmail(farmer.email, 'You have a new review for your product.');
+    const farmer = await User.findById(review.farmerId);
+    
+    // Send email to buyer
+    if (buyer && buyer.email) {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: "Gmail",
+          auth: { 
+            user: process.env.EMAIL_USER, 
+            pass: process.env.EMAIL_PASS 
+          }
+        });
+
+        const mailOptions = {
+          to: buyer.email,
+          from: process.env.EMAIL_USER,
+          subject: `Your Review for ${review.productName} Has Been Published`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4CAF50;">AgriWaste Management</h2>
+              <p>Dear ${buyer.name || 'Valued Customer'},</p>
+              
+              <p>We're pleased to inform you that your review has been published!</p>
+              
+              <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Review Details</h3>
+                <p><strong>Product:</strong> ${review.productName}</p>
+                <p><strong>Rating:</strong> ${review.rating}/5</p>
+                <p><strong>Your Review:</strong> ${review.review}</p>
+                <p><strong>Status:</strong> Published</p>
+              </div>
+              
+              <p>Thank you for sharing your experience with our community.</p>
+              
+              <p>Best regards,<br>The AgriWaste Management Team</p>
+            </div>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+      } catch (emailError) {
+        console.error('Failed to send review published email to buyer:', emailError);
+      }
+    }
+
+    // Send email to farmer
+    if (farmer && farmer.email) {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: "Gmail",
+          auth: { 
+            user: process.env.EMAIL_USER, 
+            pass: process.env.EMAIL_PASS 
+          }
+        });
+
+        const mailOptions = {
+          to: farmer.email,
+          from: process.env.EMAIL_USER,
+          subject: `New Review for Your Product: ${review.productName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4CAF50;">AgriWaste Management</h2>
+              <p>Dear ${farmer.name || 'Valued Farmer'},</p>
+              
+              <p>You have received a new review for your product!</p>
+              
+              <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Review Details</h3>
+                <p><strong>Product:</strong> ${review.productName}</p>
+                <p><strong>Rating:</strong> ${review.rating}/5</p>
+                <p><strong>Review:</strong> ${review.review}</p>
+              </div>
+              
+              <p>Customer feedback is valuable for improving your products and services.</p>
+              
+              <p>Best regards,<br>The AgriWaste Management Team</p>
+              
+              <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #777;">
+                <p>This is an automated message. Please do not reply directly to this email.</p>
+              </div>
+            </div>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+      } catch (emailError) {
+        console.error('Failed to send new review notification to farmer:', emailError);
+      }
+    }
 
     res.status(200).json({ message: 'Review published successfully.' });
   } catch (error) {

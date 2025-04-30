@@ -19,8 +19,56 @@ export const sendVerificationCode = async (email, code) => {
     const mailOptions = {
         to: email,
         from: process.env.EMAIL_USER,
-        subject: "Your 2-Step Verification Code",
-        text: `Your verification code is: ${code}. This code will expire in 10 minutes.`,
+        subject: "Your Verification Code - Agri-Waste Marketplace",
+        html: `
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <tr>
+                    <td style="padding: 20px; text-align: center;">
+                        <h1 style="color: #2c3e50; margin-bottom: 10px;">Verification Code</h1>
+                        <p style="color: #7f8c8d; font-size: 16px;">Please use this code to verify your account</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="background-color: #f8f9fa; padding: 20px;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td style="padding: 20px; text-align: center;">
+                                    <p style="color: #34495e; margin-bottom: 20px;">Your verification code is:</p>
+                                    
+                                    <table style="margin: 20px auto;">
+                                        <tr>
+                                            <td style="background-color: #ffffff; padding: 15px 30px; border-radius: 4px;">
+                                                <span style="font-size: 32px; color: #27ae60; letter-spacing: 5px; font-weight: bold;">${code}</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    
+                                    <p style="color: #34495e; margin: 20px 0;">This verification code will expire in <strong>10 minutes</strong>.</p>
+                                    
+                                    <table style="background-color: #fff3cd; color: #856404; padding: 15px; margin: 20px 0; text-align: left; width: 100%;">
+                                        <tr>
+                                            <td>
+                                                <p style="margin: 0;"><strong>Important:</strong> Please do not share this code with anyone. Our team will never ask for your verification code.</p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: center; color: #7f8c8d; font-size: 14px; padding: 20px;">
+                        <p>This is an automated message. Please do not reply to this email.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+                        <p style="color: #7f8c8d; font-size: 12px;">© 2024 Agri-Waste Marketplace. All rights reserved.</p>
+                    </td>
+                </tr>
+            </table>
+        `
     };
 
     await transporter.sendMail(mailOptions);
@@ -193,24 +241,8 @@ export const loginUser = async (req, res) => {
             user.twoStepVerificationExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
             await user.save();
 
-            // Send verification code via email
-            const transporter = nodemailer.createTransport({
-                service: "Gmail",
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS
-                }
-            });
-
-            const mailOptions = {
-                to: user.email,
-                from: process.env.EMAIL_USER,
-                subject: "Two-Step Verification Code",
-                text: `Your verification code is: ${verificationCode}. This code will expire in 10 minutes.`
-            };
-
-            await transporter.sendMail(mailOptions);
-
+            await sendVerificationCode(user.email, verificationCode);
+            
             return res.json({ 
                 requiresVerification: true,
                 msg: "Verification code sent to your email"
@@ -308,11 +340,56 @@ export const forgotPassword = async (req, res) => {
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USER,
-            subject: "Password Reset Request",
+            subject: "Password Reset Request - Agri-Waste Marketplace",
             html: `
-                <p>You requested a password reset. Click the link below to reset your password:</p>
-                <a href="${resetURL}"><button>Reset Password</button></a>
-                <p>If you did not request this, please ignore this email.</p>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <tr>
+                        <td style="padding: 20px; text-align: center;">
+                            <h1 style="color: #2c3e50; margin-bottom: 10px;">Password Reset Request</h1>
+                            <p style="color: #7f8c8d; font-size: 16px;">We received a request to reset your password</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 20px;">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td style="padding: 20px; text-align: center;">
+                                        <p style="color: #34495e; margin-bottom: 20px;">Hello ${user.name},</p>
+                                        <p style="color: #34495e; margin-bottom: 20px;">We received a request to reset your password for your Agri-Waste Marketplace account. If you didn't make this request, you can safely ignore this email.</p>
+                                        
+                                        <table style="margin: 30px auto;">
+                                            <tr>
+                                                <td>
+                                                    <a href="${resetURL}" style="display: inline-block; background-color: #27ae60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Reset Password</a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <p style="color: #34495e; margin: 20px 0;">This password reset link will expire in 1 hour.</p>
+                                        
+                                        <table style="background-color: #fff3cd; color: #856404; padding: 15px; margin: 20px 0; text-align: left; width: 100%;">
+                                            <tr>
+                                                <td>
+                                                    <p style="margin: 0;"><strong>Important:</strong> For security reasons, please do not share this link with anyone. Our team will never ask for your password or reset link.</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center; color: #7f8c8d; font-size: 14px; padding: 20px;">
+                            <p>This is an automated message. Please do not reply to this email.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+                            <p style="color: #7f8c8d; font-size: 12px;">© 2024 Agri-Waste Marketplace. All rights reserved.</p>
+                        </td>
+                    </tr>
+                </table>
             `
         };
 
@@ -517,12 +594,62 @@ export const deleteUser = async (req, res) => {
         }
         
         if (user.isVerified === false) {
-            // If user is not verified, delete them from database
+            // Store user email before deletion
+            const userEmail = user.email;
+            const userName = user.name;
+            
+            // Delete user from database
             const result = await User.findByIdAndDelete(id);
             
             if (!result) {
                 return res.status(404).json({ message: "User not found" });
             }
+
+            // Send deletion email notification
+            const transporter = nodemailer.createTransport({
+                service: "Gmail",
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
+
+            const mailOptions = {
+                to: userEmail,
+                from: process.env.EMAIL_USER,
+                subject: "Account Deletion Notice - Agri-Waste Marketplace",
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="color: #2c3e50; margin-bottom: 10px;">Account Deletion Notice</h1>
+                        </div>
+                        
+                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+                            <p style="color: #34495e; margin-bottom: 20px;">Dear ${userName},</p>
+                            
+                            <p style="color: #34495e;">We regret to inform you that your account has been deleted from the Agri-Waste Marketplace platform.</p>
+                            
+                            <p style="color: #34495e;">If you wish to continue using our services, you can register a new account by clicking the button below:</p>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="http://localhost:5173/register" style="display: inline-block; background-color: #27ae60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Register with Us</a>
+                            </div>
+                            
+                            <p style="color: #34495e;">We look forward to having you back in our community!</p>
+                        </div>
+                        
+                        <div style="text-align: center; color: #7f8c8d; font-size: 14px;">
+                            <p>This is an automated message. Please do not reply to this email.</p>
+                        </div>
+                        
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+                            <p style="color: #7f8c8d; font-size: 12px;">© 2024 Agri-Waste Marketplace. All rights reserved.</p>
+                        </div>
+                    </div>
+                `
+            };
+
+            await transporter.sendMail(mailOptions);
             
             return res.status(200).json({ message: "User deleted successfully" });
         }
@@ -531,6 +658,52 @@ export const deleteUser = async (req, res) => {
         user.isVerified = false;
         user.twoFactorEnabled = true;
         await user.save();
+
+        // Send deactivation email notification
+        const transporter = nodemailer.createTransport({
+            service: "Gmail",
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        const mailOptions = {
+            to: user.email,
+            from: process.env.EMAIL_USER,
+            subject: "Account Deactivation Notice - Agri-Waste Marketplace",
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #2c3e50; margin-bottom: 10px;">Account Deactivation Notice</h1>
+                    </div>
+                    
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+                        <p style="color: #34495e; margin-bottom: 20px;">Dear ${user.name},</p>
+                        
+                        <p style="color: #34495e;">We regret to inform you that your account has been deactivated. This means you will no longer have access to the Agri-Waste Marketplace platform.</p>
+                        
+                        <p style="color: #34495e;">If you wish to reactivate your account, please login to your account using the button below:</p>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="http://localhost:5173/login" style="display: inline-block; background-color: #27ae60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Login into your Account</a>
+                        </div>
+                        
+                        <p style="color: #34495e;">We look forward to having you back in our community!</p>
+                    </div>
+                    
+                    <div style="text-align: center; color: #7f8c8d; font-size: 14px;">
+                        <p>This is an automated message. Please do not reply to this email.</p>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+                        <p style="color: #7f8c8d; font-size: 12px;">© 2024 Agri-Waste Marketplace. All rights reserved.</p>
+                    </div>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
 
         return res.status(200).json({ message: "User account deactivated successfully" });
 
