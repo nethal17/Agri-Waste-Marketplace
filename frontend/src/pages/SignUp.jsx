@@ -77,7 +77,7 @@ export const SignUp = () => {
       <Toaster position="top-center" reverseOrder={false} />
       
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-        <div className="w-full max-w-md px-8 py-10 mx-4 bg-white rounded-3xl shadow-2xl backdrop-blur-sm border border-white/20">
+        <div className="w-full max-w-md px-8 py-10 mx-4 bg-white border shadow-2xl rounded-3xl backdrop-blur-sm border-white/20">
           {/* Decorative elements */}
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-t-3xl"></div>
           
@@ -85,7 +85,7 @@ export const SignUp = () => {
             <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">
               Create Account
             </h2>
-            <p className="mt-2 text-gray-500 text-center">Join our community today</p>
+            <p className="mt-2 text-center text-gray-500">Join our community today</p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -98,10 +98,10 @@ export const SignUp = () => {
                   type="text"
                   id="name"
                   name="name"
-                  placeholder="John Doe"
+                  placeholder="Enter your name"
                   value={user.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 pl-10 transition-all duration-200 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
                 <svg
                   className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
@@ -112,7 +112,7 @@ export const SignUp = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
-              {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
+              {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
             </div>
             
             <div className="space-y-1">
@@ -124,10 +124,10 @@ export const SignUp = () => {
                   type="email"
                   id="email"
                   name="email"
-                  placeholder="example@email.com"
+                  placeholder="Enter your email"
                   value={user.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 pl-10 transition-all duration-200 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
                 <svg
                   className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
@@ -138,7 +138,7 @@ export const SignUp = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
+              {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
             </div>
             
             <div className="space-y-1">
@@ -153,7 +153,7 @@ export const SignUp = () => {
                   placeholder="0712345678"
                   value={user.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 pl-10 transition-all duration-200 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
                 <svg
                   className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
@@ -164,7 +164,7 @@ export const SignUp = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
               </div>
-              {errors.phone && <p className="text-sm text-red-500 mt-1">{errors.phone}</p>}
+              {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
             </div>
             
             <div className="space-y-1">
@@ -177,7 +177,7 @@ export const SignUp = () => {
                   name="role"
                   value={user.role}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none bg-white"
+                  className="w-full px-4 py-3 pl-10 bg-white border border-gray-300 appearance-none rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="buyer">Buyer</option>
                   <option value="farmer">Farmer</option>
@@ -206,7 +206,7 @@ export const SignUp = () => {
                   placeholder="••••••••"
                   value={user.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 pl-10 transition-all duration-200 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
                 <svg
                   className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
@@ -217,7 +217,7 @@ export const SignUp = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password}</p>}
+              {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
             </div>
             
             <div className="space-y-1">
@@ -232,7 +232,7 @@ export const SignUp = () => {
                   placeholder="••••••••"
                   value={user.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 pl-10 transition-all duration-200 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
                 <svg
                   className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
@@ -243,7 +243,7 @@ export const SignUp = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              {errors.confirmPassword && <p className="text-sm text-red-500 mt-1">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="mt-1 text-sm text-red-500">{errors.confirmPassword}</p>}
             </div>
             
             <button
@@ -275,7 +275,7 @@ export const SignUp = () => {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
+                <span className="px-2 text-gray-500 bg-white">
                   Already have an account?
                 </span>
               </div>

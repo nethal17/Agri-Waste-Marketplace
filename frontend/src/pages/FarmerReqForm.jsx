@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import "../styles/farmerReqForm.css";
 
 
 const FarmerReqForm = () => {
@@ -17,13 +16,13 @@ const FarmerReqForm = () => {
 
   const handleUpdateFarmer = (farmer) => {
     if (farmer.status !== 'Pending') {
-        alert("Truck driver has accepted the booking. You can't change this now.");
-        return;
-      }
+      alert("Truck driver has accepted the booking. You can't change this now.");
+      return;
+    }
 
     setSelectedFarmer(farmer);
     setUpdatedFarmer(farmer);
-    setIsUpdateModalOpen(true); // Open modal
+    setIsUpdateModalOpen(true);
   };
 
   const handleChange = (e) => {
@@ -38,9 +37,8 @@ const FarmerReqForm = () => {
       body: JSON.stringify(updatedFarmer),
     })
       .then((res) => res.json())
-      .then((data) => {
-        console.log("Updated Farmer:", data);
-        setIsUpdateModalOpen(false); // Close modal
+      .then(() => {
+        setIsUpdateModalOpen(false);
         window.location.reload();
       })
       .catch((err) => console.error("Error updating farmer:", err));
@@ -49,10 +47,9 @@ const FarmerReqForm = () => {
   const handleDeleteFarmer = (id) => {
     if (window.confirm("Are you sure you want to delete this farmer?")) {
       fetch(`http://localhost:3000/api/deliveryReq/delete-farmer/${id}`, { method: "DELETE" })
-        .then((res) => res.json(),
-        window.location.reload())
         .then(() => {
-          setFarmers((prevFarmers) => prevFarmers.filter((farmer) => farmer._id !== id));
+          setFarmers((prev) => prev.filter((farmer) => farmer._id !== id));
+          window.location.reload();
         })
         .catch((err) => console.error("Error deleting farmer:", err));
     }
@@ -60,92 +57,87 @@ const FarmerReqForm = () => {
 
   const getStatusClass = (status) => {
     const statusLower = status?.toLowerCase() || '';
-    if (statusLower === 'active') return 'status-active';
-    if (statusLower === 'inactive') return 'status-inactive';
-    if (statusLower === 'pending') return 'status-pending';
-    return 'status-default';
+    if (statusLower === 'active') return 'bg-green-100 text-green-700';
+    if (statusLower === 'inactive') return 'bg-gray-200 text-gray-700';
+    if (statusLower === 'pending') return 'bg-yellow-100 text-yellow-700';
+    return 'bg-gray-100 text-gray-700';
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h2 className="dashboard-title">Farmers Dashboard</h2>
+    <div className="p-8 bg-gray-50 min-h-screen">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">All Delivery Requests</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="p-4 bg-red-100 shadow rounded-xl">
+          <h3 className="text-sm text-gray-500">Total Farmers</h3>
+          <p className="text-xl font-semibold">{farmers.length}</p>
+        </div>
+
+        <div className="p-4 bg-green-100 shadow rounded-xl">
+          <h3 className="text-sm text-gray-700">Active Frmers</h3>
+          <p className="text-xl font-semibold">{3}
+          </p>
+        </div>
         
-        <div className="dashboard-actions">
-         
+        <div className="p-4 bg-yellow-100 shadow rounded-xl">
+          <h3 className="text-sm text-gray-700">Pending Verification</h3>
+          <p className="text-xl font-semibold">
+            {farmers.filter((f) => f.status?.toLowerCase() === 'pending').length}
+          </p>
+        </div>
+        <div className="p-4 bg-blue-100 shadow rounded-xl">
+          <h3 className="text-sm text-gray-700">Districts</h3>
+          <p className="text-xl font-semibold">
+            {new Set(farmers.map((f) => f.district)).size}
+          </p>
         </div>
       </div>
 
-      {/* Stats cards */}
-      <div className="stats-container">
-        <div className="stats-card stats-total">
-          <h3 className="stats-label">Total Farmers</h3>
-          <p className="stats-value">{farmers.length}</p>
-        </div>
-        <div className="stats-card stats-active">
-          <h3 className="stats-label">Active Farmers</h3>
-          <p className="stats-value">{farmers.filter(f => f.status?.toLowerCase() === 'active').length}</p>
-        </div>
-        <div className="stats-card stats-pending">
-          <h3 className="stats-label">Pending Verification</h3>
-          <p className="stats-value">{farmers.filter(f => f.status?.toLowerCase() === 'pending').length}</p>
-        </div>
-        <div className="stats-card stats-districts">
-          <h3 className="stats-label">Districts</h3>
-          <p className="stats-value">{new Set(farmers.map(f => f.district)).size}</p>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="table-container">
-        <table className="farmers-table">
-          <thead>
+      <div className="overflow-x-auto bg-white shadow rounded-lg">
+        <table className="min-w-full table-auto">
+          <thead className="bg-gray-100 text-left text-gray-600 text-l">
             <tr>
-              <th>Farmer ID</th>
-              <th>Phone</th>
-              <th>District</th>
-              <th>Status</th>
-              <th className="action-column">Action</th>
+              <th className="px-4 py-3">Farmer ID</th>
+              <th className="px-4 py-3">Phone</th>
+              <th className="px-4 py-3">District</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-m text-gray-700">
             {farmers.length > 0 ? (
               farmers.map((farmer) => (
-                <tr key={farmer._id}>
-                  <td>
-                    <div className="farmer-id-cell">
-                      <div className="farmer-avatar">
-                        <span className="avatar-text">👨‍🌾</span>
-                      </div>
-                      <span className="farmer-id">{farmer.farmerId}</span>
-                    </div>
+                <tr key={farmer._id} className="border-t">
+                  <td className="px-4 py-3 flex items-center gap-2">
+                    <span>👨‍🌾</span>
+                    <span>{farmer.farmerId}</span>
                   </td>
-                  <td>{farmer.farmerPhone}</td>
-                  <td>{farmer.district}</td>
-                  <td>
-                    <span className={`status-badge ${getStatusClass(farmer.status)}`}>
+                  <td className="px-4 py-3">{farmer.farmerPhone}</td>
+                  <td className="px-4 py-3">{farmer.district}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-3 py-1 rounded-full text-s font-medium ${getStatusClass(farmer.status)}`}>
                       {farmer.status}
                     </span>
                   </td>
-                  <td className="action-column">
-          <button 
-            onClick={() => handleUpdateFarmer(farmer)}
-            className="update-button"
-          >
-            Update
-          </button>
-          <button 
-            onClick={() => handleDeleteFarmer(farmer._id)}
-            className="delete-button"
-          >
-            Delete
-          </button>
-        </td>
+                  <td className="px-4 py-3 flex gap-2">
+                    <button
+                      onClick={() => handleUpdateFarmer(farmer)}
+                      className="px-4 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Update
+                    </button>
+                    <button
+                      onClick={() => handleDeleteFarmer(farmer._id)}
+                      className="px-4 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="empty-table-message">
+                <td colSpan="5" className="px-4 py-4 text-center text-gray-500">
                   No farmers found
                 </td>
               </tr>
@@ -154,163 +146,62 @@ const FarmerReqForm = () => {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="pagination-container">
-        <div className="pagination-info">
-          Showing <span className="pagination-count">{farmers.length}</span> farmers
-        </div>
-        <div className="pagination-controls">
-          <button className="pagination-button">Previous</button>
-          <button className="pagination-button pagination-active">1</button>
-          <button className="pagination-button">2</button>
-          <button className="pagination-button">3</button>
-          <button className="pagination-button">Next</button>
-        </div>
-      </div>
-
+      {/* Modal */}
       {isUpdateModalOpen && (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-    backdropFilter: 'blur(3px)'
-  }}>
-    <div style={{
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      padding: '24px',
-      width: '100%',
-      maxWidth: '500px',
-      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
-    }}>
-      <h3 style={{
-        fontSize: '20px',
-        fontWeight: 600,
-        color: '#1f2937',
-        margin: '0 0 24px 0',
-        paddingBottom: '12px',
-        borderBottom: '1px solid #e5e7eb'
-      }}>Update Farmer Details</h3>
-      
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{
-          display: 'block',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: '#4b5563',
-          marginBottom: '6px'
-        }}>Farmer ID:</label>
-        <input
-          type="text"
-          name="farmerId"
-          value={updatedFarmer.farmerId}
-          onChange={handleChange}
-          style={{
-            width: '80%',
-            padding: '10px 14px',
-            fontSize: '14px',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            backgroundColor: '#f9fafb'
-          }}
-        />
-      </div>
-      
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{
-          display: 'block',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: '#4b5563',
-          marginBottom: '6px'
-        }}>Phone Number:</label>
-        <input
-          type="text"
-          name="farmerPhone"
-          value={updatedFarmer.farmerPhone}
-          onChange={handleChange}
-          style={{
-            width: '80%',
-            padding: '10px 14px',
-            fontSize: '14px',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            backgroundColor: '#f9fafb'
-          }}
-        />
-      </div>
-      
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{
-          display: 'block',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: '#4b5563',
-          marginBottom: '6px'
-        }}>District:</label>
-        <input
-          type="text"
-          name="district"
-          value={updatedFarmer.district}
-          onChange={handleChange}
-          style={{
-            width: '80%',
-            padding: '10px 14px',
-            fontSize: '14px',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            backgroundColor: '#f9fafb'
-          }}
-        />
-      </div>
-      
-      <div style={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        gap: '12px',
-        marginTop: '24px'
-      }}>
-        <button 
-          onClick={handleUpdateSubmit} 
-          style={{
-            padding: '10px 16px',
-            fontSize: '14px',
-            fontWeight: 500,
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            backgroundColor: '#10b981',
-            color: 'white'
-          }}
-        >
-          Update
-        </button>
-        <button 
-          onClick={() => setIsUpdateModalOpen(false)} 
-          style={{
-            padding: '10px 16px',
-            fontSize: '14px',
-            fontWeight: 500,
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            backgroundColor: '#ef4444',
-            color: 'white'
-          }}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
+            <h3 className="text-lg font-semibold mb-4 border-b pb-2 text-gray-800">
+              Update Farmer Details
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Farmer ID</label>
+                <input
+                  type="text"
+                  name="farmerId"
+                  value={updatedFarmer.farmerId}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-md bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  name="farmerPhone"
+                  value={updatedFarmer.farmerPhone}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-md bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">District</label>
+                <input
+                  type="text"
+                  name="district"
+                  value={updatedFarmer.district}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-md bg-gray-50"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={handleUpdateSubmit}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Update
+              </button>
+              <button
+                onClick={() => setIsUpdateModalOpen(false)}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

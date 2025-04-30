@@ -125,7 +125,7 @@ export const OrderDashboard = ({ checkoutData }) => {
     { value: "all", label: "All Orders", icon: <FiShoppingBag /> },
     { value: "toDeliver", label: "To Deliver", icon: <FiTruck /> },
     { value: "toReceive", label: "To Receive", icon: <FiCheck /> },
-    { value: "toReview", label: "To Review", icon: <FiStar /> },
+    { value: "toReview", label: "Completed", icon: <FiStar /> },
   ];
 
   useEffect(() => {
@@ -203,16 +203,14 @@ export const OrderDashboard = ({ checkoutData }) => {
       toDeliver: "bg-blue-100 text-blue-800",
       toReceive: "bg-purple-100 text-purple-800",
       toReview: "bg-amber-100 text-amber-800",
-      cancelled: "bg-red-100 text-red-800",
-      completed: "bg-green-100 text-green-800"
+      
     };
     
     const statusText = {
       toDeliver: "To Deliver",
       toReceive: "To Receive",
-      toReview: "To Review",
-      cancelled: "Cancelled",
-      completed: "Completed"
+      toReview: "Completed",
+      
     };
     
     return (
@@ -366,7 +364,7 @@ export const OrderDashboard = ({ checkoutData }) => {
                 <FiStar className="w-6 h-6" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Complete</p>
+                <p className="text-sm font-medium text-gray-500">Completed</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {orders.filter(o => o.orderStatus === 'toReview').length}
                 </p>
