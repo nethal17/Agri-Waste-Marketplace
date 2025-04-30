@@ -12,6 +12,32 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Pie, Line, Bar } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const formatTimeAgo = (dateString) => {
   const date = new Date(dateString);
@@ -40,6 +66,11 @@ export const AllUsers = () => {
   const [userActivityLogs, setUserActivityLogs] = useState([]);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewUser, setPreviewUser] = useState(null);
+  const [chartData, setChartData] = useState({
+    roleDistribution: null,
+    userGrowth: null,
+    verificationStatus: null
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +79,7 @@ export const AllUsers = () => {
       .get(`http://localhost:3000/api/auth/getAllUsers`)
       .then((response) => {
         setAllUsers(response.data.data);
+        prepareChartData(response.data.data);
       })
       .catch((error) => {
         console.error("Error fetching users:", error);
@@ -152,6 +184,89 @@ export const AllUsers = () => {
     return ip;
   };
 
+  const prepareChartData = (users) => {
+    // Role Distribution Pie Chart
+    const roleCounts = users.reduce((acc, user) => {
+      acc[user.role] = (acc[user.role] || 0) + 1;
+      return acc;
+    }, {});
+
+    const roleDistributionData = {
+      labels: Object.keys(roleCounts).map(role => 
+        role === "farmer" ? "Farmers" : 
+        role === "buyer" ? "Buyers" : 
+        "Drivers"
+      ),
+      datasets: [{
+        data: Object.values(roleCounts),
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.6)',
+          'rgba(54, 162, 235, 0.6)',
+          'rgba(153, 102, 255, 0.6)'
+        ],
+        borderColor: [
+          'rgba(75, 192, 192, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(153, 102, 255, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    // User Growth Line Chart
+    const sortedByDate = [...users].sort((a, b) => 
+      new Date(a.createdAt) - new Date(b.createdAt)
+    );
+    
+    const monthlyGrowth = sortedByDate.reduce((acc, user) => {
+      const date = new Date(user.createdAt);
+      const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`;
+      acc[monthYear] = (acc[monthYear] || 0) + 1;
+      return acc;
+    }, {});
+
+    const userGrowthData = {
+      labels: Object.keys(monthlyGrowth).map(date => {
+        const [year, month] = date.split('-');
+        return `${new Date(year, month - 1).toLocaleString('default', { month: 'short' })} ${year}`;
+      }),
+      datasets: [{
+        label: 'User Growth',
+        data: Object.values(monthlyGrowth),
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }]
+    };
+
+    // Verification Status Bar Chart
+    const verificationData = {
+      labels: ['Verified', 'Unverified'],
+      datasets: [{
+        label: 'Users',
+        data: [
+          users.filter(u => u.isVerified).length,
+          users.filter(u => !u.isVerified).length
+        ],
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.6)',
+          'rgba(255, 99, 132, 0.6)'
+        ],
+        borderColor: [
+          'rgba(75, 192, 192, 1)',
+          'rgba(255, 99, 132, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    setChartData({
+      roleDistribution: roleDistributionData,
+      userGrowth: userGrowthData,
+      verificationStatus: verificationData
+    });
+  };
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Sidebar - Now with Green Color Scheme */}
@@ -161,20 +276,23 @@ export const AllUsers = () => {
             <h2 className="text-xl font-bold text-white">Admin Dashboard</h2>
           </div>
           <nav className="flex-1 p-4 space-y-2">
-            <a href="/admin-dashboard" className="flex items-center p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
+            <Link to="/admin-dashboard" className="flex items-center p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
               <FaHome className="w-5 h-5 mr-3" />
               <span>Dashboard</span>
-            </a>
-            <a href="/all-users" className="flex items-center p-3 text-black-800 bg-green-100 rounded-lg">
+            </Link>
+            <Link to="/all-users" className="flex items-center p-3 text-black-800 bg-green-100 rounded-lg">
               <FaUsers className="w-5 h-5 mr-3" />
               <span>Users</span>
-            </a>
+            </Link>
+            <Link to="/analysis" className="flex items-center p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
+              <FaChartBar className="w-5 h-5 mr-3" />
+              <span>Analysis</span>
+            </Link>
           </nav>
           <div className="p-4 border-t border-green-600">
-            
             <button
-            onClick={handleLogout} 
-            className="flex items-center w-full p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
+              onClick={handleLogout} 
+              className="flex items-center w-full p-3 text-black-800 transition-colors rounded-lg hover:bg-green-100">
               <FaSignOutAlt className="w-5 h-5 mr-3" />
               <span>Logout</span>
             </button>
