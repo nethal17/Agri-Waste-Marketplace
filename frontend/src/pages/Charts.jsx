@@ -84,8 +84,14 @@ const Charts = () => {
     { name: 'Driver Payments', value: highTotalAmount }
   ];
 
+  const incomeComparisonData = [
+    { name: 'Delivery Payments', value: orderHistoryTotal },
+    { name: 'Profit from selling products', value: profit }
+  ];
+
   const COLORS = ['#10B981', '#EF4444']; // Green for income, Red for outcomes
   const PAYMENT_COLORS = ['#3b82f6', '#8b5cf6'];
+  const INCOME_COLORS = ['#6366f1', '#f59e0b']; // Indigo for delivery, Yellow for profit
 
   if (loading) {
     return (
@@ -189,7 +195,7 @@ const Charts = () => {
             {/* Revenue Distribution Pie Chart */}
             <Col xs={24} lg={12}>
               <Card className="shadow-lg border-0 rounded-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 text-white">
+                <div className="bg-green-500 p-4 text-white">
                   <Title level={3} className="text-white m-0">Income vs Outcomes</Title>
                 </div>
                 <div className="p-6">
@@ -243,8 +249,8 @@ const Charts = () => {
             {/* Payment Comparison Pie Chart */}
             <Col xs={24} lg={12}>
               <Card className="shadow-lg border-0 rounded-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-600 p-4 text-white">
-                  <Title level={3} className="text-white m-0">Payment Distribution</Title>
+                <div className="bg-green-500 p-4 text-white">
+                  <Title level={3} className="text-white m-0">Outcome Distribution</Title>
                 </div>
                 <div className="p-6">
                   <div className="h-[300px]">
@@ -286,34 +292,59 @@ const Charts = () => {
               </Card>
             </Col>
 
-            {/* Monthly Revenue Trend Line Chart */}
+            {/* Income Comparison Pie Chart */}
             <Col xs={24} lg={12}>
               <Card className="shadow-lg border-0 rounded-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-green-500 to-teal-600 p-4 text-white">
-                  <Title level={3} className="text-white m-0">Monthly Revenue Trend</Title>
+                <div className="bg-green-500 p-4 text-white">
+                  <Title level={3} className="text-white m-0">Income Distribution</Title>
                 </div>
                 <div className="p-6">
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={monthlyData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
+                      <PieChart>
+                        <Pie
+                          data={incomeComparisonData}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        >
+                          {incomeComparisonData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={INCOME_COLORS[index % INCOME_COLORS.length]} />
+                          ))}
+                        </Pie>
                         <Tooltip />
-                        <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="value" 
-                          stroke="#10B981" 
-                          strokeWidth={2}
-                          name="Revenue"
-                        />
-                      </LineChart>
+                        <Legend verticalAlign="bottom" height={36}/>
+                      </PieChart>
                     </ResponsiveContainer>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                      <Text strong className="text-indigo-600">Delivery Payments</Text>
+                      <Paragraph className="text-gray-600 m-0">
+                        Rs. {orderHistoryTotal.toFixed(2)}
+                      </Paragraph>
+                      <div className="mt-2 text-sm text-gray-500">
+                        Total revenue from delivery services
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <Text strong className="text-yellow-600">Profit from selling products</Text>
+                      <Paragraph className="text-gray-600 m-0">
+                        Rs. {profit.toFixed(2)}
+                      </Paragraph>
+                      <div className="mt-2 text-sm text-gray-500">
+                        20% of total revenue
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
             </Col>
+
+            
           </Row>
         </div>
       </div>

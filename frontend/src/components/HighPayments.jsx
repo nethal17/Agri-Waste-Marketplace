@@ -137,7 +137,7 @@ const HighPayments = () => {
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Payment Summary</h2>
             <div className="space-y-4">
               <div className="p-4 bg-green-50 rounded-lg">
-                <p className="text-sm text-gray-600">Total High Payments</p>
+                <p className="text-sm text-gray-600">Total Driver Payments</p>
                 <p className="text-2xl font-bold text-black-600">Rs. {totalAmount.toFixed(2)}</p>
               </div>
               <div className="p-4 bg-green-50 rounded-lg">
