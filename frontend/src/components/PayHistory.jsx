@@ -85,7 +85,7 @@ const PayHistory = () => {
         });
 
         setPayments(filteredPayments);
-        setFilteredPayments(filteredPayments);
+      setFilteredPayments(filteredPayments);
       } catch (error) {
         console.error('Error fetching payments:', error);
         setError(error.message);

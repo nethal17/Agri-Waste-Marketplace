@@ -281,7 +281,7 @@ const Final = () => {
                         <div className="w-2 h-8 bg-red-500 rounded mr-2"></div>
                         <Title level={4} className="m-0 text-red-600">Outcomes</Title>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Left: Driver Salary */}
                         <div className="border-b border-gray-200 pb-4">
                           <div className="flex items-center mb-2">
@@ -311,8 +311,8 @@ const Final = () => {
                             Payments to farmers for their agricultural waste products.
                           </Paragraph>
                         </div>
+                        </div>
                       </div>
-                    </div>
 
                     {/* Incomes Section */}
                     <div className="mb-8">
@@ -355,10 +355,10 @@ const Final = () => {
 
                     {/* Total Profit Section */}
                     <div className="bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-lg">
-                      <div className="flex items-center mb-4">
+                        <div className="flex items-center mb-4">
                         <div className="w-2 h-8 bg-green-600 rounded mr-2"></div>
                         <Title level={4} className="m-0 text-green-700">Total Profit</Title>
-                      </div>
+                        </div>
                       <div className="flex items-baseline">
                         <Text className="text-4xl font-bold text-green-700">Rs. <CountUp end={orderHistoryTotal + profit} duration={2} separator="," decimal="." /></Text>
                         <Tag color="green" className="ml-2">Shipping fees & Profit from selling products</Tag>
