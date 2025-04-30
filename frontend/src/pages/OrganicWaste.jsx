@@ -170,7 +170,7 @@ const CategoryProducts = () => {
         price: product.price,
         quantity: product.quantity,
         deliveryCost: 1000, // You can modify this based on your requirements
-        //image: product.image || "", // Add the image URL to the cart item
+        productImage: product.image || "", // Add the image URL to the cart item
       }
 
       const response = await axios.post("http://localhost:3000/api/cart/add", cartItem)

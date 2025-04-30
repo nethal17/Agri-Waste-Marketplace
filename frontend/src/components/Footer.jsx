@@ -29,7 +29,7 @@ export const Footer = () => {
   ];
 
   const supportLinks = [
-    "Contact Us",
+    "Contact Us navigate",
     "FAQs",
     "Shipping Policy",
     "Returns",
