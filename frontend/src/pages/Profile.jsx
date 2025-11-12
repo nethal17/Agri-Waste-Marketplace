@@ -190,16 +190,14 @@ export const Profile = () => {
         // Always fetch basic user data for all roles
         await fetchUserData();
 
-      apiService
-      .get(`/api/auth/getAllUsers`)
-      .then((response) => {
-        setAllUsers(response.data.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching users:", error);
-        toast.error("Failed to fetch users");
-      })
-      .finally(() => setLoading(false));
+        // Fetch all users
+        try {
+          const response = await apiService.get(`/api/auth/getAllUsers`);
+          setAllUsers(response.data.data);
+        } catch (error) {
+          console.error("Error fetching users:", error);
+          toast.error("Failed to fetch users");
+        }
   
         // Role-specific data fetching
         if (user?.role === "admin") {
@@ -220,7 +218,6 @@ export const Profile = () => {
         }
   
       } catch (error) {
-      console.error(error);
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
@@ -253,9 +250,8 @@ export const Profile = () => {
       toast.success("Profile picture updated successfully!");
       setImagePreview(null);
     } catch (error) {
-      console.error(error);
+      console.error("Error uploading image:", error);
       toast.error("Failed to upload image.");
-      console.error(error);
     } finally {
       setUploading(false);
     }

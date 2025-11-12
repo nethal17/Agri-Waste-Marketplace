@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
+import ErrorBoundary from './components/ErrorBoundary';
 import { Login } from './pages/Login';
 import { SignUp } from './pages/SignUp';
 import { Profile } from './pages/Profile';
@@ -66,8 +67,9 @@ import { Analysis } from "./components/Analysis";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomeTesting />} />
+    <ErrorBoundary>
+      <Routes>
+        <Route path="/" element={<HomeTesting />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<SignUp />} />
       <Route path="/profile" element={<Profile />} />
@@ -134,6 +136,7 @@ function App() {
       <Route path="/delivery-history" element={<DeliveryHistoryDashboard />} />
       <Route path="/analysis" element={<Analysis />} />
     </Routes>
+    </ErrorBoundary>
   )
 }
 

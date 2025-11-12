@@ -39,7 +39,7 @@ export const Footer = () => {
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand Section */}
-          <div 
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -57,10 +57,10 @@ export const Footer = () => {
             <p className="text-gray-300">
               Transforming agricultural waste into sustainable wealth through innovative solutions and circular economy practices.
             </p>
-          </div>
+          </motion.div>
 
           {/* Services */}
-          <div 
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -77,10 +77,10 @@ export const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
           {/* Company Links */}
-          <div 
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -97,10 +97,10 @@ export const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
           {/* Contact Info */}
-          <div 
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -135,11 +135,11 @@ export const Footer = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Copyright */}
-        <div 
+        <motion.div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
@@ -154,7 +154,7 @@ export const Footer = () => {
             </p>
             <p className="mt-2 text-center">Proudly made in Sri Lanka</p>
           </div>
-      </div>
+        </motion.div>
       </div>
     </footer>
   );

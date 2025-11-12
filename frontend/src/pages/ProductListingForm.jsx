@@ -54,7 +54,6 @@ export const ProductListingForm = () => {
           console.error("Token is missing user identification");
         }
       } catch (error) {
-      console.error(error);
         console.error("Error decoding token:", error);
       }
     };
@@ -65,7 +64,7 @@ export const ProductListingForm = () => {
   // Fetch Provinces 
   useEffect(() => {
     const provinces = [
-      "Nothern Province",
+      "Northern Province",
       "North Central Province",
       "North Western Province",
       "Western Province",

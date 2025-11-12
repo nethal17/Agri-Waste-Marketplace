@@ -38,9 +38,8 @@ export const getInventoryValuation = async (req, res) => {
     const totalQuantity = listings.reduce((sum, prod) => sum + prod.quantity, 0);
     const avgPrice = totalItems > 0 ? (listings.reduce((sum, prod) => sum + prod.price, 0) / totalItems) : 0;
     const mostValuable = listings.reduce((max, prod) => 
-      (prod.quantity * prod.price > (max?.quantity || 0) * (max?.price || 0) ? prod : max, 
-      listings[0]
-    ));
+      (prod.quantity * prod.price > (max?.quantity || 0) * (max?.price || 0)) ? prod : max
+    );
     const soonestToExpire = listings.filter(l => l.expireDate)
       .sort((a, b) => new Date(a.expireDate) - new Date(b.expireDate))[0] || null;
     

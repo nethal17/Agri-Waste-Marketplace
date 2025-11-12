@@ -2,15 +2,18 @@ import express from "express";
 import multer from "multer";
 import cloudinary from "cloudinary";
 import { User } from "../models/user.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const photoRouter = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 cloudinary.v2.config({
-  cloud_name: "dm8vchgk9",
-  api_key: "643534999793746",
-  api_secret: "GjY-pdhE8sFykaHMZNtJwxYXToQ",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Upload profile picture

@@ -60,7 +60,7 @@ app.use('/api', paymentRoutes);
 app.use('/api', stripeRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api', stripePaymentsRoutes);
-app.use('/api', driverPaymentsRoutes);
+app.use('/api/driver-payments', driverPaymentsRoutes);
 app.use('/api', driverPaymentRoutes);
 app.use('/api/refunds', refundRoutes);
 app.use('/api/delivery', deliveryRoutes);
@@ -89,13 +89,15 @@ app.use('/api/deliveryReq', deliveryReqRoutes);
 app.use("/api/vehicle-reg", vehicleRegRoutes);
 app.use('/api/delivery-orders', deliveryHistoryRoutes);
 
-
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-// MongoDB Connection
+// MongoDB Connection - Connect before starting server
 connect(process.env.MONGO_URI, {
-}).then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
+}).then(() => {
+  console.log("MongoDB Connected");
+  
+  // Start the server only after DB connection
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}).catch(err => {
+  console.error("MongoDB Connection Error:", err);
+  process.exit(1);
+});
