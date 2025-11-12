@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { apiService, API_URL } from '../utils/api';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Navbar } from '../components/Navbar';
@@ -12,13 +12,12 @@ export const AddReviewPage = () => {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [review, setReview] = useState('');
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     console.log('Location State:', location.state);
     
     if (!productId || !buyerId) {
-      setMessage('Product ID or Buyer ID is missing.');
+      toast.error('Product ID or Buyer ID is missing.');
       return;
     }
 
@@ -27,39 +26,32 @@ export const AddReviewPage = () => {
         const token = localStorage.getItem('token');
         if (!token) {
           toast.error('No token found, please login again.');
-          setMessage('Authentication error. Please login again.');
           return;
         }
 
-        const response = await axios.get(`http://localhost:3000/api/products/${productId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
+        const response = await apiService.get(`/api/products/${productId}`);
         console.log('Product Details:', response.data);
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          setMessage(error.response?.status === 404 ? 'Product not found.' : 'Failed to fetch product details.');
-        } else {
-          setMessage('Failed to fetch product details.');
-        }
+        const errorMessage = error.response?.status === 404 ? 'Product not found.' : 'Failed to fetch product details.';
+        toast.error(errorMessage);
+        console.error('Error fetching product details:', error);
       }
     };
 
     fetchProductDetails();
-  }, [productId, buyerId]);
+  }, [productId, buyerId, location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!productId || !buyerId) {
-      setMessage('Product ID or Buyer ID is missing.');
+      toast.error('Product ID or Buyer ID is missing.');
       return;
     }
 
     try {
-      await axios.post(
-        'http://localhost:3000/api/reviews/add',
-        { productId, buyerId, rating, review },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      await apiService.post(
+        `/api/reviews/add`,
+        { productId, buyerId, rating, review }
       );
 
       // Show success toast message
@@ -68,11 +60,9 @@ export const AddReviewPage = () => {
       // Navigate to the profile page
       navigate('/profile');
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setMessage(`Error: ${error.response?.data.message}`);
-      } else {
-        setMessage('Error submitting review.');
-      }
+      const errorMessage = error.response?.data?.message || 'Error submitting review.';
+      toast.error(`Error: ${errorMessage}`);
+      console.error('Error submitting review:', error);
     }
   };
 

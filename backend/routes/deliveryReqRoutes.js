@@ -6,7 +6,7 @@ import {
   updateDeliveryRequestStatusById,
   updateFarmerDetailsById,
   deleteFarmerDetailsById
-} from "../controllers/deliveryReqContoller.js";
+} from "../controllers/deliveryReqController.js";
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect, useCallback } from "react";
+import { apiService } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { loadStripe } from "@stripe/stripe-js";
@@ -13,6 +13,38 @@ export const Checkout = () => {
   const [stripe, setStripe] = useState(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const navigate = useNavigate();
+
+  const fetchCartItems = useCallback(async (userId) => {
+        try {
+          
+          if (!userId) {
+            toast.error('Please login to view your cart');
+            navigate('/login');
+            return;
+          }
+          const response = await apiService.get(`/api/cart/${userId}`);
+          if (response.data) {
+            setCartItems(response.data.items);
+          }
+        } catch (error) {
+          console.error('Error fetching cart items:', error.response?.data?.message || error.message);
+          toast.error('Failed to load cart items');
+        } finally {
+          setLoading(false);
+        }
+      }, [navigate]);
+
+  const fetchAddress = useCallback(async (userId) => {
+    try {
+      const response = await apiService.get(`/api/address/get-address/${userId}`);
+      setAddress(response.data);
+    } catch (error) {
+      if (error.response?.status !== 404) {
+        toast.error("Failed to load address");
+        console.error("Address fetch error:", error.response?.data?.message || error.message);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -35,7 +67,7 @@ export const Checkout = () => {
       }
     };
     fetchUserData();
-  }, [navigate]);
+  }, [navigate, fetchCartItems, fetchAddress]);
 
   useEffect(() => {
     const initializeStripe = async () => {
@@ -49,38 +81,6 @@ export const Checkout = () => {
     };
     initializeStripe();
   }, []);
-
-  const fetchCartItems = async (userId) => {
-        try {
-          
-          if (!userId) {
-            toast.error('Please login to view your cart');
-            navigate('/login');
-            return;
-          }
-          const response = await axios.get(`http://localhost:3000/api/cart/${userId}`);
-          if (response.data) {
-            setCartItems(response.data.items);
-          }
-        } catch (error) {
-          console.error('Error fetching cart items:', error);
-          toast.error('Failed to load cart items');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-  const fetchAddress = async (userId) => {
-    try {
-      const response = await axios.get(`http://localhost:3000/api/address/get-address/${userId}`);
-      setAddress(response.data);
-    } catch (error) {
-      if (error.response?.status !== 404) {
-        toast.error("Failed to load address");
-        console.error("Address fetch error:", error);
-      }
-    }
-  };
 
   const handlePayment = async () => {
     if (!user || cartItems.length === 0 || !stripe) {
@@ -121,8 +121,8 @@ export const Checkout = () => {
         });
       }
 
-      const response = await axios.post(
-        "http://localhost:3000/api/stripe/checkout",
+      const response = await apiService.post(
+        "/api/stripe/checkout",
         {
           userId: user._id,
           cartId: 'temp-cart',

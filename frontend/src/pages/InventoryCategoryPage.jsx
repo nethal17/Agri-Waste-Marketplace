@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FiBell, FiSearch } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { apiService } from "../utils/api";
 
 const WASTE_CATEGORIES = {
   'Organic Waste': ['Crop Residues', 'Fruit & Vegetable Waste', 'Plantation Waste', 'Nut & Seed Waste', 'Livestock & Dairy Waste', 'Forestry Waste'],
@@ -12,8 +12,6 @@ const WASTE_CATEGORIES = {
 export const InventoryCategoryPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [quantities, setQuantities] = useState({});
   const [approvedListings, setApprovedListings] = useState([]);
 
@@ -40,8 +38,7 @@ export const InventoryCategoryPage = () => {
     const fetchApprovedListings = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`http://localhost:3000/api/product-listing/listings/approved`);
+        const response = await apiService.get(`/api/product-listing/listings/approved`);
         setApprovedListings(response.data);
         
         // Calculate quantities
@@ -68,7 +65,7 @@ export const InventoryCategoryPage = () => {
         setQuantities(calculatedQuantities);
         setLoading(false);
       } catch (err) {
-        setError("Failed to fetch inventory data");
+        console.error("Failed to fetch inventory data:", err);
         setLoading(false);
       }
     };
@@ -77,7 +74,6 @@ export const InventoryCategoryPage = () => {
   }, []);
 
   if (loading) return <div className="flex justify-center items-center h-screen text-xl">Loading...</div>;
-  if (error) return <div className="flex justify-center items-center h-screen text-xl text-red-500">{error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

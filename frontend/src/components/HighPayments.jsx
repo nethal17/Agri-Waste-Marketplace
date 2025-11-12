@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -20,13 +20,11 @@ const HighPayments = () => {
   const [highPayments, setHighPayments] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const fetchHighPayments = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get('http://localhost:3000/api/stripe-payments');
+      const response = await apiService.get('/api/stripe-payments');
       const filteredPayments = response.data.filter(payment => payment.payAmount >= 20000);
       setHighPayments(filteredPayments);
       
@@ -35,8 +33,6 @@ const HighPayments = () => {
     } catch (error) {
       console.error('Error fetching high payments:', error);
       message.error('Failed to fetch payments');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -44,7 +40,7 @@ const HighPayments = () => {
     fetchHighPayments();
   }, []);
 
-  const handleVoidPayment = (paymentId) => {
+  const handleVoidPayment = () => {
     // Just show a message without making any changes
     message.success('Payment void request submitted successfully');
   };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { apiService, API_URL } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { toast } from "react-hot-toast";
@@ -21,7 +21,6 @@ export const BuyerAddressForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [existingAddress, setExistingAddress] = useState(null);
   
   // Get user data from localStorage
   const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -29,9 +28,8 @@ export const BuyerAddressForm = () => {
   useEffect(() => {
     const fetchAddress = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/address/get-address/${userData._id}`);
+        const response = await apiService.get(`/api/address/get-address/${userData._id}`);
         if (response.data) {
-          setExistingAddress(response.data);
           setFormData({
             buyerId: userData._id,
             address: response.data.address,
@@ -116,13 +114,13 @@ export const BuyerAddressForm = () => {
     try {
       let response;
       if (isEditing) {
-        response = await axios.put(
-          `http://localhost:3000/api/address/add/${formData.buyerId}`,
+        response = await apiService.put(
+          `${API_URL}/api/address/add/${formData.buyerId}`,
           formData
         );
       } else {
-        response = await axios.post(
-          "http://localhost:3000/api/address/add",
+        response = await apiService.post(
+          `${API_URL}/api/address/add`,
           formData
         );
       }

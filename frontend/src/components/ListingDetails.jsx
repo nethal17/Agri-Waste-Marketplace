@@ -1,5 +1,5 @@
+import { apiService } from "../utils/api";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { FiInfo, FiX, FiTrash2, FiPackage, FiDollarSign, FiCalendar, FiMapPin, FiLayers } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 
@@ -26,9 +26,8 @@ export const ListingDetails = () => {
         return;
       }
 
-      const response = await axios.get(
-        `http://localhost:3000/api/marketplace/farmer-listings/${userData._id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await apiService.get(
+        `/api/marketplace/farmer-listings/${userData._id}`
       );
       
       setListings(response.data);
@@ -43,10 +42,8 @@ export const ListingDetails = () => {
 
   const viewListingDetails = async (listingId) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `http://localhost:3000/api/marketplace/listings-details/${listingId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await apiService.get(
+        `/api/marketplace/listings-details/${listingId}`
       );
       setSelectedListing(response.data);
       setShowDetailsModal(true);
@@ -63,10 +60,8 @@ export const ListingDetails = () => {
 
   const deleteListing = async () => {
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(
-        `http://localhost:3000/api/marketplace/listings-delete/${listingToDelete._id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiService.delete(
+        `/api/marketplace/listings-delete/${listingToDelete._id}`
       );
       toast.success("Listing deleted successfully");
       fetchListings(); // Refresh the listings

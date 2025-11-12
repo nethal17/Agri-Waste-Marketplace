@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { apiService, API_URL } from '../utils/api';
 import { FiSearch, FiDownload, FiFileText } from 'react-icons/fi';
 import { FaFileAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
-const API_BASE = 'http://localhost:3000/api/reports';
+const API_BASE = `${API_URL}/api/reports`;
 
 export const ReportsAndAnalytics = () => {
   const [inventory, setInventory] = useState([]);
-  const [valuation, setValuation] = useState(null);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +21,7 @@ export const ReportsAndAnalytics = () => {
   const fetchInventory = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/inventory-list`);
+      const res = await apiService.get(`${API_BASE}/inventory-list`);
       // Only include products that are not expired (expireDate is in the future or not set)
       const now = new Date();
       const filtered = res.data.filter(item => {
@@ -31,7 +30,8 @@ export const ReportsAndAnalytics = () => {
       });
       setInventory(filtered);
       setError(null);
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to fetch inventory:', error);
       setError('Failed to fetch inventory list.');
     }
     setLoading(false);
@@ -40,18 +40,17 @@ export const ReportsAndAnalytics = () => {
 
   const fetchValuation = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/inventory-valuation`);
-      setValuation(res.data.totalValue);
+      const res = await apiService.get(`${API_BASE}/inventory-valuation`);
       setStats(res.data);
-    } catch (err) {
-      setValuation(null);
+    } catch (error) {
+      console.error('Failed to fetch valuation:', error);
       setStats({});
     }
   };
 
   const handleExportCSV = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/export-csv`, { responseType: 'blob' });
+      const res = await apiService.get(`${API_BASE}/export-csv`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -60,14 +59,15 @@ export const ReportsAndAnalytics = () => {
       link.click();
       link.remove();
       toast.success('CSV file downloaded!');
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to export CSV:', error);
       toast.error('Failed to export CSV.');
     }
   };
 
   const handleExportPDF = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/export-pdf`, { responseType: 'blob' });
+      const res = await apiService.get(`${API_BASE}/export-pdf`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -76,7 +76,8 @@ export const ReportsAndAnalytics = () => {
       link.click();
       link.remove();
       toast.success('PDF file downloaded!');
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to export PDF:', error);
       toast.error('Failed to export PDF.');
     }
   };
@@ -84,7 +85,7 @@ export const ReportsAndAnalytics = () => {
 
   const handleExportExcel = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/export-excel`, { responseType: 'blob' });
+      const res = await apiService.get(`${API_BASE}/export-excel`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -93,7 +94,8 @@ export const ReportsAndAnalytics = () => {
       link.click();
       link.remove();
       toast.success('Excel file downloaded!');
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to export Excel:', error);
       toast.error('Failed to export Excel.');
     }
   };

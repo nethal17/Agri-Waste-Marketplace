@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useCallback } from "react";
+import { apiService } from "../utils/api";
 import { format } from "date-fns";
 import { FiShoppingBag, FiCalendar, FiFilter, FiX, FiCheck, FiTruck, FiStar } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
@@ -32,8 +32,8 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
         review: reviewText
       });
       onClose();
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to submit review");
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to submit review");
     } finally {
       setIsSubmitting(false);
     }
@@ -118,9 +118,6 @@ export const OrderHistoryPage = ({ checkoutData }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [refundReason, setRefundReason] = useState("");
-  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
-  const [orderToCancel, setOrderToCancel] = useState(null);
 
   const userData = JSON.parse(localStorage.getItem("user"));
   const userId = userData?._id;
@@ -132,16 +129,10 @@ export const OrderHistoryPage = ({ checkoutData }) => {
     { value: "toReview", label: "To Review", icon: <FiStar /> },
   ];
 
-  useEffect(() => {
-    if (userId) {
-      fetchOrders();
-    }
-  }, [userId]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3000/api/order-history/user/${userId}`);
+      const response = await apiService.get(`/api/order-history/user/${userId}`);
       const data = Array.isArray(response.data) ? response.data : [];
       setOrders(data);
       filterOrders(data, activeStatus, startDate, endDate);
@@ -150,7 +141,13 @@ export const OrderHistoryPage = ({ checkoutData }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId, activeStatus, startDate, endDate]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchOrders();
+    }
+  }, [userId, fetchOrders]);
 
   const filterOrders = (ordersToFilter, status, start, end) => {
     let filtered = [...ordersToFilter];
@@ -187,7 +184,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
 
   const handleProceedToPayment = async () => {
     try {
-      await axios.post("/api/order-history", {
+      await apiService.post("/api/order-history", {
         userId: userId,
         productName: checkoutData.productName,
         productId: checkoutData.productId,
@@ -250,11 +247,11 @@ export const OrderHistoryPage = ({ checkoutData }) => {
       console.log('Sending refund data:', refundData); // Debug log
 
       // Create refund record first
-      const refundResponse = await axios.post('http://localhost:3000/api/refunds/add', refundData);
+      const refundResponse = await apiService.post('/api/refunds/add', refundData);
 
       if (refundResponse.data) {
         // Then delete the order using the correct endpoint
-        await axios.delete(`http://localhost:3000/api/order-history/cancel/${orderId}`);
+        await apiService.delete(`/api/order-history/cancel/${orderId}`);
         
         message.success('Order cancelled and refund created successfully');
         fetchOrders(); // Refresh the orders list
@@ -268,7 +265,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
 
   const handleReviewSubmit = async (reviewData) => {
     try {
-      const response = await axios.post("http://localhost:3000/api/reviews/add", {
+      await apiService.post("/api/reviews/add", {
         
         buyerId: userId,
         orderId: reviewData.orderId,
@@ -282,7 +279,7 @@ export const OrderHistoryPage = ({ checkoutData }) => {
       
       /*if (response.status === 201) {
         // Update order status to completed
-        await axios.patch(`http://localhost:3000/api/order-history/${reviewData.orderId}`, {
+        await apiService.patch(`/api/order-history/${reviewData.orderId}`, {
           orderStatus: "completed"
         });
         

@@ -1,5 +1,14 @@
 import express from 'express';
-import { getFarmerListings,getListingDetails,deleteListing,getProductById,getAllListings,getWasteByCategory,getWasteDetailsByCategory,getWasteDetailsByType } from '../controllers/MarketPlaceController.js';
+import {
+  getFarmerListings,
+  getListingDetails,
+  deleteListing,
+  getProductById,
+  getAllListings,
+  getWasteByCategory,
+  getWasteDetailsByCategory,
+  getWasteDetailsByType
+} from '../controllers/marketPlaceController.js';
 
 const router = express.Router();
 

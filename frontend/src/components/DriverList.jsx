@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { Table, Button, Modal, Form, message } from 'antd';
 import { EditOutlined, DeleteOutlined, DollarOutlined, UserOutlined } from '@ant-design/icons';
 import { Navbar } from "../components/Navbar";
@@ -20,7 +20,7 @@ const DriverList = () => {
   const fetchDrivers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/api/auth/getAllUsers');
+      const response = await apiService.get('/api/auth/getAllUsers');
       // Filter only truck drivers
       const truckDrivers = response.data.data.filter(user => user.role === 'truck_driver');
       setDrivers(truckDrivers);
@@ -44,7 +44,7 @@ const DriverList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/auth/userDelete/${id}`);
+      await apiService.delete(`/api/auth/userDelete/${id}`);
       message.success('Driver deleted successfully');
       fetchDrivers();
     } catch (error) {
@@ -60,7 +60,7 @@ const DriverList = () => {
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
-      await axios.put(`http://localhost:3000/api/auth/updateUser/${editingDriver._id}`, values);
+      await apiService.put(`/api/auth/updateUser/${editingDriver._id}`, values);
       message.success('Driver updated successfully');
       setIsModalVisible(false);
       fetchDrivers();

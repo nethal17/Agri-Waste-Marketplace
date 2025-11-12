@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from "../components/Navbar";
 import Sidebar from "./Sidebar";
@@ -63,7 +63,7 @@ const PayHistory = () => {
 
     const fetchPayments = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/stripe-payments');
+        const response = await apiService.get('/api/stripe-payments');
         console.log('Full API Response:', response.data);
         
         if (!response.data || !Array.isArray(response.data)) {
@@ -139,8 +139,8 @@ const PayHistory = () => {
       width: 200,
       render: (text) => (
         <div className="flex items-center">
-          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
-            <span className="text-blue-600 font-semibold">
+          <div className="flex items-center justify-center w-8 h-8 mr-2 bg-blue-100 rounded-full">
+            <span className="font-semibold text-blue-600">
               {text ? text.charAt(0).toUpperCase() : 'N/A'}
             </span>
           </div>
@@ -171,7 +171,7 @@ const PayHistory = () => {
       width: 150,
       render: (date) => (
         <div className="flex items-center">
-          <CalendarOutlined className="text-gray-400 mr-2" />
+          <CalendarOutlined className="mr-2 text-gray-400" />
           <span className="text-gray-600">
             {date ? new Date(date).toLocaleDateString() : 'N/A'}
           </span>
@@ -192,8 +192,6 @@ const PayHistory = () => {
 
   const totalAmount = filteredPayments.reduce((sum, payment) => sum + (payment.payAmount || 0), 0);
   const averageAmount = totalAmount / (filteredPayments.length || 1);
-  const highValuePayments = filteredPayments.filter(payment => payment.payAmount >= 20000).length;
-  const highValuePercentage = (highValuePayments / (filteredPayments.length || 1)) * 100;
 
   // Prepare data for charts
   const monthlyData = filteredPayments.reduce((acc, payment) => {
@@ -218,7 +216,7 @@ const PayHistory = () => {
         <Navbar />
         <div className="flex h-screen">
           <Sidebar />
-          <div className="flex-1 flex items-center justify-center ml-64">
+          <div className="flex items-center justify-center flex-1 ml-64">
             <Spin size="large" />
           </div>
         </div>
@@ -232,9 +230,9 @@ const PayHistory = () => {
         <Navbar />
         <div className="flex h-screen">
           <Sidebar />
-          <div className="flex-1 flex items-center justify-center ml-64">
+          <div className="flex items-center justify-center flex-1 ml-64">
             <div className="text-center">
-              <p className="text-red-500 text-xl mb-4">{error}</p>
+              <p className="mb-4 text-xl text-red-500">{error}</p>
               <Button type="primary" onClick={() => window.location.reload()}>
             Retry
               </Button>
@@ -250,10 +248,10 @@ const PayHistory = () => {
     <Navbar />
       <div className="flex h-screen">
         <Sidebar />
-        <div className="flex-1 overflow-auto bg-gray-50 ml-64">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex-1 ml-64 overflow-auto bg-gray-50">
+    <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div className="mb-8">
-              <Title level={2} className="text-3xl font-bold text-gray-800 mb-2">
+              <Title level={2} className="mb-2 text-3xl font-bold text-gray-800">
         Product Payment Transactions
               </Title>
               <Text className="text-gray-600">
@@ -264,7 +262,7 @@ const PayHistory = () => {
             {/* Statistics Cards */}
             <Row gutter={[16, 16]} className="mb-8">
               <Col xs={24} sm={12} lg={6}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-blue-100 border-0">
+                <Card className="transition-shadow border-0 shadow-md hover:shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
                   <Statistic
                     title={<span className="text-gray-600">Total Transactions</span>}
                     value={filteredPayments.length}
@@ -274,7 +272,7 @@ const PayHistory = () => {
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-green-50 to-green-100 border-0">
+                <Card className="transition-shadow border-0 shadow-md hover:shadow-lg bg-gradient-to-br from-green-50 to-green-100">
                   <Statistic
                     title={<span className="text-gray-600">Total Amount</span>}
                     value={totalAmount}
@@ -286,7 +284,7 @@ const PayHistory = () => {
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50 to-purple-100 border-0">
+                <Card className="transition-shadow border-0 shadow-md hover:shadow-lg bg-gradient-to-br from-purple-50 to-purple-100">
                   <Statistic
                     title={<span className="text-gray-600">Average Amount</span>}
                     value={averageAmount}
@@ -308,11 +306,11 @@ const PayHistory = () => {
                 <Card 
                   title={
                     <div className="flex items-center">
-                      <BarChartOutlined className="text-blue-500 mr-2" />
+                      <BarChartOutlined className="mr-2 text-blue-500" />
                       <span>Monthly Transactions</span>
                     </div>
                   }
-                  className="shadow-md hover:shadow-lg transition-shadow"
+                  className="transition-shadow shadow-md hover:shadow-lg"
                 >
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -332,8 +330,8 @@ const PayHistory = () => {
             </Row>
 
             {/* Search and Filter Section */}
-            <Card className="mb-8 shadow-md bg-gradient-to-r from-gray-50 to-gray-100 border-0">
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <Card className="mb-8 border-0 shadow-md bg-gradient-to-r from-gray-50 to-gray-100">
+              <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
                 <div className="flex-1 w-full">
                   <Input
                     placeholder="Search by buyer name"
@@ -342,7 +340,7 @@ const PayHistory = () => {
                     className="w-full"
                   />
                 </div>
-                <div className="flex gap-4 w-full md:w-auto">
+                <div className="flex w-full gap-4 md:w-auto">
                   <RangePicker
                     onChange={handleDateRangeChange}
                     className="w-full md:w-auto"
@@ -376,25 +374,25 @@ const PayHistory = () => {
             </Card>
 
             {/* Action Buttons */}
-            <div className="mt-6 flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4 mt-6">
               <Button
                 type="primary"
           onClick={() => navigate('/high-payments')}
-                className="bg-green-600 hover:bg-green-700 h-10"
+                className="h-10 bg-green-600 hover:bg-green-700"
                 icon={<ArrowUpOutlined />}
         >
           Driver Paid Salaries
               </Button>
               <Button
           onClick={() => navigate('/')}
-                className="bg-gray-600 hover:bg-gray-700 text-white h-10"
+                className="h-10 text-white bg-gray-600 hover:bg-gray-700"
                 icon={<ArrowDownOutlined />}
         >
           Back to Driver List
               </Button>
               <Button
   onClick={() => navigate('/final-summary')}
-                className="bg-purple-600 hover:bg-purple-700 text-white h-10"
+                className="h-10 text-white bg-purple-600 hover:bg-purple-700"
                 icon={<LineChartOutlined />}
 >
   View Total Payments

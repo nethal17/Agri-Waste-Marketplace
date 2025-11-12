@@ -28,14 +28,6 @@ export const Footer = () => {
     "Partners"
   ];
 
-  const supportLinks = [
-    "Contact Us navigate",
-    "FAQs",
-    "Shipping Policy",
-    "Returns",
-    "Privacy Policy"
-  ];
-
   const contactInfo = [
     { icon: <MdPhone className="text-green-400" />, text: "+94 76 123 4567" },
     { icon: <MdEmail className="text-green-400" />, text: "waste2wealth.agriwaste@gmail.com" },
@@ -43,11 +35,11 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="bg-zinc-900 text-white pt-16 pb-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+    <footer className="px-4 pt-16 pb-8 text-white bg-zinc-900">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand Section */}
-          <motion.div 
+          <div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -55,7 +47,7 @@ export const Footer = () => {
             className="space-y-4"
           >
             <div className="flex items-center">
-              <div className="bg-green-600 p-2 rounded-lg mr-3">
+              <div className="p-2 mr-3 bg-green-600 rounded-lg">
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
@@ -65,50 +57,50 @@ export const Footer = () => {
             <p className="text-gray-300">
               Transforming agricultural waste into sustainable wealth through innovative solutions and circular economy practices.
             </p>
-          </motion.div>
+          </div>
 
           {/* Services */}
-          <motion.div 
+          <div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-lg font-semibold text-green-400 mb-4">OUR SERVICES</h3>
+            <h3 className="mb-4 text-lg font-semibold text-green-400">OUR SERVICES</h3>
             <ul className="space-y-3">
               {services.map((service, index) => (
                 <li key={index}>
-                  <a href="#" className="text-gray-300 hover:text-green-400 transition-colors flex items-center">
-                    <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                  <a href="#" className="flex items-center text-gray-300 transition-colors hover:text-green-400">
+                    <span className="w-2 h-2 mr-2 bg-green-400 rounded-full"></span>
                     {service}
                   </a>
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
 
           {/* Company Links */}
-          <motion.div 
+          <div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-lg font-semibold text-green-400 mb-4">COMPANY</h3>
+            <h3 className="mb-4 text-lg font-semibold text-green-400">COMPANY</h3>
             <ul className="space-y-3">
               {companyLinks.map((link, index) => (
                 <li key={index}>
-                  <a href="#" className="text-gray-300 hover:text-green-400 transition-colors flex items-center">
-                    <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                  <a href="#" className="flex items-center text-gray-300 transition-colors hover:text-green-400">
+                    <span className="w-2 h-2 mr-2 bg-green-400 rounded-full"></span>
                     {link}
                   </a>
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
 
           {/* Contact Info */}
-          <motion.div 
+          <div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -119,7 +111,7 @@ export const Footer = () => {
             <ul className="space-y-3">
               {contactInfo.map((info, index) => (
                 <li key={index} className="flex items-start">
-                  <span className="mr-3 mt-1">{info.icon}</span>
+                  <span className="mt-1 mr-3">{info.icon}</span>
                   <span className="text-gray-300">{info.text}</span>
                 </li>
               ))}
@@ -127,13 +119,13 @@ export const Footer = () => {
 
             {/* Social Media */}
             <div className="mt-6">
-              <h4 className="text-sm font-semibold text-green-400 mb-3">FOLLOW US</h4>
+              <h4 className="mb-3 text-sm font-semibold text-green-400">FOLLOW US</h4>
               <div className="flex space-x-3">
                 {socialLinks.map((social, index) => (
                   <motion.a
                     key={index}
                     href="#"
-                    className="p-2 bg-zinc-800 rounded-full hover:bg-green-600 transition-colors"
+                    className="p-2 transition-colors rounded-full bg-zinc-800 hover:bg-green-600"
                     whileHover={{ y: -3 }}
                     whileTap={{ scale: 0.9 }}
                     aria-label={social.name}
@@ -143,26 +135,26 @@ export const Footer = () => {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Copyright */}
-        <motion.div 
+        <div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
           viewport={{ once: true }}
-          className="mt-16 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm"
+          className="pt-8 mt-16 text-sm text-center text-gray-400 border-t border-gray-800"
         >
           <div className="flex flex-col items-center justify-center">
             <p className="text-center">
               &copy; {new Date().getFullYear()} Waste2Wealth. All rights reserved. | 
-              <a href="#" className="hover:text-green-400 ml-1">Terms of Service</a> | 
-              <a href="#" className="hover:text-green-400 ml-1">Privacy Policy</a>
+              <a href="#" className="ml-1 hover:text-green-400">Terms of Service</a> | 
+              <a href="#" className="ml-1 hover:text-green-400">Privacy Policy</a>
             </p>
             <p className="mt-2 text-center">Proudly made in Sri Lanka</p>
           </div>
-      </motion.div>
+      </div>
       </div>
     </footer>
   );

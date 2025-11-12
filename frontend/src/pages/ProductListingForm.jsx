@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { Navbar } from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { apiService, API_URL } from "../utils/api";
 
 export const ProductListingForm = () => {
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ export const ProductListingForm = () => {
           console.error("Token is missing user identification");
         }
       } catch (error) {
+      console.error(error);
         console.error("Error decoding token:", error);
       }
     };
@@ -79,30 +81,30 @@ export const ProductListingForm = () => {
   // Fetch Waste Types 
   useEffect(() => {
     if (formData.wasteCategory) {
-      fetch(`http://localhost:3000/api/product-listing/waste-types/${formData.wasteCategory}`)
+      fetch(`${API_URL}/api/product-listing/waste-types/${formData.wasteCategory}`)
         .then((res) => res.json())
         .then((data) => setWasteTypes(data))
-        .catch((error) => toast.error("Failed to fetch waste types"));
+        .catch(() => toast.error("Failed to fetch waste types"));
     }
   }, [formData.wasteCategory]);
 
   // Fetch Waste Items 
   useEffect(() => {
     if (formData.wasteType) {
-      fetch(`http://localhost:3000/api/product-listing/waste-items/${formData.wasteType}`)
+      fetch(`${API_URL}/api/product-listing/waste-items/${formData.wasteType}`)
         .then((res) => res.json())
         .then((data) => setWasteItems(data))
-        .catch((error) => toast.error("Failed to fetch waste items"));
+        .catch(() => toast.error("Failed to fetch waste items"));
     }
   }, [formData.wasteType]);
 
   // Fetch Districts based on Province
   useEffect(() => {
     if (formData.province) {
-      fetch(`http://localhost:3000/api/product-listing/districts/${formData.province}`)
+      fetch(`${API_URL}/api/product-listing/districts/${formData.province}`)
         .then((res) => res.json())
         .then((data) => setDistricts(data))
-        .catch((error) => toast.error("Failed to fetch districts"));
+        .catch(() => toast.error("Failed to fetch districts"));
     }
   }, [formData.province]);
 
@@ -207,18 +209,15 @@ export const ProductListingForm = () => {
       };
 
       // First create the product listing
-      const response = await fetch("http://localhost:3000/api/product-listing/create", {
-        method: "POST",
+      const response = await apiService.post("/api/product-listing/create", payload, {
         headers: {
-          "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
       });
 
-      const responseData = await response.json();
+      const responseData = response.data;
       
-      if (!response.ok) {
+      if (!response.status || response.status >= 400) {
         console.error("Backend error response:", responseData);
         throw new Error(responseData.message || responseData.error?.message || "Submission failed");
       }
@@ -245,6 +244,7 @@ export const ProductListingForm = () => {
         });
       }
     } catch (error) {
+      console.error(error);
       console.error("Submission error:", error);
       toast.error(error.message || "Submission failed. Please try again.");
     }

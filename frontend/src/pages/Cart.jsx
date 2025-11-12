@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-hot-toast"
 import { Navbar } from "../components/Navbar"
-import axios from "axios"
+import { apiService } from "../utils/api"
 import { ShoppingCart, ArrowLeft, Trash2, ShoppingBag, Truck, CreditCard } from "lucide-react"
 
 export const Cart = () => {
@@ -15,31 +15,32 @@ export const Cart = () => {
   const userData = JSON.parse(localStorage.getItem("user") || "{}")
   const userId = userData._id
 
-  useEffect(() => {
-    fetchCartItems()
-    
-  }, [navigate, userId])
-
-  const fetchCartItems = async () => {
+  const fetchCartItems = useCallback(async () => {
     try {
       if (!userId) {
         toast.error("Please login to view your cart")
         navigate("/login")
         return
       }
-      const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
+      const response = await apiService.get(`/api/cart/${userId}`)
       
       if (response.data) {
         setCartItems(response.data.items)
       }
     } catch (error) {
-      console.error("Error fetching cart items:", error)
+      console.error("Error fetching cart items:", error.response?.data?.message || error.message)
       toast.error("Failed to load cart items")
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId, navigate])
 
+  useEffect(() => {
+    fetchCartItems()
+  }, [fetchCartItems])
+
+  // updateQuantity function is prepared for future quantity update feature
+  // eslint-disable-next-line no-unused-vars
   const updateQuantity = async (wasteId, change) => {
     try {
       if (!userId) {
@@ -57,7 +58,7 @@ export const Cart = () => {
         return
       }
 
-      const response = await axios.put("http://localhost:3000/api/cart/update", {
+      const response = await apiService.put("/api/cart/update", {
         userId,
         wasteId,
         quantity: newQuantity,
@@ -70,7 +71,7 @@ export const Cart = () => {
         toast.success("Cart updated successfully")
       }
     } catch (error) {
-      console.error("Error updating quantity:", error)
+      console.error("Error updating quantity:", error.response?.data?.message || error.message)
       toast.error("Failed to update cart")
     }
   }
@@ -83,7 +84,7 @@ export const Cart = () => {
         return
       }
 
-      const response = await axios.delete("http://localhost:3000/api/cart/remove", {
+      const response = await apiService.delete("/api/cart/remove", {
         data: { userId, wasteId },
       })
 
@@ -92,7 +93,7 @@ export const Cart = () => {
         toast.success("Item removed from cart")
       }
     } catch (error) {
-      console.error("Error removing item:", error)
+      console.error("Error removing item:", error.response?.data?.message || error.message)
       toast.error("Failed to remove item")
     }
   }

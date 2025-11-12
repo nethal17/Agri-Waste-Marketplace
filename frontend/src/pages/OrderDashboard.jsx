@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useCallback } from "react";
+import { apiService } from "../utils/api";
 import { format } from "date-fns";
 import { FiShoppingBag, FiCalendar, FiFilter, FiX, FiCheck, FiTruck, FiStar } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
@@ -31,8 +31,8 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit }) => {
         review: reviewText
       });
       onClose();
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to submit review");
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to submit review");
     } finally {
       setIsSubmitting(false);
     }
@@ -115,8 +115,6 @@ export const OrderDashboard = ({ checkoutData }) => {
   const [endDate, setEndDate] = useState("");
   const [activeStatus, setActiveStatus] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   const userData = JSON.parse(localStorage.getItem("user"));
   const userId = userData?._id;
@@ -128,25 +126,25 @@ export const OrderDashboard = ({ checkoutData }) => {
     { value: "toReview", label: "Completed", icon: <FiStar /> },
   ];
 
-  useEffect(() => {
-    if (userId) {
-      fetchOrders();
-    }
-  }, [userId]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/api/order-history");
+      const response = await apiService.get("/api/order-history");
       const data = Array.isArray(response.data) ? response.data : [];
       setOrders(data);
       filterOrders(data, activeStatus, startDate, endDate);
     } catch (error) {
-      console.error("Failed to fetch order history", error);
+      console.error("Failed to fetch order history:", error.response?.data?.message || error.message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeStatus, startDate, endDate]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchOrders();
+    }
+  }, [userId, fetchOrders]);
 
   const filterOrders = (ordersToFilter, status, start, end) => {
     let filtered = [...ordersToFilter];
@@ -183,7 +181,7 @@ export const OrderDashboard = ({ checkoutData }) => {
 
   const handleProceedToPayment = async () => {
     try {
-      await axios.post("/api/order-history", {
+      await apiService.post("/api/order-history", {
         userId: userId,
         productName: checkoutData.productName,
         productId: checkoutData.productId,
@@ -219,19 +217,6 @@ export const OrderDashboard = ({ checkoutData }) => {
       </span>
     );
   };
-
-  const handleCancelOrder = async (orderId) => {
-    if (window.confirm("Are you sure you want to cancel this order?")) {
-      try {
-        await axios.delete(`http://localhost:3000/api/order-history/cancel/${orderId}`);
-        fetchOrders();
-      } catch (error) {
-        console.error("Failed to cancel order", error);
-      }
-    }
-  };
-
-  
 
   return (
     <>

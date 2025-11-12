@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 
 const DeliveryHistoryDashboard = () => {
   const [orders, setOrders] = useState([]);
-  const [address, setAddress] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [address, setAddress] = useState(null);
   const userData = JSON.parse(localStorage.getItem("user"));
   const userId = userData?._id;
   const navigate = useNavigate();
@@ -27,43 +28,43 @@ const DeliveryHistoryDashboard = () => {
   }, [userId]);
 
   const fetchOrders = () => {
-    axios
-      .get(`http://localhost:3000/api/order-history`)
+    apiService
+      .get(`/api/order-history`)
       .then((res) => setOrders(res.data))
-      .catch((err) => console.error("Error fetching delivery orders:", err));
+      .catch((err) => console.error("Error fetching delivery orders:", err.response?.data?.message || err.message));
   };
 
   const fetchAddress = (userId) => {
-    axios
-      .get(`http://localhost:3000/api/address/get-address/${userId}`)
+    apiService
+      .get(`/api/address/get-address/${userId}`)
       .then((res) => setAddress(res.data))
-      .catch((err) => console.error("Error fetching address:", err));
+      .catch((err) => console.error("Error fetching address:", err.response?.data?.message || err.message));
   };
 
   const handleAccept = async (orderId) => {
     try {
-      await axios.put(`http://localhost:3000/api/order-history/${orderId}/accept`);
+      await apiService.put(`/api/order-history/${orderId}/accept`);
       fetchOrders();
-    } catch (err) {
-      console.error("Error accepting order:", err);
+    } catch (error) {
+      console.error("Error accepting order:", error.response?.data?.message || error.message);
     }
   };
 
   const handleDecline = async (orderId) => {
     try {
-      await axios.put(`http://localhost:3000/api/order-history/${orderId}/decline`);
+      await apiService.put(`/api/order-history/${orderId}/decline`);
       fetchOrders();
-    } catch (err) {
-      console.error("Error declining order:", err);
+    } catch (error) {
+      console.error("Error declining order:", error.response?.data?.message || error.message);
     }
   };
 
   const handleMarkAsDone = async (orderId) => {
     try {
-      await axios.put(`http://localhost:3000/api/order-history/${orderId}/mark-done`);
+      await apiService.put(`/api/order-history/${orderId}/mark-done`);
       fetchOrders();
-    } catch (err) {
-      console.error("Error marking order as done:", err);
+    } catch (error) {
+      console.error("Error marking order as done:", error.response?.data?.message || error.message);
     }
   };
 

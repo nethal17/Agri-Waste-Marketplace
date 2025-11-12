@@ -37,6 +37,7 @@ function useSidebar() {
 const SidebarProvider = React.forwardRef(
   ({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }, ref) => {
     const isMobile = useIsMobile()
+    // eslint-disable-next-line no-unused-vars
     const [openMobile, setOpenMobile] = React.useState(false)
 
     // This is the internal state of the sidebar.
@@ -78,6 +79,7 @@ const SidebarProvider = React.forwardRef(
 
     // We add a state so that we can do data-state="expanded" or "collapsed".
     // This makes it easier to style the sidebar with Tailwind classes.
+    // eslint-disable-next-line no-unused-vars
     const state = open ? "expanded" : "collapsed"
 
     const contextValue = React.useMemo(
@@ -114,9 +116,11 @@ const SidebarProvider = React.forwardRef(
 SidebarProvider.displayName = "SidebarProvider"
 
 const Sidebar = React.forwardRef(
+  // eslint-disable-next-line no-unused-vars
   ({ side = "left", variant = "sidebar", collapsible = "offcanvas", className, children, ...props }, ref) => {
     const { open } = React.useContext(SidebarContext)
     const isMobile = useIsMobile()
+    // eslint-disable-next-line no-unused-vars
     const [openMobile, setOpenMobile] = React.useState(false)
     const [hasMounted, setHasMounted] = React.useState(false)
 
@@ -174,6 +178,7 @@ const Sidebar = React.forwardRef(
 )
 Sidebar.displayName = "Sidebar"
 
+// eslint-disable-next-line no-unused-vars
 const SidebarTrigger = React.forwardRef(({ className, onClick, ...props }, ref) => {
   const { open, setOpen } = React.useContext(SidebarContext)
 
@@ -193,11 +198,13 @@ const SidebarTrigger = React.forwardRef(({ className, onClick, ...props }, ref) 
 })
 SidebarTrigger.displayName = "SidebarTrigger"
 
+// eslint-disable-next-line no-unused-vars
 const SidebarRail = React.forwardRef(({ className, ...props }, ref) => {
   return <div className={cn("absolute inset-y-0 right-0 w-px bg-border", className)} {...props} />
 })
 SidebarRail.displayName = "SidebarRail"
 
+// eslint-disable-next-line no-unused-vars
 const SidebarInset = React.forwardRef(({ className, children, ...props }, ref) => {
   return (
     <div className={cn("flex flex-1 flex-col md:pl-[240px]", className)} {...props}>
@@ -266,6 +273,7 @@ const SidebarGroup = React.forwardRef(({ className, children, ...props }) => {
 })
 SidebarGroup.displayName = "SidebarGroup"
 
+// eslint-disable-next-line no-unused-vars
 const SidebarGroupLabel = React.forwardRef(({ className, children, asChild = false, ...props }, ref) => {
   const Comp = asChild ? React.Fragment : "div"
   return (
@@ -286,6 +294,7 @@ const SidebarGroupLabel = React.forwardRef(({ className, children, asChild = fal
 })
 SidebarGroupLabel.displayName = "SidebarGroupLabel"
 
+// eslint-disable-next-line no-unused-vars
 const SidebarGroupAction = React.forwardRef(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
 

@@ -39,7 +39,6 @@ import PayHistory from './components/PayHistory';
 import HighPayments from './components/HighPayments';
 import Final from './components/Final';
 import FarmerList from './components/FarmerList';
-import FarmerPayment from './components/FarmerPayment';
 import FarmerPaymentNew from './components/FarmerPaymentNew';
 
 import { AddOrderPage } from './pages/AddOrderPage';
@@ -56,17 +55,12 @@ import { InventoryChartpage } from './pages/InventoryChartpage';
 import { InventoryCategoryPage } from './pages/InventoryCategoryPage';
 
 import HomeTesting from './pages/HomeTesting';
-
-
-
 import Delivery from './pages/Delivery';
 import TruckDriverDashboard from './pages/TruckDriverDashboard';
 import FarmerReqForm from './pages/FarmerReqForm';
-import Sidebar from './components/Sidebar';
 import Refund from './components/refund';
 import VehicleRegPage from './pages/VehicleReg';
 import DeliveryHistoryDashboard from './pages/DeliveryHistoryDashboard';
-import DeliveryHistoryPage from './pages/DeliveryHistoryDashboard';
 import { Analysis } from "./components/Analysis";
 
 
@@ -137,12 +131,7 @@ function App() {
       <Route path="/vehicle-registration" element={<VehicleRegPage />} />
       <Route path="/vehicle-list" element={<VehicleList />} />
 
-      <Route path="/vehicle-registration" element={<VehicleRegPage />} />
-
       <Route path="/delivery-history" element={<DeliveryHistoryDashboard />} />
-      
-       
-      <Route path="/delivery-history" element={<DeliveryHistoryPage />} />
       <Route path="/analysis" element={<Analysis />} />
     </Routes>
   )

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode';
 import { FaRegCircleUser } from "react-icons/fa6";
 import toast from "react-hot-toast";
-import axios from "axios";
+import { apiService } from "../utils/api";
 
 export function useAuth() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -69,11 +69,11 @@ export const Navbar = () => {
                     return;
                 }
 
-                const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`);
+                const response = await apiService.get(`/api/auth/searchUser/${userId}`);
                 setUser(response.data);
             } catch (error) {
                 toast.error("Failed to fetch user data.");
-                console.error(error);
+                console.error("User data fetch error:", error.response?.data?.message || error.message);
             } finally {
                 setLoading(false);
             }

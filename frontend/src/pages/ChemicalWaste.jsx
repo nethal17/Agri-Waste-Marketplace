@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Navbar } from "../components/Navbar";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { toast } from "react-hot-toast";
 
 export const ChemicalWaste = () => {
@@ -22,19 +22,19 @@ export const ChemicalWaste = () => {
           return;
         }
 
-        const response = await axios.get(`http://localhost:3000/api/marketplace/waste-type/${encodeURIComponent(wasteType)}`);
+        const response = await apiService.get(`/api/marketplace/waste-type/${encodeURIComponent(wasteType)}`);
         
         if (!response.data.success) {
           throw new Error(response.data.message || 'No waste details found');
         }
         
         setWasteDetails(response.data.data);
-      } catch (err) {
-        console.error('Error fetching waste details:', err);
-        if (err.response?.status === 404) {
+      } catch (error) {
+        console.error('Error fetching waste details:', error);
+        if (error.response?.status === 404) {
           setError(`No products available for ${wasteType}. Please check back later.`);
         } else {
-          setError(`Failed to fetch waste details: ${err.message}`);
+          setError(`Failed to fetch waste details: ${error.message}`);
         }
         setWasteDetails([]);
       } finally {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { API_URL } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
@@ -39,18 +39,18 @@ const TruckDriverDashboard = () => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/deliveryReq/get-delivery-requests")
+    fetch(`${API_URL}/api/deliveryReq/get-delivery-requests`)
       .then((res) => res.json())
       .then((data) => {
         setPendingRequests(data.filter((req) => req.status === "Pending"));
         setAcceptedRequests(data.filter((req) => req.status === "accepted"));
         setCompletedDeliveries(data.filter((req) => req.status === "completed"));
       })
-      .catch((err) => console.error("Error fetching requests:", err));
+      .catch((err) => console.error("Error fetching requests:", err.message || err));
   }, []);
 
   const handleAccept = (id) => {
-    fetch(`http://localhost:3000/api/deliveryReq/update-delivery-requests/${id}`, {
+    fetch(`${API_URL}/api/deliveryReq/update-delivery-requests/${id}`, {
       method: "PUT",
     }).then(() => {
       setPendingRequests((prev) => prev.filter((req) => req._id !== id));
@@ -60,7 +60,7 @@ const TruckDriverDashboard = () => {
   };
 
   const handleCompleted = (id) => {
-    fetch(`http://localhost:3000/api/deliveryReq/update-delivery-requests/${id}`, {
+    fetch(`${API_URL}/api/deliveryReq/update-delivery-requests/${id}`, {
       method: "PUT",
     }).then(() => {
       setPendingRequests((prev) => prev.filter((req) => req._id !== id));
@@ -70,13 +70,13 @@ const TruckDriverDashboard = () => {
   };
 
   const handleDelete = (id) => {
-    fetch(`http://localhost:3000/api/deliveryReq/delete-delivery-request/${id}`, {
+    fetch(`${API_URL}/api/deliveryReq/delete-delivery-request/${id}`, {
       method: "DELETE",
     })
       .then(() => {
         setPendingRequests((prev) => prev.filter((req) => req._id !== id));
       })
-      .catch((err) => console.error("Error deleting request:", err));
+      .catch((err) => console.error("Error deleting request:", err.message || err));
   };
 
   return (

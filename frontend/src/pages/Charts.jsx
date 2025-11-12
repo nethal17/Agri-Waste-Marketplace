@@ -3,7 +3,7 @@ import { Card, Row, Col, Spin, Typography, Statistic } from 'antd';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { DollarOutlined, UserOutlined, TeamOutlined, RiseOutlined } from '@ant-design/icons';
 import Sidebar from '../components/Sidebar';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -13,20 +13,21 @@ const Charts = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [highTotalAmount, setHighTotalAmount] = useState(0);
   const [orderHistoryTotal, setOrderHistoryTotal] = useState(0);
+  // eslint-disable-next-line no-unused-vars
   const [monthlyData, setMonthlyData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch order history data
-        const orderHistoryResponse = await axios.get('http://localhost:3000/api/order-history');
+        const orderHistoryResponse = await apiService.get('/api/order-history');
         const orderHistoryData = orderHistoryResponse.data;
         const orderHistoryCount = orderHistoryData.length;
         const orderHistoryTotal = orderHistoryCount * 1000;
         setOrderHistoryTotal(orderHistoryTotal);
 
         // Fetch stripe payments
-        const paymentsResponse = await axios.get('http://localhost:3000/api/stripe-payments');
+        const paymentsResponse = await apiService.get('/api/stripe-payments');
         const payments = paymentsResponse.data;
 
         const total = payments.reduce((sum, payment) => {
@@ -55,15 +56,15 @@ const Charts = () => {
         setMonthlyData(monthlyData);
 
         setLoading(false);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(err.message || 'Failed to fetch data. Please try again later.');
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError(error.message || 'Failed to fetch data. Please try again later.');
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, []);  
 
   const farmerPayment = totalAmount * 0.8;
   const profit = totalAmount * 0.2;

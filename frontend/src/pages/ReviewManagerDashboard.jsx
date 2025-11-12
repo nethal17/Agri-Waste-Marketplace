@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { toast } from 'react-hot-toast';
 import { Navbar } from '../components/Navbar';
 import { FaCheck, FaTrash, FaEye, FaSpinner, FaSearch } from 'react-icons/fa';
@@ -9,6 +9,7 @@ export const ReviewManagerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedReview, setSelectedReview] = useState(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -17,10 +18,10 @@ export const ReviewManagerDashboard = () => {
 
   const fetchPendingReviews = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/reviews/pending?timestamp=${Date.now()}`);
+      const response = await apiService.get(`/api/reviews/pending?timestamp=${Date.now()}`);
       setPendingReviews(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      console.error('Error fetching pending reviews:', error);
+      console.error('Error fetching pending reviews:', error.response?.data?.message || error.message);
       toast.error('Failed to fetch pending reviews. Please try again.');
     } finally {
       setLoading(false);
@@ -29,7 +30,7 @@ export const ReviewManagerDashboard = () => {
 
   const handlePublishReview = async (reviewId) => {
     try {
-      const response = await axios.put(`http://localhost:3000/api/reviews/publish/${reviewId}`);
+      const response = await apiService.put(`/api/reviews/publish/${reviewId}`);
       if (response.status === 200) {
         toast.success(response.data?.message || 'Review published successfully!');
         fetchPendingReviews();
@@ -37,7 +38,7 @@ export const ReviewManagerDashboard = () => {
         toast.error(response.data?.message || 'Failed to publish review. Please try again.');
       }
     } catch (error) {
-      console.error('Error publishing review:', error);
+      console.error('Error publishing review:', error.response?.data?.message || error.message);
       const errorMsg = error?.response?.data?.message || 'Failed to publish review. Please try again.';
       toast.error(errorMsg);
     }
@@ -45,22 +46,22 @@ export const ReviewManagerDashboard = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/reviews/review-delete/${reviewId}`);
+      await apiService.delete(`/api/reviews/review-delete/${reviewId}`);
       fetchPendingReviews();
       toast.success('Review deleted successfully!');
     } catch (error) {
-      console.error('Error deleting review:', error);
+      console.error('Error deleting review:', error.response?.data?.message || error.message);
       toast.error('Failed to delete review. Please try again.');
     }
   };
 
   const handlePreviewReview = async (reviewId) => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/reviews/details/${reviewId}`);
+      const response = await apiService.get(`/api/reviews/details/${reviewId}`);
       setSelectedReview(response.data);
       setIsPreviewModalOpen(true);
     } catch (error) {
-      console.error('Error fetching review details:', error);
+      console.error('Error fetching review details:', error.response?.data?.message || error.message);
       toast.error('Failed to fetch review details. Please try again.');
     }
   };

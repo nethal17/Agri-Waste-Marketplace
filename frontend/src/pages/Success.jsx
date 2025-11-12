@@ -1,12 +1,11 @@
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { apiService } from "../utils/api";
 import { toast } from "react-hot-toast";
 import { Navbar } from "../components/Navbar";
 
 export const Success = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const processOrder = async () => {
@@ -20,7 +19,7 @@ export const Success = () => {
           return;
         }*/
 
-        await axios.post("http://localhost:3000/api/order-history/process-payment", {
+        await apiService.post("/api/order-history/process-payment", {
           userId: user._id,
           cartItems: cartItems
         });

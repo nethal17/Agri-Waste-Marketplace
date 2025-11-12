@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { toast } from 'react-hot-toast';
 import { FiPackage, FiCheck, FiTrash2, FiEye, FiCalendar, FiAlertTriangle, FiClock } from 'react-icons/fi';
 import { FiUser, FiFileText, FiDollarSign, FiLayers, FiSettings } from 'react-icons/fi';
@@ -18,7 +18,7 @@ export const InventoryManagerDashboard = () => {
 
   useEffect(() => {
     fetchListings();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -60,7 +60,7 @@ export const InventoryManagerDashboard = () => {
         return;
       }
 
-      const response = await axios.get('http://localhost:3000/api/product-listing/admin/listings', {
+      const response = await apiService.get('/api/product-listing/admin/listings', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -78,7 +78,7 @@ export const InventoryManagerDashboard = () => {
       setListings(processedListings);
       
     } catch (error) {
-      console.error('Error fetching listings:', error);
+      console.error('Error fetching listings:', error.response?.data?.message || error.message);
       toast.error('Failed to fetch listings. Please try again.');
     }
   };
@@ -94,7 +94,7 @@ export const InventoryManagerDashboard = () => {
         return;
       }
 
-      await axios.put(`http://localhost:3000/api/product-listing/admin/approve/${listingId}`, null, {
+      await apiService.put(`/api/product-listing/admin/approve/${listingId}`, null, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -103,7 +103,7 @@ export const InventoryManagerDashboard = () => {
       toast.success('Listing approved and moved to Marketplace.');
       fetchListings();
     } catch (error) {
-      console.error('Error approving listing:', error);
+      console.error('Error approving listing:', error.response?.data?.message || error.message);
       toast.error('Failed to approve listing. Please try again.');
     } finally {
       setApproving(false);
@@ -132,7 +132,7 @@ export const InventoryManagerDashboard = () => {
         return;
       }
 
-      await axios.delete(`http://localhost:3000/api/product-listing/admin/delete/${productToDelete}`, {
+      await apiService.delete(`/api/product-listing/admin/delete/${productToDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -159,14 +159,6 @@ export const InventoryManagerDashboard = () => {
   const handlePreview = (listing) => {
     setSelectedProduct(listing);
     setShowPreviewModal(true);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'expired': return 'bg-red-100 text-red-800';
-      case 'soon': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-green-100 text-green-800';
-    }
   };
 
   const getStatusIcon = (status) => {

@@ -1,6 +1,7 @@
-/*import React, { useEffect, useState } from "react";
+/*
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { Navbar } from "../components/Navbar";
 
 export const ForestryWaste = () => {
@@ -11,8 +12,8 @@ export const ForestryWaste = () => {
   useEffect(() => {
     const fetchWasteData = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/agri-waste/waste/${encodeURIComponent(waste_type)}`
+        const response = await apiService.get(
+          `/api/agri-waste/waste/${encodeURIComponent(waste_type)}`
         );
         setWasteData(response.data);
       } catch (error) {

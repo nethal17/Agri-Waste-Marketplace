@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +14,7 @@ export const TwoStepVerification = ({ email }) => {
       setLoading(true);
       
       // First get the user by email
-      const userResponse = await axios.get('http://localhost:3000/api/auth/getAllUsers');
+      const userResponse = await apiService.get('/api/auth/getAllUsers');
       const user = userResponse.data.data.find(user => user.email === email);
       
       if (!user) {
@@ -22,7 +22,7 @@ export const TwoStepVerification = ({ email }) => {
       }
 
       // Then verify the code
-      const response = await axios.post('http://localhost:3000/api/auth/verify-two-step-code', {
+      const response = await apiService.post('/api/auth/verify-two-step-code', {
         userId: user._id,
         code
       });

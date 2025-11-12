@@ -1,6 +1,6 @@
 /*import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import { apiService, API_URL } from "../utils/api";
 import { Navbar } from "../components/Navbar";
 import { toast } from "react-hot-toast";
 import { FaShoppingCart } from "react-icons/fa";
@@ -20,7 +20,7 @@ export const CropResidues = () => {
     const fetchWasteData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/agri-waste/waste/${encodeURIComponent(waste_type)}`
+          `${API_URL}/api/agri-waste/waste/${encodeURIComponent(waste_type)}`
         );
         setWasteData(response.data);
       } catch (error) {
@@ -46,7 +46,7 @@ export const CropResidues = () => {
         }
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         const userId = userData._id;
-        const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`);
+        const response = await apiService.get(`/api/auth/searchUser/${userId}`);
         setUser(response.data);
       } catch (error) {
         toast.error("Failed to fetch user data.");
@@ -73,7 +73,7 @@ export const CropResidues = () => {
     
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/cart/add",
+        `${API_URL}/api/cart/add`,
         {
           userId : user._id, // Assuming your auth context provides user._id
           wasteId: waste._id,

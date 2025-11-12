@@ -48,8 +48,8 @@ export const createRefund = async (req, res) => {
     console.error("Error in createRefund:", error);
     res.status(500).json({ 
       message: "Error creating refund",
-      error: error.message,
-      stack: error.stack
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
     });
   }
 };

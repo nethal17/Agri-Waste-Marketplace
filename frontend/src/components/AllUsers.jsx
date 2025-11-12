@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { toast } from "react-hot-toast";
 import { 
   FaUsers, FaUserShield, FaUserCheck, FaUserTimes, 
@@ -62,24 +62,16 @@ export const AllUsers = () => {
   const [filterRole, setFilterRole] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [showSidebar, setShowSidebar] = useState(true);
-  const [showActivityLog, setShowActivityLog] = useState(false);
-  const [userActivityLogs, setUserActivityLogs] = useState([]);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewUser, setPreviewUser] = useState(null);
-  const [chartData, setChartData] = useState({
-    roleDistribution: null,
-    userGrowth: null,
-    verificationStatus: null
-  });
   const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get(`http://localhost:3000/api/auth/getAllUsers`)
+    apiService
+      .get(`/api/auth/getAllUsers`)
       .then((response) => {
         setAllUsers(response.data.data);
-        prepareChartData(response.data.data);
       })
       .catch((error) => {
         console.error("Error fetching users:", error);
@@ -93,7 +85,7 @@ export const AllUsers = () => {
     setLoading(true);
     
     try {
-      await axios.delete(`http://localhost:3000/api/auth/userDelete/${selectedUser._id}`);
+      await apiService.delete(`/api/auth/userDelete/${selectedUser._id}`);
       setAllUsers((prevUsers) => prevUsers.filter((user) => user._id !== selectedUser._id));
       toast.success("Successfully deactivated user account");
       setShowModal(false);
@@ -136,7 +128,7 @@ export const AllUsers = () => {
 
   const handleExportUsers = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/auth/exportUsers`, {
+      const response = await apiService.get(`/api/auth/exportUsers`, {
         responseType: 'blob'
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -175,96 +167,6 @@ export const AllUsers = () => {
     if (deviceInfo.includes("iOS")) return "iOS";
     
     return "Other";
-  };
-
-  const formatIPAddress = (ip) => {
-    if (!ip) return "Unknown";
-    
-    if (ip === "::1") return "127.0.0.1";
-    return ip;
-  };
-
-  const prepareChartData = (users) => {
-    // Role Distribution Pie Chart
-    const roleCounts = users.reduce((acc, user) => {
-      acc[user.role] = (acc[user.role] || 0) + 1;
-      return acc;
-    }, {});
-
-    const roleDistributionData = {
-      labels: Object.keys(roleCounts).map(role => 
-        role === "farmer" ? "Farmers" : 
-        role === "buyer" ? "Buyers" : 
-        "Drivers"
-      ),
-      datasets: [{
-        data: Object.values(roleCounts),
-        backgroundColor: [
-          'rgba(75, 192, 192, 0.6)',
-          'rgba(54, 162, 235, 0.6)',
-          'rgba(153, 102, 255, 0.6)'
-        ],
-        borderColor: [
-          'rgba(75, 192, 192, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(153, 102, 255, 1)'
-        ],
-        borderWidth: 1
-      }]
-    };
-
-    // User Growth Line Chart
-    const sortedByDate = [...users].sort((a, b) => 
-      new Date(a.createdAt) - new Date(b.createdAt)
-    );
-    
-    const monthlyGrowth = sortedByDate.reduce((acc, user) => {
-      const date = new Date(user.createdAt);
-      const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`;
-      acc[monthYear] = (acc[monthYear] || 0) + 1;
-      return acc;
-    }, {});
-
-    const userGrowthData = {
-      labels: Object.keys(monthlyGrowth).map(date => {
-        const [year, month] = date.split('-');
-        return `${new Date(year, month - 1).toLocaleString('default', { month: 'short' })} ${year}`;
-      }),
-      datasets: [{
-        label: 'User Growth',
-        data: Object.values(monthlyGrowth),
-        fill: false,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1
-      }]
-    };
-
-    // Verification Status Bar Chart
-    const verificationData = {
-      labels: ['Verified', 'Unverified'],
-      datasets: [{
-        label: 'Users',
-        data: [
-          users.filter(u => u.isVerified).length,
-          users.filter(u => !u.isVerified).length
-        ],
-        backgroundColor: [
-          'rgba(75, 192, 192, 0.6)',
-          'rgba(255, 99, 132, 0.6)'
-        ],
-        borderColor: [
-          'rgba(75, 192, 192, 1)',
-          'rgba(255, 99, 132, 1)'
-        ],
-        borderWidth: 1
-      }]
-    };
-
-    setChartData({
-      roleDistribution: roleDistributionData,
-      userGrowth: userGrowthData,
-      verificationStatus: verificationData
-    });
   };
 
   return (
@@ -561,44 +463,6 @@ export const AllUsers = () => {
           </div>
         </div>
       </div>
-
-      {/* Activity Log Modal */}
-      {showActivityLog && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-4xl max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-green-600 to-green-700">
-              <h3 className="text-xl font-semibold text-white">User Activity Log</h3>
-              <button
-                onClick={() => setShowActivityLog(false)}
-                className="p-2 text-white transition-colors rounded-full hover:bg-green-800"
-              >
-                <FaTimes />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto max-h-[70vh]">
-              {userActivityLogs.length > 0 ? (
-                <div className="space-y-4">
-                  {userActivityLogs.map((log, index) => (
-                    <div key={index} className="p-4 transition-shadow border rounded-lg hover:shadow-md">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-gray-800">{log.action}</span>
-                        <span className="text-sm text-gray-500">
-                          {new Date(log.timestamp).toLocaleString()}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-sm text-gray-600">{log.details}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-8 text-center">
-                  <p className="text-gray-500">No activity logs found for this user</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* User Preview Modal */}
       {showPreviewModal && previewUser && (

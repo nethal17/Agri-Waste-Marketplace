@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from "./Navbar";
 import { Button, Card, Spin, message, Table, Empty } from 'antd';
@@ -19,13 +19,13 @@ const FarmerPayment = () => {
         setLoading(true);
         
         // Fetch farmer details
-        const farmerResponse = await axios.get(`http://localhost:3000/api/auth/searchUser/${id}`);
+        const farmerResponse = await apiService.get(`/api/auth/searchUser/${id}`);
         setFarmer(farmerResponse.data);
         
         // Fetch marketplace data for this farmer
         try {
           // Fetch all marketplace data
-          const marketplaceResponse = await axios.get(`http://localhost:3000/api/product-listing/all`);
+          const marketplaceResponse = await apiService.get(`/api/product-listing/all`);
           console.log('All Marketplace Data:', marketplaceResponse.data);
           
           if (marketplaceResponse.data && Array.isArray(marketplaceResponse.data)) {

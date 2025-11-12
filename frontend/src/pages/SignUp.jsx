@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { Toaster, toast } from "react-hot-toast";
@@ -57,15 +57,16 @@ export const SignUp = () => {
       return;
     }
 
-    axios
-      .post("http://localhost:3000/api/auth/register", user)
-      .then((res) => {
+    apiService
+      .post("/api/auth/register", user)
+      .then(() => {
         toast.success(
           "Account created successfully. Please check your email to verify your account."
         );
         navigate("/login");
       })
-      .catch((err) => {
+      .catch((error) => {
+        console.error("Registration error:", error);
         toast.error("Registration failed. Please try again.");
       })
       .finally(() => setLoading(false));

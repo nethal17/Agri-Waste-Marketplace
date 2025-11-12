@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { Navbar } from '../components/Navbar';
 
 export const AddOrderPage = () => {
@@ -13,7 +13,7 @@ export const AddOrderPage = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3000/api/orders/add', {
+      const response = await apiService.post('/api/orders/add', {
         buyerId,
         productId,
         quantity,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from "./Navbar";
 import { Button, Card, Spin, message, Table, Empty, Alert, Descriptions } from 'antd';
@@ -28,7 +28,7 @@ const FarmerPaymentNew = () => {
         setLoading(true);
         
         // Fetch farmer details
-        const farmerResponse = await axios.get(`http://localhost:3000/api/auth/searchUser/${id}`);
+        const farmerResponse = await apiService.get(`/api/auth/searchUser/${id}`);
         setFarmer(farmerResponse.data);
         console.log("Farmer data fetched:", farmerResponse.data);
         
@@ -37,7 +37,7 @@ const FarmerPaymentNew = () => {
           // Try to fetch directly from the marketplace endpoint
           try {
             console.log("Attempting to fetch from marketplace endpoint");
-            const directResponse = await axios.get(`http://localhost:3000/api/marketplace/farmer-listings/${id}`);
+            const directResponse = await apiService.get(`/api/marketplace/farmer-listings/${id}`);
             console.log("Direct marketplace response:", directResponse.data);
             
             if (directResponse.data && Array.isArray(directResponse.data)) {
@@ -60,7 +60,7 @@ const FarmerPaymentNew = () => {
           
           // Fallback: Fetch all marketplace data
           console.log("Fetching all marketplace data as fallback");
-          const marketplaceResponse = await axios.get(`http://localhost:3000/api/marketplace/listings`);
+          const marketplaceResponse = await apiService.get(`/api/marketplace/listings`);
           console.log('All Marketplace Data:', marketplaceResponse.data);
           
           if (marketplaceResponse.data && Array.isArray(marketplaceResponse.data)) {
@@ -128,7 +128,7 @@ const FarmerPaymentNew = () => {
       });
       
       // Create a Stripe checkout session using the correct endpoint
-      const response = await axios.post('http://localhost:3000/api/stripe/farmer-payment', {
+      const response = await apiService.post('/api/stripe/farmer-payment', {
         userId: id,
         amount: totalAmount * 100, // Convert to cents
         currency: "LKR",

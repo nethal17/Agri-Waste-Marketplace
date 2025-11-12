@@ -1,3 +1,4 @@
+import { API_URL } from "../utils/api";
 import React, { useState } from "react";
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom'; 
@@ -43,7 +44,7 @@ const DeliveryForm = () => {
 
     try {
       console.log(deliveryData)
-      const response = await fetch('http://localhost:3000/api/deliveryReq/delivery-request', {
+      const response = await fetch(`${API_URL}/api/deliveryReq/delivery-request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(deliveryData),

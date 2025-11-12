@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { Table, Button, Modal, Form, message } from 'antd';
 import { EditOutlined, DeleteOutlined, DollarOutlined } from '@ant-design/icons';
 import { Navbar } from "./Navbar";
@@ -20,7 +20,7 @@ const FarmerList = () => {
   const fetchFarmers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/api/auth/getAllUsers');
+      const response = await apiService.get('/api/auth/getAllUsers');
       // Filter only farmers
       const farmersList = response.data.data.filter(user => user.role === 'farmer');
       setFarmers(farmersList);
@@ -44,7 +44,7 @@ const FarmerList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/auth/userDelete/${id}`);
+      await apiService.delete(`/api/auth/userDelete/${id}`);
       message.success('Farmer deleted successfully');
       fetchFarmers();
     } catch (error) {
@@ -60,7 +60,7 @@ const FarmerList = () => {
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
-      await axios.put(`http://localhost:3000/api/auth/updateUser/${editingFarmer._id}`, values);
+      await apiService.put(`/api/auth/updateUser/${editingFarmer._id}`, values);
       message.success('Farmer updated successfully');
       setIsModalVisible(false);
       fetchFarmers();

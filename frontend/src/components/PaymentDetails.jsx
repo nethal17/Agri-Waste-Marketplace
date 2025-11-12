@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from "../components/Navbar";
-import { Card, Statistic, Progress, Tag, Button, Spin, message } from 'antd';
+import { Card, Statistic, Progress, Tag, Button, Spin } from 'antd';
 import { 
   UserOutlined, 
   DollarOutlined, 
@@ -23,11 +23,11 @@ const PaymentDetails = () => {
     const fetchDriverData = async () => {
       try {
         console.log('Fetching driver data for ID:', id);
-        const driverResponse = await axios.get(`http://localhost:3000/api/auth/searchUser/${id}`);
+        const driverResponse = await apiService.get(`/api/auth/searchUser/${id}`);
         console.log('Driver response:', driverResponse.data);
         setDriver(driverResponse.data);
 
-        const deliveriesResponse = await axios.get(`http://localhost:3000/api/delivery/completed`);
+        const deliveriesResponse = await apiService.get(`/api/delivery/completed`);
         console.log('Deliveries response:', deliveriesResponse.data);
         
         const driverDeliveries = deliveriesResponse.data.filter(
@@ -55,7 +55,7 @@ const PaymentDetails = () => {
     setError(null);
     
     try {
-      const response = await axios.post('http://localhost:3000/api/driver-payment', {
+      const response = await apiService.post('/api/driver-payment', {
         totalSalary,
         driverId: id,
         driverName: driver.name

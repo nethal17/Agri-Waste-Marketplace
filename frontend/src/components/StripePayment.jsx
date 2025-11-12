@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 
 const StripePayment = () => {
   const location = useLocation();
@@ -10,7 +10,7 @@ const StripePayment = () => {
   useEffect(() => {
     const createCheckoutSession = async () => {
       try {
-        const response = await axios.post('http://localhost:3000/api/create-checkout-session', {
+        const response = await apiService.post('/api/create-checkout-session', {
           totalSalary,
         });
 

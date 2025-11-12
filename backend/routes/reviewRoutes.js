@@ -1,9 +1,15 @@
-// import { isAdmin } from '../middleware/auth.js';
-
 import express from 'express';
-import {addReview,publishReview,getPendingReviews,getPublishedReviews,getFarmerAverageRating,getFarmerReviews,
-        deleteReview,getReviewDetails, getTopRandomReviews
-        } from '../controllers/review.Controller.js'; 
+import {
+  addReview,
+  publishReview,
+  getPendingReviews,
+  getPublishedReviews,
+  getFarmerAverageRating,
+  getFarmerReviews,
+  deleteReview,
+  getReviewDetails,
+  getTopRandomReviews
+} from '../controllers/reviewController.js'; 
 
 const router = express.Router();
 
@@ -17,6 +23,5 @@ router.get('/average-rating/:farmerId', getFarmerAverageRating);
 router.delete('/review-delete/:reviewId', deleteReview);
 router.get('/details/:reviewId', getReviewDetails);
 router.get('/farmer-reviews/:farmerId', getFarmerReviews);
-//router.put('/publish/:reviewId', isAdmin, publishReview);
 
 export default router;

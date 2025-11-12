@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { FaTruck, FaEdit, FaTrash, FaSearch, FaFilter, FaCalendarAlt, FaMapMarkerAlt, FaIdCard } from "react-icons/fa";
 
 const VehicleList = () => {
@@ -20,10 +20,10 @@ const VehicleList = () => {
 
   const fetchVehicles = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/vehicle-reg");
+      const response = await apiService.get("/api/vehicle-reg");
       setVehicles(response.data);
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
+      console.error("Error fetching vehicles:", error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
     }
@@ -41,10 +41,10 @@ const VehicleList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this vehicle?")) {
       try {
-        await axios.delete(`http://localhost:3000/api/vehicle-reg/${id}`);
+        await apiService.delete(`/api/vehicle-reg/${id}`);
         setVehicles(vehicles.filter(vehicle => vehicle._id !== id));
       } catch (error) {
-        console.error("Error deleting vehicle:", error);
+        console.error("Error deleting vehicle:", error.response?.data?.message || error.message);
       }
     }
   };
@@ -57,8 +57,8 @@ const VehicleList = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(
-        `http://localhost:3000/api/vehicle-reg/${selectedVehicle._id}`,
+      const response = await apiService.put(
+        `/api/vehicle-reg/${selectedVehicle._id}`,
         selectedVehicle
       );
       
@@ -69,7 +69,7 @@ const VehicleList = () => {
       setIsModalOpen(false);
       setSelectedVehicle(null);
     } catch (error) {
-      console.error("Error updating vehicle:", error);
+      console.error("Error updating vehicle:", error.response?.data?.message || error.message);
     }
   };
 

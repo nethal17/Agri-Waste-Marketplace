@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Toaster, toast } from "react-hot-toast";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiService, API_URL } from "../utils/api";
+import toast from "react-hot-toast";
 import { Navbar } from "../components/Navbar";
 
 export const UpdateDetails = () => {
@@ -28,8 +28,8 @@ export const UpdateDetails = () => {
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         const userId = userData._id;
 
-        const response = await axios.get(
-          `http://localhost:3000/api/auth/searchUser/${userId}`
+        const response = await apiService.get(
+          `${API_URL}/api/auth/searchUser/${userId}`
         );
 
         setUser({
@@ -97,8 +97,8 @@ export const UpdateDetails = () => {
         ...(user.password && { password: user.password }), // Only send password if user entered a new one
       };
 
-      await axios.put(
-        `http://localhost:3000/api/auth/updateUser/${userId}`,
+      await apiService.put(
+        `${API_URL}/api/auth/updateUser/${userId}`,
         updatePayload
       );
 

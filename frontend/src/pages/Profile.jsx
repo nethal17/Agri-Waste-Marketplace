@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Navbar } from "../components/Navbar";
-import axios from "axios";
+import { apiService, API_URL } from "../utils/api";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { 
@@ -24,6 +24,7 @@ export const Profile = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [loading2FA, setLoading2FA] = useState(false);
   const [loginHistory, setLoginHistory] = useState([]);
   const [showLoginHistoryModal, setShowLoginHistoryModal] = useState(false);
@@ -42,6 +43,145 @@ export const Profile = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [lastSecurityUpdate, setLastSecurityUpdate] = useState(null);
 
+  const fetchUserData = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("No token found, please login again.");
+        navigate("/login");
+        return;
+      }
+
+      const userData = JSON.parse(localStorage.getItem("user"));
+      if (!userData || !userData._id) {
+        toast.error("User data not found, please login again.");
+        navigate("/login");
+        return;
+      }
+
+      const userId = userData._id;
+      const response = await apiService.get(`/api/auth/searchUser/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data) {
+        setUser(response.data);
+        setIs2FAEnabled(response.data.twoFactorEnabled);
+        setLastSecurityUpdate(response.data.lastSecurityUpdate);
+        
+        // Fetch login history
+        try {
+          const historyResponse = await apiService.get("/api/auth/login-history", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setLoginHistory(historyResponse.data.loginHistory || []);
+        } catch (historyError) {
+          console.error("Error fetching login history:", historyError);
+          toast.error("Failed to fetch login history");
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      toast.error("Failed to fetch user data. Please try again.");
+      navigate("/login");
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
+  
+  const fetchListings = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      
+      if (!token || !userData?._id) {
+        setListings([]);
+        toast.error("Please login to view your listings");
+        return;
+      }
+      
+      const response = await apiService.get(
+        `${API_URL}/api/marketplace/farmer-listings/${userData._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setListings(response.data);
+    } catch (error) {
+      console.error(error);
+      if (user.role === "farmer") {
+        console.error('Error fetching listings:', error);
+        toast.error("Failed to fetch your listings");
+        setListings([]); 
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.role]);
+
+  const fetchAllProducts = async () => {
+    try {
+      const response = await apiService.get("/api/marketplace/listings");
+      setAllProducts(response.data);
+      
+    } catch (error) {
+      console.error(error);
+     
+      console.error('Error fetching all products:', error);
+      toast.error("Failed to fetch all products");
+      setAllProducts([]); 
+      
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchReviews = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      
+      if (!token || !userData?._id) {
+        setReviews([]);
+        toast.error("Please login to view reviews");
+        return;
+      }
+
+      const response = await apiService.get(
+        `${API_URL}/api/reviews/farmer-reviews/${userData._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setReviews(response.data);
+    } catch (error) {
+      console.error(error);
+      if (user.role === "farmer") {
+        console.error('Error fetching reviews:', error);
+        toast.error("Failed to fetch reviews");
+        setReviews([]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.role]);
+
+  const fetchOrders = async () => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const userId = userData._id;
+
+    if (!userId) {
+      toast.error("Please login to view your orders");
+      return;
+    } 
+  
+    try {
+      const response = await apiService.get(`/api/order-history/user/${userId}`);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setOrders(data);
+    } catch (error) {
+      console.error(error);
+      console.error("Failed to fetch order history", error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -50,8 +190,8 @@ export const Profile = () => {
         // Always fetch basic user data for all roles
         await fetchUserData();
 
-      axios
-      .get(`http://localhost:3000/api/auth/getAllUsers`)
+      apiService
+      .get(`/api/auth/getAllUsers`)
       .then((response) => {
         setAllUsers(response.data.data);
       })
@@ -80,6 +220,7 @@ export const Profile = () => {
         }
   
       } catch (error) {
+      console.error(error);
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
@@ -87,142 +228,7 @@ export const Profile = () => {
     };
     
     fetchData();
-  }, [navigate, user?.role]);
-  
-  const fetchUserData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("No token found, please login again.");
-        navigate("/login");
-        return;
-      }
-
-      const userData = JSON.parse(localStorage.getItem("user"));
-      if (!userData || !userData._id) {
-        toast.error("User data not found, please login again.");
-        navigate("/login");
-        return;
-      }
-
-      const userId = userData._id;
-      const response = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (response.data) {
-        setUser(response.data);
-        setIs2FAEnabled(response.data.twoFactorEnabled);
-        setLastSecurityUpdate(response.data.lastSecurityUpdate);
-        
-        // Fetch login history
-        try {
-          const historyResponse = await axios.get("http://localhost:3000/api/auth/login-history", {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setLoginHistory(historyResponse.data.loginHistory || []);
-        } catch (historyError) {
-          console.error("Error fetching login history:", historyError);
-          toast.error("Failed to fetch login history");
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-      toast.error("Failed to fetch user data. Please try again.");
-      navigate("/login");
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const fetchListings = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const userData = JSON.parse(localStorage.getItem("user") || "{}");
-      
-      if (!token || !userData?._id) {
-        setListings([]);
-        toast.error("Please login to view your listings");
-        return;
-      }
-      
-      const response = await axios.get(
-        `http://localhost:3000/api/marketplace/farmer-listings/${userData._id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setListings(response.data);
-    } catch (error) {
-      if (user.role === "farmer") {
-        console.error('Error fetching listings:', error);
-        toast.error("Failed to fetch your listings");
-        setListings([]); 
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchAllProducts = async () => {
-    try {
-      const response = await axios.get("http://localhost:3000/api/marketplace/listings");
-      setAllProducts(response.data);
-      
-    } catch (error) {
-     
-      console.error('Error fetching all products:', error);
-      toast.error("Failed to fetch all products");
-      setAllProducts([]); 
-      
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchReviews = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const userData = JSON.parse(localStorage.getItem("user") || "{}");
-      
-      if (!token || !userData?._id) {
-        setReviews([]);
-        toast.error("Please login to view reviews");
-        return;
-      }
-
-      const response = await axios.get(
-        `http://localhost:3000/api/reviews/farmer-reviews/${userData._id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      setReviews(response.data);
-    } catch (error) {
-      if (user.role === "farmer") {
-        console.error('Error fetching reviews:', error);
-        toast.error("Failed to fetch reviews");
-        setReviews([]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchOrders = async () => {
-    const userData = JSON.parse(localStorage.getItem("user"));
-    const userId = userData._id;
-
-    if (!userId) {
-      toast.error("Please login to view your orders");
-      return;
-    } 
-  
-    try {
-      const response = await axios.get(`http://localhost:3000/api/order-history/user/${userId}`);
-      const data = Array.isArray(response.data) ? response.data : [];
-      setOrders(data);
-    } catch (error) {
-      console.error("Failed to fetch order history", error);
-    }
-  };
+  }, [navigate, user?.role, fetchUserData, fetchListings, fetchReviews]);
 
   const handleImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -238,8 +244,8 @@ export const Profile = () => {
     const formData = new FormData();
     formData.append("profilePic", image);
     try {
-      const response = await axios.post(
-        `http://localhost:3000/api/photo/upload-profile-pic/${user._id}`,
+      const response = await apiService.post(
+        `${API_URL}/api/photo/upload-profile-pic/${user._id}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -247,6 +253,7 @@ export const Profile = () => {
       toast.success("Profile picture updated successfully!");
       setImagePreview(null);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to upload image.");
       console.error(error);
     } finally {
@@ -258,8 +265,8 @@ export const Profile = () => {
     try {
       setLoading2FA(true);
       const token = localStorage.getItem("token");
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/toggle-2fa",
+      const response = await apiService.post(
+        `${API_URL}/api/auth/toggle-2fa`,
         { enable: !is2FAEnabled },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -268,14 +275,14 @@ export const Profile = () => {
 
       // Fetch updated user data to get new security timestamp
       const userData = JSON.parse(localStorage.getItem("user"));
-      const updatedUserResponse = await axios.get(`http://localhost:3000/api/auth/searchUser/${userData._id}`, {
+      const updatedUserResponse = await apiService.get(`/api/auth/searchUser/${userData._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLastSecurityUpdate(updatedUserResponse.data.lastSecurityUpdate);
 
       // Refresh login history after toggling 2FA
       try {
-        const historyResponse = await axios.get("http://localhost:3000/api/auth/login-history", {
+        const historyResponse = await apiService.get("/api/auth/login-history", {
           headers: { Authorization: `Bearer ${token}` }
         });
         setLoginHistory(historyResponse.data.loginHistory || []);
@@ -284,6 +291,7 @@ export const Profile = () => {
         toast.error("Failed to fetch login history");
       }
     } catch (error) {
+      console.error(error);
       console.error("Error toggling 2FA:", error);
       toast.error("Failed to update 2FA settings");
     } finally {
@@ -341,8 +349,8 @@ export const Profile = () => {
       const userData = JSON.parse(localStorage.getItem("user"));
       const userId = userData._id;
 
-      const response = await axios.put(
-        `http://localhost:3000/api/auth/change-password/${userId}`,
+      const response = await apiService.put(
+        `${API_URL}/api/auth/change-password/${userId}`,
         {
           currentPassword,
           newPassword,
@@ -360,12 +368,13 @@ export const Profile = () => {
         setPasswordError("");
         
         // Fetch updated user data to get new security timestamp
-        const updatedUserResponse = await axios.get(`http://localhost:3000/api/auth/searchUser/${userId}`, {
+        const updatedUserResponse = await apiService.get(`/api/auth/searchUser/${userId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setLastSecurityUpdate(updatedUserResponse.data.lastSecurityUpdate);
       }
     } catch (error) {
+      console.error(error);
       console.error("Error changing password:", error);
       setPasswordError(error.response?.data?.message || "Failed to change password");
       toast.error(error.response?.data?.message || "Failed to change password");
@@ -401,8 +410,8 @@ export const Profile = () => {
       const userData = JSON.parse(localStorage.getItem("user"));
       const userId = userData._id;
 
-      const response = await axios.put(
-        `http://localhost:3000/api/auth/updateUser/${userId}`,
+      const response = await apiService.put(
+        `${API_URL}/api/auth/updateUser/${userId}`,
         updateDetails,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -413,6 +422,7 @@ export const Profile = () => {
         setShowUpdateDetailsModal(false);
       }
     } catch (error) {
+      console.error(error);
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile");
     } finally {

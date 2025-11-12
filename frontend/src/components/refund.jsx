@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState, useCallback } from 'react';
+import { apiService } from '../utils/api';
 import { Table, Button, Tag, message, Space, Modal, Card, Statistic, Row, Col, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined, DeleteOutlined, DollarOutlined, ClockCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { Navbar } from "./Navbar";
@@ -22,13 +22,9 @@ const Refund = () => {
 
   useEffect(() => {
     fetchRefunds();
-  }, []);
+  }, []);  
 
-  useEffect(() => {
-    calculateStats();
-  }, [refunds]);
-
-  const calculateStats = () => {
+  const calculateStats = useCallback(() => {
     const newStats = {
       total: refunds.length,
       pending: refunds.filter(r => r.refundStatus === 'pending').length,
@@ -37,11 +33,15 @@ const Refund = () => {
       totalAmount: refunds.reduce((sum, r) => sum + r.totalPrice, 0)
     };
     setStats(newStats);
-  };
+  }, [refunds]);
+
+  useEffect(() => {
+    calculateStats();
+  }, [calculateStats]);
 
   const fetchRefunds = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/refunds');
+      const response = await apiService.get('/api/refunds');
       setRefunds(response.data);
       setLoading(false);
     } catch (error) {
@@ -54,7 +54,7 @@ const Refund = () => {
   const handleStripePayment = async (refund) => {
     try {
       await handleStatusUpdate(refund._id, 'approved');
-      const response = await axios.post('http://localhost:3000/api/create-checkout-session', {
+      const response = await apiService.post('/api/create-checkout-session', {
         totalSalary: refund.totalPrice,
         driverId: refund.userId._id,
         driverName: refund.userId.name,
@@ -75,7 +75,7 @@ const Refund = () => {
 
   const handleStatusUpdate = async (refundId, newStatus) => {
     try {
-      await axios.patch(`http://localhost:3000/api/refunds/${refundId}/status`, {
+      await apiService.patch(`/api/refunds/${refundId}/status`, {
         status: newStatus
       });
 
@@ -89,7 +89,7 @@ const Refund = () => {
 
   const handleDelete = async (refundId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/refunds/${refundId}`);
+      await apiService.delete(`/api/refunds/${refundId}`);
       message.success('Refund deleted successfully');
       fetchRefunds();
     } catch (error) {

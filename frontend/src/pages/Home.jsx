@@ -1,9 +1,9 @@
 import { useRef } from "react"
-import { motion, useAnimation, useInView } from "framer-motion"
+import { useAnimation, useInView } from "framer-motion"
 import { useNavigate } from "react-router-dom"; 
 import { Navbar } from "../components/Navbar"
 import { Footer } from "../components/Footer"
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { useState, useEffect } from "react";
 
 
@@ -498,7 +498,7 @@ const MarketplacePreview = () => {
     const fetchRandomProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:3000/api/product-listing/random-approved-listings");
+        const response = await apiService.get("/api/product-listing/random-approved-listings");
         
         const formattedProducts = response.data.map(product => ({
           ...product,
@@ -509,8 +509,8 @@ const MarketplacePreview = () => {
         }));
         
         setProducts(formattedProducts);
-      } catch (err) {
-        console.error("Error fetching random products:", err);
+      } catch (error) {
+        console.error("Error fetching random products:", error);
         setError("Failed to load featured products");
       } finally {
         setLoading(false);
@@ -607,9 +607,10 @@ const TestimonialsSection = () => {
     const fetchTestimonials = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:3000/api/reviews/random-top-reviews");
+        const res = await apiService.get("/api/reviews/random-top-reviews");
         setTestimonials(res.data);
-      } catch (err) {
+      } catch (error) {
+      console.error(error);
         setError("Failed to load testimonials");
       } finally {
         setLoading(false);

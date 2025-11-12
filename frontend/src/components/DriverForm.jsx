@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 
 const DriverForm = () => {
   const [name, setName] = useState('');
@@ -9,7 +9,7 @@ const DriverForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/drivers', { 
+      await apiService.post('/api/drivers', { 
         name, 
         age,
         deliveryCount 

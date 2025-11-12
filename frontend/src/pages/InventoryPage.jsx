@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FiBell, FiSearch } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../utils/api";
 
 const WASTE_TYPES = {
   'Crop Residues': ['Wheat straw', 'Rice husk', 'Corn stalks', 'Lentil husks', 'Chickpea stalks', 'Pea pods','Mustard stalks', 'Sunflower husks', 'Groundnut shells'],
@@ -53,7 +54,7 @@ export const InventoryPage = () => {
 
   const fetchMarketplaceListings = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/marketplace/listings");
+      const response = await fetch(`${API_URL}/api/marketplace/listings`);
       if (!response.ok) throw new Error("Failed to fetch marketplace listings.");
       const data = await response.json();
       

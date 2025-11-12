@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { apiService, API_URL } from "../utils/api";
 
 const VehicleReg = () => {
   const [form, setForm] = useState({
@@ -44,7 +44,7 @@ const VehicleReg = () => {
 
     // Check for empty fields
     const emptyFields = Object.entries(requiredFields)
-      .filter(([_, value]) => !value)
+      .filter(([, value]) => !value)
       .map(([key]) => key);
 
     if (emptyFields.length > 0) {
@@ -80,8 +80,8 @@ const VehicleReg = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/vehicle-reg/register",
+      await apiService.post(
+        `${API_URL}/api/vehicle-reg/register`,
         form
       );
 
@@ -97,10 +97,10 @@ const VehicleReg = () => {
         vehicleType: "",
         vehicleNumber: "",
       });
-    } catch (err) {
-      console.error("Registration error:", err);
+    } catch (error) {
+      console.error("Registration error:", error);
       setError(
-        err.response?.data?.msg || 
+        error.response?.data?.msg || 
         "Registration failed. Please check your details and try again."
       );
     }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { toast } from "react-hot-toast";
 import { FaChartBar, FaUsers, FaUserCheck, FaUserTimes, FaHome, FaSignOutAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -45,8 +45,8 @@ export const Analysis = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get(`http://localhost:3000/api/auth/getAllUsers`)
+    apiService
+      .get(`/api/auth/getAllUsers`)
       .then((response) => {
         setAllUsers(response.data.data);
         prepareChartData(response.data.data);

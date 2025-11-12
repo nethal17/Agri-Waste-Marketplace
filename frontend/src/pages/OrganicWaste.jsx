@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Navbar } from "../components/Navbar"
 import { Link, useParams, useNavigate } from "react-router-dom"
-import axios from "axios"
+import { apiService, API_URL } from "../utils/api"
 import { toast } from "react-hot-toast"
 import { MapPin, Calendar, User, ShoppingCart, ArrowLeft, Search, ImageIcon } from "lucide-react"
 
@@ -105,8 +105,8 @@ const CategoryProducts = () => {
         setLoading(true)
         console.log("Fetching products for category:", category)
 
-        const response = await axios.get(
-          `http://localhost:3000/api/marketplace/waste-type/${encodeURIComponent(category)}`,
+        const response = await apiService.get(
+          `${API_URL}/api/marketplace/waste-type/${encodeURIComponent(category)}`,
         )
 
         if (!response.data.success) {
@@ -116,9 +116,9 @@ const CategoryProducts = () => {
         console.log("API Response:", response.data)
         setProducts(response.data.data)
         setError(null)
-      } catch (err) {
-        console.error("Error fetching products:", err)
-        setError(`Failed to fetch products: ${err.message}`)
+      } catch (error) {
+        console.error("Error fetching products:", error)
+        setError(`Failed to fetch products: ${error.message}`)
         setProducts([])
       } finally {
         setLoading(false)
@@ -131,12 +131,11 @@ const CategoryProducts = () => {
   useEffect(() => {
     const fetchCartCount = async () => {
       try {
-        const token = localStorage.getItem("token")
         const userData = JSON.parse(localStorage.getItem("user") || "{}")
         const userId = userData._id
 
         if (userId) {
-          const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
+          const response = await apiService.get(`/api/cart/${userId}`)
           if (response.data) {
             setCartItemsCount(response.data.items.length)
           }
@@ -173,7 +172,7 @@ const CategoryProducts = () => {
         productImage: product.image || "", // Add the image URL to the cart item
       }
 
-      const response = await axios.post("http://localhost:3000/api/cart/add", cartItem)
+      const response = await apiService.post("/api/cart/add", cartItem)
 
       if (response.data) {
         setCartItemsCount((prevCount) => prevCount + 1)
@@ -388,12 +387,11 @@ export const OrganicWaste = () => {
   useEffect(() => {
     const fetchCartCount = async () => {
       try {
-        const token = localStorage.getItem("token")
         const userData = JSON.parse(localStorage.getItem("user") || "{}")
         const userId = userData._id
 
         if (userId) {
-          const response = await axios.get(`http://localhost:3000/api/cart/${userId}`)
+          const response = await apiService.get(`/api/cart/${userId}`)
           if (response.data) {
             setCartItemsCount(response.data.items.length)
           }

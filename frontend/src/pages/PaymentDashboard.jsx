@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import Sidebar from '../components/Sidebar';
 import { Navbar } from '../components/Navbar';
-import axios from 'axios';
+import { apiService } from '../utils/api';
 
 const { Title, Text } = Typography;
 
@@ -25,7 +25,7 @@ const PaymentDashboard = () => {
     const fetchCounts = async () => {
       try {
         // Fetch farmers count using the same endpoint as FarmerList.jsx
-        const farmersResponse = await axios.get('http://localhost:3000/api/auth/getAllUsers');
+        const farmersResponse = await apiService.get('/api/auth/getAllUsers');
         // Filter only farmers
         const farmersList = farmersResponse.data.data.filter(user => user.role === 'farmer');
         setFarmerCount(farmersList.length);
@@ -36,7 +36,7 @@ const PaymentDashboard = () => {
 
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching counts:', error);
+        console.error('Error fetching counts:', error.response?.data?.message || error.message);
         setLoading(false);
       }
     };

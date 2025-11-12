@@ -1,5 +1,5 @@
-import { User } from "../models/user.js"
-import  bcrypt  from "bcryptjs";
+import { User } from "../models/user.js";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
@@ -275,7 +275,7 @@ export const loginUser = async (req, res) => {
             } 
         });
     } catch (err) {
-        console.error(err);
+        console.error("Error during login:", err);
         res.status(500).json({ msg: "Server Error" });
     }
 };
@@ -725,7 +725,7 @@ export const getLoginHistory = async (req, res) => {
         
         res.json({ loginHistory: sortedHistory });
     } catch (err) {
-        console.error(err);
+        console.error("Error fetching login history:", err);
         res.status(500).json({ msg: "Server Error" });
     }
 };
@@ -757,7 +757,7 @@ export const toggleTwoFactorAuth = async (req, res) => {
       twoFactorEnabled: user.twoFactorEnabled 
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error toggling two-factor authentication:", err);
     res.status(500).json({ msg: "Server Error" });
   }
 };

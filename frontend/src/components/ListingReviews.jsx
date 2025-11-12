@@ -1,5 +1,5 @@
+import { apiService } from "../utils/api";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import {  FiUser, FiPackage, FiMessageSquare } from "react-icons/fi";
 import { RiStarSFill } from "react-icons/ri";
@@ -20,9 +20,8 @@ export const ListingReviews = ({ productId }) => {
           return;
         }
 
-        const response = await axios.get(
-          `http://localhost:3000/api/reviews/farmer-reviews/${userData._id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+        const response = await apiService.get(
+          `/api/reviews/farmer-reviews/${userData._id}`
         );
         
         setReviews(response.data);

@@ -51,7 +51,3 @@ const deliveryRequestSchema = new mongoose.Schema({
 deliveryRequestSchema.index({ location: '2dsphere' }); // For geospatial queries
 
 export default mongoose.model("DeliveryRequest", deliveryRequestSchema);
-
-// const DeliveryRequest = mongoose.model('DeliveryRequest', deliveryRequestSchema);
-
-// module.exports = DeliveryRequest;

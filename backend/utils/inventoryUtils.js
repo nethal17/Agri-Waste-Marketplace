@@ -1,7 +1,7 @@
 import Inventory from '../models/Inventory.js';
 import Notification from '../models/Notifications.js';
-import User from '../models/user.js';
-import { sendNotificationEmail } from './Utils/emailService.js';
+import { User } from '../models/user.js';
+import { sendNotificationEmail } from './emailService.js';
 
 export const checkLowQuantity = async () => {
   try {
@@ -19,12 +19,15 @@ export const checkLowQuantity = async () => {
       const farmer = await User.findById(item.farmerId);
       await sendNotificationEmail(farmer.email, `Your product ${item.productName} is running low.`);
 
-      // Notify manager
-      const managerNotification = new Notification({
-        userId: 'managerUserId', // Replace with actual manager ID
-        message: `Product ${item.productName} is running low. Current quantity: ${item.quantity}`,
-      });
-      await managerNotification.save();
+      // Notify managers (all users with admin role)
+      const managers = await User.find({ role: 'admin' });
+      for (const manager of managers) {
+        const managerNotification = new Notification({
+          userId: manager._id,
+          message: `Product ${item.productName} is running low. Current quantity: ${item.quantity}`,
+        });
+        await managerNotification.save();
+      }
     }
   } catch (error) {
     console.error('Error checking low quantity:', error);

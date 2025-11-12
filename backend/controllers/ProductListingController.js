@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import Marketplace from '../models/Marketplace.js';
 import mongoose from 'mongoose';
 import nodemailer from "nodemailer";
-import { User } from "../models/user.js"
+import { User } from "../models/user.js";
 
 
 export const wasteTypes = {

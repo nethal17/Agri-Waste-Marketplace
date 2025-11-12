@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { Toaster, toast } from "react-hot-toast";
@@ -17,7 +17,7 @@ export const Login = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:3000/api/auth/login", {
+      const response = await apiService.post("/api/auth/login", {
         email,
         password,
       });

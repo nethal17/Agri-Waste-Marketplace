@@ -4,6 +4,7 @@ import { Pie, Bar, Doughnut } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { API_URL } from "../utils/api";
 
 Chart.register(...registerables);
 
@@ -37,7 +38,6 @@ export const InventoryChartpage = () => {
   const [marketplaceListings, setMarketplaceListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
 
   // Authentication check
   useEffect(() => {
@@ -62,7 +62,7 @@ export const InventoryChartpage = () => {
 
   const fetchMarketplaceListings = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/marketplace/listings");
+      const response = await fetch(`${API_URL}/api/marketplace/listings`);
       if (!response.ok) {
         throw new Error("Failed to fetch marketplace listings.");
       }
@@ -128,22 +128,17 @@ export const InventoryChartpage = () => {
     
     return {
       labels: months,
-      stockIn: months.map((_, i) => Math.floor(baseStock * (0.8 + Math.random() * 0.4))),
-      stockOut: months.map((_, i) => Math.floor(baseStock * (0.5 + Math.random() * 0.3))),
+      stockIn: months.map(() => Math.floor(baseStock * (0.8 + Math.random() * 0.4))),
+      stockOut: months.map(() => Math.floor(baseStock * (0.5 + Math.random() * 0.3))),
     };
   };
-
-  // Filter listings based on search term
-  const filteredListings = marketplaceListings.filter(listing => {
-    const searchLower = searchTerm.toLowerCase();
-    return listing.wasteItem.toLowerCase().includes(searchLower);
-  });
 
   // Get chart data
   const wasteTypeStats = calculateWasteStats();
   const existingWasteTypes = Object.keys(wasteTypeStats).filter(type => wasteTypeStats[type].count > 0);
   const topStockedItems = getTopStockedItems();
   const lowStockItems = getLowStockItems();
+  // eslint-disable-next-line no-unused-vars
   const stockMovementData = generateStockMovementData();
 
   // Chart configurations
@@ -169,35 +164,6 @@ export const InventoryChartpage = () => {
       borderRadius: 6,
       borderSkipped: false,
     }],
-  };
-
-  const doughnutData = {
-    labels: lowStockItems.map(item => item.name),
-    datasets: [{
-      data: lowStockItems.map(item => item.current),
-      backgroundColor: lowStockItems.map(item => 
-        item.current < 5 ? '#EF4444' : '#F59E0B'
-      ),
-      borderWidth: 0,
-    }],
-  };
-
-  const movementChartData = {
-    labels: stockMovementData.labels,
-    datasets: [
-      {
-        label: 'Stock In',
-        data: stockMovementData.stockIn,
-        backgroundColor: '#10B981',
-        borderRadius: 6,
-      },
-      {
-        label: 'Stock Out',
-        data: stockMovementData.stockOut,
-        backgroundColor: '#EF4444',
-        borderRadius: 6,
-      }
-    ],
   };
 
   if (loading) return <div className="flex justify-center items-center h-screen text-xl">Loading...</div>;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { apiService } from "../utils/api";
 import { toast } from "react-hot-toast";
 
 export const AllFarmers = () => {
@@ -10,8 +10,8 @@ export const AllFarmers = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get(`http://localhost:3000/api/auth/getAllUsers`)
+    apiService
+      .get(`/api/auth/getAllUsers`)
       .then((response) => {
         setAllUsers(response.data.data);
       })
@@ -29,7 +29,7 @@ export const AllFarmers = () => {
     setLoading(true);
 
     try {
-      await axios.delete(`http://localhost:3000/api/auth/userDelete/${selectedUser._id}`);
+      await apiService.delete(`/api/auth/userDelete/${selectedUser._id}`);
 
       setAllUsers((prevUsers) => prevUsers.filter((user) => user._id !== selectedUser._id));
       toast.success("Successfully deactivated user account");

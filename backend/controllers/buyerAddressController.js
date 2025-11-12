@@ -46,7 +46,7 @@ export const getBuyerAddresses = async (req, res) => {
     const addresses = await BuyerAddress.find();
     res.json(addresses);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching buyer addresses:", error);
     res.status(500).json({ error: "Failed to fetch buyer addresses" });
   }
 };

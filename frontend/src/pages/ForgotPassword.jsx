@@ -1,13 +1,12 @@
 import { useState } from "react";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { apiService } from "../utils/api";
+import { Link } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { Toaster, toast } from "react-hot-toast";
 
 export const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,7 +20,7 @@ export const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:3000/api/auth/forgot-password", { email });
+      await apiService.post("/api/auth/forgot-password", { email });
       toast.success("Password reset link sent to your email.");
     } catch (error) {
       toast.error("Failed to send password reset link.");
