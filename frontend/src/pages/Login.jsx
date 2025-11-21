@@ -45,14 +45,14 @@ export const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-40 to-emerald-100">
+    <div className="min-h-screen bg-gray-100">
       <Navbar />
       <Toaster position="top-center" reverseOrder={false} />
       
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-        <div className="w-full max-w-md px-8 py-10 mx-4 bg-white rounded-3xl shadow-2xl backdrop-blur-sm border border-white/20">
+        <div className="w-full max-w-md px-8 py-10 mx-4 bg-white border shadow-2xl rounded-3xl backdrop-blur-sm border-white/20">
           {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-t-3xl"></div>
+          <div className="absolute top-0 left-0 w-full h-4 rounded-t-full bg-gradient-to-r from-green-500 to-green-600"></div>
           
           <div className="mb-8 text-center">
             <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">
@@ -73,7 +73,7 @@ export const Login = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 pl-10 transition-all duration-200 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
                 <svg
                   className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
@@ -97,7 +97,7 @@ export const Login = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 pl-10 transition-all duration-200 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
                 <svg
                   className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
@@ -116,7 +116,7 @@ export const Login = () => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                  className="w-4 h-4 border-gray-300 rounded text-emerald-600 focus:ring-emerald-500"
                 />
                 <label htmlFor="remember-me" className="block ml-2 text-sm text-gray-700">
                   Remember me
@@ -160,7 +160,7 @@ export const Login = () => {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
+                <span className="px-2 text-gray-500 bg-white">
                   Don't have an account?
                 </span>
               </div>

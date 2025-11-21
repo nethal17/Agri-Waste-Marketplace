@@ -102,9 +102,13 @@ export const Navbar = () => {
     return (
     <>
   {/* Main Navbar */}
-  <nav className="fixed top-0 z-50 flex items-center justify-between w-full p-5 text-lg font-light bg-green-100 shadow-lg">
+  <nav className="fixed top-0 z-50 flex items-center justify-between w-full p-4 text-lg bg-white shadow-lg">
     {/* Logo */}
-    <div className="text-2xl font-bold text-zinc-900">Waste2Wealth</div>
+    <Link to="/" className="flex text-2xl font-bold cursor-pointer">
+      <div className="text-zinc-900">Waste</div>
+      <span className="text-green-600">2Wealth</span>
+    </Link>
+    
 
     {/* Mobile Menu Button */}
     <button 
@@ -206,10 +210,10 @@ export const Navbar = () => {
       ) : (
         <>
           <Link to="/login">
-            <button className="px-4 py-2 text-green-800 border border-green-800 rounded-lg cursor-pointer hover:bg-white">Sign in</button>
+            <button className="px-4 py-2 text-green-600 bg-white border border-green-600 rounded-lg cursor-pointer hover:bg-gray-100/50">Sign in</button>
           </Link>
           <Link to="/register">
-            <button className="px-4 py-2 text-white bg-green-600 rounded-lg cursor-pointer hover:bg-green-800">Sign up</button>
+            <button className="px-4 py-2 text-white bg-green-600 rounded-lg cursor-pointer hover:bg-green-700">Sign up</button>
           </Link>
         </>
       )}

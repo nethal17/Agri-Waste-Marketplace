@@ -1,28 +1,12 @@
-# Agri-Waste Marketplace
+# Waste2Wealth - Web Application
 
-A comprehensive web-based platform connecting farmers with buyers to facilitate the buying and selling of agricultural waste products, promoting sustainability and circular economy in agriculture.
+![alt text](image.png)
+
+A comprehensive web-based agricultural waste management platform connecting farmers with buyers to facilitate the buying and selling of agricultural waste products, promoting sustainability and circular economy in agriculture.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
 ![React](https://img.shields.io/badge/react-19.0.0-blue.svg)
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Team Members](#team-members)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Environment Variables](#environment-variables)
-  - [Running the Application](#running-the-application)
-- [User Roles](#user-roles)
-- [API Documentation](#api-documentation)
-- [Payment Integration](#payment-integration)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
